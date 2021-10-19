@@ -2,7 +2,7 @@ CREATE TABLE users
 (
     user_id  SERIAL PRIMARY KEY NOT NULL UNIQUE,
     email    VARCHAR(255)       NOT NULL UNIQUE,
-    name     VARCHAR(255)       NOT NULL,
+    name     VARCHAR(255),
     password VARCHAR(255)       NOT NULL,
 
     avatar   VARCHAR(255) UNIQUE         DEFAULT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE recipes
     preview            VARCHAR(255),
     visibility         visibility_type                NOT NULL DEFAULT 'private',
     encrypted          BOOLEAN                        NOT NULL DEFAULT false,
-    creation_timestamp TIMESTAMP                      NOT NULL DEFAULT CURRENT_DATE,
-    update_timestamp   TIMESTAMP                      NOT NULL DEFAULT CURRENT_DATE
+    creation_timestamp TIMESTAMP                      NOT NULL DEFAULT now(),
+    update_timestamp   TIMESTAMP                      NOT NULL DEFAULT now()
 );
 
 CREATE TABLE users_recipes
@@ -61,4 +61,12 @@ CREATE TABLE recipes_categories
     recipe_id   INT REFERENCES recipes (recipe_id) ON DELETE CASCADE      NOT NULL,
     category_id INT REFERENCES categories (category_id) ON DELETE CASCADE NOT NULL,
     user_id     INT REFERENCES users (user_id) ON DELETE CASCADE          NOT NULL
+);
+
+CREATE TABLE sessions
+(
+    session_id    SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
+    user_id       INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
+    refresh_token VARCHAR(255)                                     NOT NULL UNIQUE,
+    expires_in    TIMESTAMP                                        NOT NULL
 );
