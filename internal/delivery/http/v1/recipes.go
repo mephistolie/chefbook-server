@@ -1,6 +1,8 @@
-package handlers
+package v1
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func (h *Handler) getRecipes(c *gin.Context) {
 

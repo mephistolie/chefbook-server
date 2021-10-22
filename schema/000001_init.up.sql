@@ -1,13 +1,16 @@
 CREATE TABLE users
 (
-    user_id  SERIAL PRIMARY KEY NOT NULL UNIQUE,
-    email    VARCHAR(255)       NOT NULL UNIQUE,
-    name     VARCHAR(255),
-    password VARCHAR(255)       NOT NULL,
+    user_id         SERIAL PRIMARY KEY NOT NULL UNIQUE,
+    email           VARCHAR(255)       NOT NULL UNIQUE,
+    name            VARCHAR(255),
+    password        VARCHAR(255)       NOT NULL,
 
-    avatar   VARCHAR(255) UNIQUE         DEFAULT NULL,
-    vk_id    VARCHAR(255) UNIQUE         DEFAULT NULL,
-    premium  BOOLEAN            NOT NULL DEFAULT false
+    is_activated    BOOLEAN            NOT NULL DEFAULT false,
+    activation_link uuid               NOT NULL,
+
+    avatar          VARCHAR(255) UNIQUE         DEFAULT NULL,
+    vk_id           VARCHAR(255) UNIQUE         DEFAULT NULL,
+    premium         TIMESTAMP                   DEFAULT null
 );
 
 CREATE TABLE shopping_list
@@ -70,3 +73,12 @@ CREATE TABLE sessions
     refresh_token VARCHAR(255)                                     NOT NULL UNIQUE,
     expires_in    TIMESTAMP                                        NOT NULL
 );
+
+CREATE TYPE role as ENUM ('user', 'admin');
+
+CREATE TABLE roles
+(
+    role_id SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
+    name    role                                             NOT NULL DEFAULT 'user',
+    user_id INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL
+)
