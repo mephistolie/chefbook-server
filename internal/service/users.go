@@ -6,7 +6,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"strconv"
 	"time"
 )
@@ -84,14 +83,16 @@ func (s *UsersService) SignIn(authData models.AuthData, ip string) (models.Token
 	if user.IsActivated == false {
 		return models.Tokens{}, models.ErrProfileNotActivated
 	}
+	if user.IsBlocked == true {
+		return models.Tokens{}, models.ErrProfileIsBlocked
+	}
 	if err = s.hashManager.ValidateByHash(authData.Password, user.Password); err != nil {
 		return models.Tokens{}, models.ErrAuthentication
 	}
-	logger.Error(user.Password)
-	return s.createSession(user.Id, ip)
+	return s.CreateSession(user.Id, ip)
 }
 
-func (s *UsersService) createSession(userId int, ip string) (models.Tokens, error) {
+func (s *UsersService) CreateSession(userId int, ip string) (models.Tokens, error) {
 	var (
 		res models.Tokens
 		err error
@@ -108,11 +109,45 @@ func (s *UsersService) createSession(userId int, ip string) (models.Tokens, erro
 	}
 
 	session := models.Session{
+		UserId: userId,
 		RefreshToken: res.RefreshToken,
+		Ip: ip,
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
 	}
 
-	err = s.repo.CreateSession(userId, session, ip)
+	return res, s.repo.CreateSession(session)
+}
 
-	return res, err
+func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models.Tokens, error) {
+	user, err := s.repo.GetByRefreshToken(currentRefreshToken)
+	if err != nil {
+		return models.Tokens{}, err
+	}
+	if user.IsBlocked == true {
+		if err := s.repo.DeleteSession(currentRefreshToken); err != nil {
+			return models.Tokens{}, err
+		}
+		return models.Tokens{}, models.ErrProfileIsBlocked
+	}
+
+	var res models.Tokens
+
+	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(user.Id), s.accessTokenTTL)
+	if err != nil {
+		return res, err
+	}
+
+	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
+	if err != nil {
+		return res, err
+	}
+
+	session := models.Session{
+		UserId: user.Id,
+		RefreshToken: res.RefreshToken,
+		Ip: ip,
+		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
+	}
+
+	return res, s.repo.UpdateSession(session, currentRefreshToken)
 }

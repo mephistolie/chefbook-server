@@ -10,7 +10,9 @@ CREATE TABLE users
 
     avatar          VARCHAR(255) UNIQUE         DEFAULT NULL,
     vk_id           VARCHAR(255) UNIQUE         DEFAULT NULL,
-    premium         TIMESTAMP                   DEFAULT null
+    premium         TIMESTAMP                   DEFAULT null,
+
+    is_blocked      BOOLEAN            NOT NULL DEFAULT false
 );
 
 CREATE TABLE shopping_list
@@ -34,21 +36,21 @@ CREATE TYPE visibility_type as ENUM ('private', 'shared', 'public');
 
 CREATE TABLE recipes
 (
-    recipe_id          SERIAL PRIMARY KEY             NOT NULL UNIQUE,
-    name               VARCHAR(255)                   NOT NULL,
-    owner_id           INT REFERENCES users (user_id) NOT NULL,
+    recipe_id          SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
+    name               VARCHAR(255)                                     NOT NULL,
+    owner_id           INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
 
-    servings           SMALLINT                       NOT NULL DEFAULT 1,
-    time               INT                            NOT NULL,
-    calories           SMALLINT                                DEFAULT NULL,
+    servings           SMALLINT                                         NOT NULL DEFAULT 1,
+    time               INT                                              NOT NULL,
+    calories           SMALLINT                                                  DEFAULT NULL,
 
-    ingredients        JSONB                          NOT NULL,
-    cooking            JSONB                          NOT NULL,
+    ingredients        JSONB                                            NOT NULL,
+    cooking            JSONB                                            NOT NULL,
     preview            VARCHAR(255),
-    visibility         visibility_type                NOT NULL DEFAULT 'private',
-    encrypted          BOOLEAN                        NOT NULL DEFAULT false,
-    creation_timestamp TIMESTAMP                      NOT NULL DEFAULT now(),
-    update_timestamp   TIMESTAMP                      NOT NULL DEFAULT now()
+    visibility         visibility_type                                  NOT NULL DEFAULT 'private',
+    encrypted          BOOLEAN                                          NOT NULL DEFAULT false,
+    creation_timestamp TIMESTAMP                                        NOT NULL DEFAULT now(),
+    update_timestamp   TIMESTAMP                                        NOT NULL DEFAULT now()
 );
 
 CREATE TABLE users_recipes
@@ -72,7 +74,7 @@ CREATE TABLE sessions
     user_id       INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
     refresh_token VARCHAR(255)                                     NOT NULL UNIQUE,
     ip            VARCHAR(255)                                     NOT NULL,
-    expires_in    TIMESTAMP                                        NOT NULL,
+    expires_at    TIMESTAMP                                        NOT NULL,
     created_at    TIMESTAMP                                        NOT NULL DEFAULT now()
 );
 

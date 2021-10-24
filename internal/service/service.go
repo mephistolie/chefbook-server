@@ -16,6 +16,7 @@ type Users interface {
 	SignUp(authInput models.AuthData) (int, error)
 	ActivateUser(activationLink uuid.UUID) error
 	SignIn(authInput models.AuthData, ip string) (models.Tokens, error)
+	RefreshSession(refreshToken, ip string) (models.Tokens, error)
 }
 
 type VerificationEmailInput struct {
@@ -30,6 +31,7 @@ type Mails interface {
 }
 
 type Recipes interface {
+	AddRecipe(recipe models.Recipe) (int, error)
 }
 
 type Service struct {
@@ -61,5 +63,6 @@ func NewServices(dependencies Dependencies) *Service {
 		Users: NewUsersService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService),
 		Mails: NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache),
+		Recipes: NewRecipesService(dependencies.Repos),
 	}
 }

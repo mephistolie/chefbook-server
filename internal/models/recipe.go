@@ -1,13 +1,13 @@
 package models
 
 import (
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"time"
 )
 
 type Recipe struct {
 	Id      int    `json:"-"`
 	Name    string `json:"name"`
-	OwnerId string `json:"owner_id"`
+	OwnerId int    `json:"owner_id"`
 
 	Servings int16 `json:"servings"`
 	Time     int16 `json:"time"`
@@ -16,9 +16,9 @@ type Recipe struct {
 	Ingredients []Selectable `json:"ingredients"`
 	Cooking     []Selectable `json:"cooking"`
 
-	Preview           string              `json:"preview"`
-	Visibility        bool                `json:"visibility"`
-	Encrypted         bool                `json:"encrypted"`
-	CreationTimestamp timestamp.Timestamp `json:"creation_timestamp"`
-	UpdateTimestamp   timestamp.Timestamp `json:"update_timestamp"`
+	Preview           string    `json:"preview"`
+	Visibility        string    `json:"visibility"`
+	Encrypted         bool      `json:"encrypted"`
+	CreationTimestamp time.Time `json:"creation_timestamp"`
+	UpdateTimestamp   time.Time `json:"update_timestamp"`
 }

@@ -16,6 +16,7 @@ type User struct {
 	Avatar         sql.NullString `json:"avatar,omitempty"`
 	VkId           sql.NullString `json:"vk_id,omitempty" db:"vk_id"`
 	Premium        sql.NullTime   `json:"premium,omitempty"`
+	IsBlocked      bool           `json:"is_blocked,omitempty" db:"is_blocked"`
 }
 
 type AuthData struct {
@@ -24,11 +25,17 @@ type AuthData struct {
 }
 
 type Tokens struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type RefreshInput struct {
+	Token string `json:"refresh_token" binding:"required"`
 }
 
 type Session struct {
-	RefreshToken string    `json:"refreshToken" bson:"refreshToken"`
-	ExpiresAt    time.Time `json:"expiresAt" bson:"expiresAt"`
+	UserId       int       `json:"user_id" db:"user_id"`
+	RefreshToken string    `json:"refresh_token" bson:"refreshToken" db:"refresh_token"`
+	Ip           string    `json:"ip" bson:"ip" db:"ip"`
+	ExpiresAt    time.Time `json:"expires_at" bson:"expiresAt" db:"expires_at"`
 }

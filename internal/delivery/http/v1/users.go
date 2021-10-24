@@ -15,7 +15,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 		auth.POST("/sign-in", h.signIn)
 		auth.POST("/sign-out", h.signIn)
 		auth.GET("/activate/:link", h.activate)
-		auth.GET("/refresh", h.signIn)
+		auth.GET("/refresh", h.refreshSession)
 	}
 }
 
@@ -23,7 +23,7 @@ func (h *Handler) signUp(c *gin.Context) {
 	var input models.AuthData
 
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *Handler) signUp(c *gin.Context) {
 func (h *Handler) activate(c *gin.Context) {
 	activationLink, err := uuid.Parse(c.Param("link"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
@@ -58,11 +58,31 @@ func (h *Handler) activate(c *gin.Context) {
 func (h *Handler) signIn(c *gin.Context) {
 	var input models.AuthData
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
 	res, err := h.services.SignIn(input, c.Request.RemoteAddr)
+	if err != nil {
+		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
+			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
+			return
+		}
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) refreshSession(c *gin.Context) {
+	var input models.RefreshInput
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	res, err := h.services.RefreshSession(input.Token, c.Request.RemoteAddr)
 	if err != nil {
 		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
 			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())

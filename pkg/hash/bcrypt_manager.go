@@ -1,7 +1,6 @@
 package hash
 
 import (
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,8 +26,6 @@ func (m *BcryptManager) Hash(data string) (string, error)  {
 }
 
 func (m *BcryptManager) ValidateByHash(data string, source string) error  {
-	s := []byte(source)
-	logger.Error(s)
-	err := bcrypt.CompareHashAndPassword(s, []byte(data))
+	err := bcrypt.CompareHashAndPassword([]byte(source), []byte(data))
 	return err
 }

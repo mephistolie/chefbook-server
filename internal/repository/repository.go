@@ -12,13 +12,16 @@ type Users interface {
 	GetUserById(id int) (models.User, error)
 	GetUserByEmail(email string) (models.User, error)
 	GetUserByCredentials(email, password string) (models.User, error)
+	GetByRefreshToken(refreshToken string) (models.User, error)
 	ActivateUser(activationLink uuid.UUID) error
-	CreateSession(userId int, session models.Session, ip string) error
+	CreateSession(session models.Session) error
+	UpdateSession(session models.Session, oldRefreshToken string) error
+	DeleteSession(refreshToken string) error
 	ChangePassword(user models.AuthData) error
 }
 
 type Recipes interface {
-
+	CreateRecipe(recipe models.Recipe) (int, error)
 }
 
 type Repository struct {
@@ -29,5 +32,6 @@ type Repository struct {
 func NewRepositories(db *sqlx.DB) *Repository {
 	return &Repository{
 		Users: postgres.NewUsersPostgres(db),
+		Recipes: postgres.NewRecipesPostgres(db),
 	}
 }
