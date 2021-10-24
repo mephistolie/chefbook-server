@@ -1,3 +1,5 @@
+DROP TABLE roles;
+
 DROP TABLE sessions;
 
 DROP TABLE recipes_categories;

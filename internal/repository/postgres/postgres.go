@@ -7,6 +7,8 @@ import (
 
 const (
 	usersTable             = "users"
+	rolesTable             = "roles"
+	sessionsTable          = "sessions"
 	recipesTable           = "recipes"
 	categoriesTable        = "categories"
 	shoppingListTable      = "shopping_list"

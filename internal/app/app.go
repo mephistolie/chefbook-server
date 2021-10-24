@@ -87,7 +87,7 @@ func Run(configPath string) {
 		}
 	}()
 
-	logger.Info("Server started")
+	logger.Info("server started")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)

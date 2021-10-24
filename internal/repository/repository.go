@@ -8,10 +8,13 @@ import (
 )
 
 type Users interface {
-	CreateUser(user models.User, activationLink uuid.UUID) (int, error)
+	CreateUser(user models.AuthData, activationLink uuid.UUID) (int, error)
 	GetUserById(id int) (models.User, error)
 	GetUserByEmail(email string) (models.User, error)
+	GetUserByCredentials(email, password string) (models.User, error)
 	ActivateUser(activationLink uuid.UUID) error
+	CreateSession(userId int, session models.Session, ip string) error
+	ChangePassword(user models.AuthData) error
 }
 
 type Recipes interface {
@@ -25,6 +28,6 @@ type Repository struct {
 
 func NewRepositories(db *sqlx.DB) *Repository {
 	return &Repository{
-		Users: postgres.NewAuthPostgres(db),
+		Users: postgres.NewUsersPostgres(db),
 	}
 }

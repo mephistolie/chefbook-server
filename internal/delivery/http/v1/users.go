@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/models"
@@ -19,46 +20,57 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) signUp(c *gin.Context) {
-	var input models.User
+	var input models.AuthData
 
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.Users.CreateUser(input)
+	id, err := h.services.Users.SignUp(input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
+		"message": models.RespActivationLink,
 	})
-}
-
-func (h *Handler) signIn(c *gin.Context) {
-	var input models.User
-
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
 }
 
 func (h *Handler) activate(c *gin.Context) {
 	activationLink, err := uuid.Parse(c.Param("link"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.services.Users.ActivateUser(activationLink); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "profile activated",
+		"message": models.RespProfileActivated,
 	})
+}
+
+func (h *Handler) signIn(c *gin.Context) {
+	var input models.AuthData
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	res, err := h.services.SignIn(input, c.Request.RemoteAddr)
+	if err != nil {
+		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
+			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
+			return
+		}
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }

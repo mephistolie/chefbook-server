@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	verificationLinkTmpl = "https://%s/api/v1/users/activate/%s"
+	verificationLinkTmpl = "http://%s/api/v1/users/activate/%s"
 )
 
 type EmailService struct {

@@ -1,12 +1,13 @@
 package hash
 
 import (
-	"fmt"
+	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type HashManager interface {
 	Hash(data string) (string, error)
+	ValidateByHash(data string, source string) error
 }
 
 type BcryptManager struct {
@@ -22,5 +23,12 @@ func (m *BcryptManager) Hash(data string) (string, error)  {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%x", hashedData), nil
+	return string(hashedData), nil
+}
+
+func (m *BcryptManager) ValidateByHash(data string, source string) error  {
+	s := []byte(source)
+	logger.Error(s)
+	err := bcrypt.CompareHashAndPassword(s, []byte(data))
+	return err
 }

@@ -3,7 +3,7 @@ CREATE TABLE users
     user_id         SERIAL PRIMARY KEY NOT NULL UNIQUE,
     email           VARCHAR(255)       NOT NULL UNIQUE,
     name            VARCHAR(255),
-    password        VARCHAR(255)       NOT NULL,
+    password        bytea              NOT NULL,
 
     is_activated    BOOLEAN            NOT NULL DEFAULT false,
     activation_link uuid               NOT NULL,
@@ -71,7 +71,9 @@ CREATE TABLE sessions
     session_id    SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
     user_id       INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
     refresh_token VARCHAR(255)                                     NOT NULL UNIQUE,
-    expires_in    TIMESTAMP                                        NOT NULL
+    ip            VARCHAR(255)                                     NOT NULL,
+    expires_in    TIMESTAMP                                        NOT NULL,
+    created_at    TIMESTAMP                                        NOT NULL DEFAULT now()
 );
 
 CREATE TYPE role as ENUM ('user', 'admin');
