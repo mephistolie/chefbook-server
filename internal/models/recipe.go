@@ -5,20 +5,23 @@ import (
 )
 
 type Recipe struct {
-	Id      int    `json:"-"`
+	Id      int    `json:"id,omitempty" db:"recipe_id"`
 	Name    string `json:"name"`
-	OwnerId int    `json:"owner_id"`
+	OwnerId int    `json:"owner_id,omitempty" db:"owner_id"`
 
-	Servings int16 `json:"servings"`
-	Time     int16 `json:"time"`
-	Calories int16 `json:"calories"`
+	Favourite bool `json:"favourite,omitempty"`
+	Liked     bool `json:"liked,omitempty"`
 
-	Ingredients []Selectable `json:"ingredients"`
-	Cooking     []Selectable `json:"cooking"`
+	Servings int16 `json:"servings,omitempty"`
+	Time     int16 `json:"time,omitempty"`
+	Calories int16 `json:"calories,omitempty"`
 
-	Preview           string    `json:"preview"`
-	Visibility        string    `json:"visibility"`
-	Encrypted         bool      `json:"encrypted"`
-	CreationTimestamp time.Time `json:"creation_timestamp"`
-	UpdateTimestamp   time.Time `json:"update_timestamp"`
+	Ingredients interface{} `json:"ingredients"`
+	Cooking     interface{} `json:"cooking"`
+
+	Preview           string    `json:"preview,omitempty"`
+	Visibility        string    `json:"visibility,omitempty"`
+	Encrypted         bool      `json:"encrypted,omitempty"`
+	CreationTimestamp time.Time `json:"creation_timestamp,omitempty" db:"creation_timestamp"`
+	UpdateTimestamp   time.Time `json:"update_timestamp,omitempty" db:"update_timestamp"`
 }

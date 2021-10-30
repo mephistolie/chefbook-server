@@ -126,7 +126,7 @@ func (r *AuthPostgres) checkRefreshToken(userId int, session models.Session, ip 
 func (r *AuthPostgres) ChangePassword(authData models.AuthData) error {
 	var id = -1
 	query := fmt.Sprintf("UPDATE %s SET password=$1 WHERE email=$2 RETURNING user_id", usersTable)
-	row := r.db.QueryRow(query, authData.Password, authData.Password)
+	row := r.db.QueryRow(query, authData.Password, authData.Email)
 	if err := row.Scan(&id); err == nil {
 		return err
 	}

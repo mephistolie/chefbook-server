@@ -7,8 +7,11 @@ var (
 	RespProfileActivated = "profile activated"
 
 	RespRecipeAdded = "recipe added"
+	RespRecipeUpdated = "recipe updated"
+	RespRecipeDeleted = "recipe deleted"
 
 	ErrInvalidInput = errors.New("invalid input")
+	ErrAccessDenied   = errors.New("recipe access denied")
 
 	ErrUserAlreadyExists   = errors.New("user with such email already exists")
 	ErrUserNotFound        = errors.New("user not found")
@@ -24,4 +27,6 @@ var (
 
 	ErrUserIdNotFound = errors.New("user id not found")
 	ErrInvalidUserId  = errors.New("invalid user id")
+
+	ErrRecipeNotFound = errors.New("recipe not found")
 )

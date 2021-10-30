@@ -37,12 +37,19 @@ func NewUsersService(repo repository.Users, hashManager hash.HashManager, tokenM
 func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
 	hashedPassword, err := s.hashManager.Hash(authData.Password)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
-	if candidate, _ := s.repo.GetUserByEmail(authData.Email); candidate.Id != 0 && candidate.IsActivated == false {
+	if candidate, _ := s.repo.GetUserByEmail(authData.Email); candidate.Id > 0 && candidate.IsActivated == false {
+		if err = s.hashManager.ValidateByHash(authData.Password, candidate.Password); err != nil {
+			authData.Password = hashedPassword
+			err := s.repo.ChangePassword(authData)
+			if err != nil {
+				return -1, err
+			}
+		}
 		if candidate.Password != hashedPassword {
-			s.repo.ChangePassword(authData)
+
 		}
 		err := s.mailService.SendVerificationEmail(VerificationEmailInput{
 			Email:            authData.Email,
@@ -50,7 +57,7 @@ func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
 			VerificationCode: candidate.ActivationLink,
 		})
 		return candidate.Id, err
-	} else if candidate.Id != 0 {
+	} else if candidate.Id > 0 {
 		return 0, models.ErrUserAlreadyExists
 	}
 

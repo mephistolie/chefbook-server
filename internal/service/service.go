@@ -31,7 +31,11 @@ type Mails interface {
 }
 
 type Recipes interface {
+	GetRecipesByUser(userId int) ([]models.Recipe, error)
 	AddRecipe(recipe models.Recipe) (int, error)
+	GetRecipeById(recipeId, userId int) (models.Recipe, error)
+	UpdateRecipe(recipe models.Recipe, userId int) error
+	DeleteRecipe(recipeId, userId int) error
 }
 
 type Service struct {

@@ -21,7 +21,13 @@ type Users interface {
 }
 
 type Recipes interface {
+	GetRecipesByUser(userId int) ([]models.Recipe, error)
+	GetRecipeOwnerId(recipeId int) (int, error)
 	CreateRecipe(recipe models.Recipe) (int, error)
+	GetRecipeById(recipeId int, userId int) (models.Recipe, error)
+	UpdateRecipe(recipe models.Recipe, userId int) error
+	DeleteRecipe(recipeId int) error
+	DeleteRecipeLink(recipeId, userId int) error
 }
 
 type Repository struct {
