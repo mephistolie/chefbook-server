@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/config"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	models2 "github.com/mephistolie/chefbook-server/internal/models"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/cache"
@@ -13,10 +13,10 @@ import (
 )
 
 type Users interface {
-	SignUp(authInput models.AuthData) (int, error)
+	SignUp(authInput models2.AuthData) (int, error)
 	ActivateUser(activationLink uuid.UUID) error
-	SignIn(authInput models.AuthData, ip string) (models.Tokens, error)
-	RefreshSession(refreshToken, ip string) (models.Tokens, error)
+	SignIn(authInput models2.AuthData, ip string) (models2.Tokens, error)
+	RefreshSession(refreshToken, ip string) (models2.Tokens, error)
 }
 
 type VerificationEmailInput struct {
@@ -31,10 +31,10 @@ type Mails interface {
 }
 
 type Recipes interface {
-	GetRecipesByUser(userId int) ([]models.Recipe, error)
-	AddRecipe(recipe models.Recipe) (int, error)
-	GetRecipeById(recipeId, userId int) (models.Recipe, error)
-	UpdateRecipe(recipe models.Recipe, userId int) error
+	GetRecipesByUser(userId int) ([]models2.Recipe, error)
+	AddRecipe(recipe models2.Recipe) (int, error)
+	GetRecipeById(recipeId, userId int) (models2.Recipe, error)
+	UpdateRecipe(recipe models2.Recipe, userId int) error
 	DeleteRecipe(recipeId, userId int) error
 }
 
@@ -45,13 +45,13 @@ type Service struct {
 }
 
 type Dependencies struct {
-	Repos            *repository.Repository
-	Cache            cache.Cache
-	HashManager      hash.HashManager
-	TokenManager     auth.TokenManager
-	MailSender       mail.Sender
-	MailConfig       config.MailConfig
-	AccessTokenTTL   time.Duration
+	Repos          *repository.Repository
+	Cache          cache.Cache
+	HashManager    hash.HashManager
+	TokenManager   auth.TokenManager
+	MailSender     mail.Sender
+	MailConfig     config.MailConfig
+	AccessTokenTTL time.Duration
 	RefreshTokenTTL  time.Duration
 	FondyCallbackURL string
 	CacheTTL         int64
@@ -66,7 +66,7 @@ func NewServices(dependencies Dependencies) *Service {
 	return &Service{
 		Users: NewUsersService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService),
-		Mails: NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache),
+		Mails:   NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache),
 		Recipes: NewRecipesService(dependencies.Repos),
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	models2 "github.com/mephistolie/chefbook-server/internal/models"
 	"net/http"
 )
 
@@ -20,10 +20,10 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) signUp(c *gin.Context) {
-	var input models.AuthData
+	var input models2.AuthData
 
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
 		return
 	}
 
@@ -34,15 +34,15 @@ func (h *Handler) signUp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
-		"message": models.RespActivationLink,
+		"id":      id,
+		"message": models2.RespActivationLink,
 	})
 }
 
 func (h *Handler) activate(c *gin.Context) {
 	activationLink, err := uuid.Parse(c.Param("link"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
 		return
 	}
 
@@ -51,21 +51,21 @@ func (h *Handler) activate(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespProfileActivated,
+		"message": models2.RespProfileActivated,
 	})
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var input models.AuthData
+	var input models2.AuthData
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
 		return
 	}
 
 	res, err := h.services.SignIn(input, c.Request.RemoteAddr)
 	if err != nil {
-		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
-			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
+		if errors.Is(err, models2.ErrUserNotFound) || errors.Is(err, models2.ErrAuthentication) {
+			newResponse(c, http.StatusBadRequest, models2.ErrAuthentication.Error())
 			return
 		}
 		newResponse(c, http.StatusInternalServerError, err.Error())
@@ -76,16 +76,16 @@ func (h *Handler) signIn(c *gin.Context) {
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {
-	var input models.RefreshInput
+	var input models2.RefreshInput
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
 		return
 	}
 
 	res, err := h.services.RefreshSession(input.Token, c.Request.RemoteAddr)
 	if err != nil {
-		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
-			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
+		if errors.Is(err, models2.ErrUserNotFound) || errors.Is(err, models2.ErrAuthentication) {
+			newResponse(c, http.StatusBadRequest, models2.ErrAuthentication.Error())
 			return
 		}
 		newResponse(c, http.StatusInternalServerError, err.Error())

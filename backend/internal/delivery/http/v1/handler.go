@@ -7,7 +7,7 @@ import (
 )
 
 type Handler struct {
-	services *service.Service
+	services     *service.Service
 	tokenManager auth.TokenManager
 }
 

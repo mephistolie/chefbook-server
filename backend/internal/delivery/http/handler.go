@@ -3,14 +3,14 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mephistolie/chefbook-server/internal/config"
-	v1 "github.com/mephistolie/chefbook-server/internal/delivery/http/v1"
+	"github.com/mephistolie/chefbook-server/internal/delivery/http/v1"
 	"github.com/mephistolie/chefbook-server/internal/service"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/limiter"
 )
 
 type Handler struct {
-	services *service.Service
+	services     *service.Service
 	tokenManager auth.TokenManager
 }
 

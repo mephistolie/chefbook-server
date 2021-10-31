@@ -1,6 +1,8 @@
 package main
 
-import "github.com/mephistolie/chefbook-server/internal/app"
+import (
+	"github.com/mephistolie/chefbook-server/internal/app"
+)
 
 const configDir = "configs"
 

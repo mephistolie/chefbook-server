@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/mephistolie/chefbook-server/internal/config"
 	delivery "github.com/mephistolie/chefbook-server/internal/delivery/http"
@@ -16,7 +15,6 @@ import (
 	"github.com/mephistolie/chefbook-server/pkg/hash"
 	"github.com/mephistolie/chefbook-server/pkg/logger"
 	smtp "github.com/mephistolie/chefbook-server/pkg/mail"
-	"github.com/siruspen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,16 +24,14 @@ import (
 
 func Run(configPath string) {
 
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variable: %s", err.Error())
-	}
-
 	cfg, err := config.Init(configPath)
 	if err != nil {
 		logger.Errorf("failed to initialize config: %s", err.Error())
 		return
 	}
+	logger.Error(cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.DBName)
 
+	time.Sleep(8000 * time.Millisecond)
 	db, err := postgres.NewPostgresDB(postgres.Config{
 		Host:     cfg.Postgres.Host,
 		Port:     cfg.Postgres.Port,
@@ -47,6 +43,8 @@ func Run(configPath string) {
 	if err != nil {
 		logger.Errorf("failed to initialize db: %s", err.Error())
 	}
+	err = db.Ping()
+	logger.Error(err)
 
 	memCache := cache.NewMemoryCache()
 	hashManager := hash.NewBcryptManager(cfg.Auth.SaltCost)

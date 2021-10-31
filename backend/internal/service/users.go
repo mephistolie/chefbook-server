@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	models2 "github.com/mephistolie/chefbook-server/internal/models"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
@@ -15,8 +15,8 @@ type UsersService struct {
 
 	hashManager hash.HashManager
 
-	tokenManager    auth.TokenManager
-	accessTokenTTL  time.Duration
+	tokenManager   auth.TokenManager
+	accessTokenTTL time.Duration
 	refreshTokenTTL time.Duration
 
 	mailService Mails
@@ -34,7 +34,7 @@ func NewUsersService(repo repository.Users, hashManager hash.HashManager, tokenM
 	}
 }
 
-func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
+func (s *UsersService) SignUp(authData models2.AuthData) (int, error) {
 	hashedPassword, err := s.hashManager.Hash(authData.Password)
 	if err != nil {
 		return -1, err
@@ -58,7 +58,7 @@ func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
 		})
 		return candidate.Id, err
 	} else if candidate.Id > 0 {
-		return 0, models.ErrUserAlreadyExists
+		return 0, models2.ErrUserAlreadyExists
 	}
 
 	authData.Password = hashedPassword
@@ -82,26 +82,26 @@ func (s *UsersService) ActivateUser(activationLink uuid.UUID) error {
 	return s.repo.ActivateUser(activationLink)
 }
 
-func (s *UsersService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
+func (s *UsersService) SignIn(authData models2.AuthData, ip string) (models2.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
 	if err != nil {
-		return models.Tokens{}, models.ErrUserNotFound
+		return models2.Tokens{}, models2.ErrUserNotFound
 	}
 	if user.IsActivated == false {
-		return models.Tokens{}, models.ErrProfileNotActivated
+		return models2.Tokens{}, models2.ErrProfileNotActivated
 	}
 	if user.IsBlocked == true {
-		return models.Tokens{}, models.ErrProfileIsBlocked
+		return models2.Tokens{}, models2.ErrProfileIsBlocked
 	}
 	if err = s.hashManager.ValidateByHash(authData.Password, user.Password); err != nil {
-		return models.Tokens{}, models.ErrAuthentication
+		return models2.Tokens{}, models2.ErrAuthentication
 	}
 	return s.CreateSession(user.Id, ip)
 }
 
-func (s *UsersService) CreateSession(userId int, ip string) (models.Tokens, error) {
+func (s *UsersService) CreateSession(userId int, ip string) (models2.Tokens, error) {
 	var (
-		res models.Tokens
+		res models2.Tokens
 		err error
 	)
 
@@ -115,7 +115,7 @@ func (s *UsersService) CreateSession(userId int, ip string) (models.Tokens, erro
 		return res, err
 	}
 
-	session := models.Session{
+	session := models2.Session{
 		UserId: userId,
 		RefreshToken: res.RefreshToken,
 		Ip: ip,
@@ -125,19 +125,19 @@ func (s *UsersService) CreateSession(userId int, ip string) (models.Tokens, erro
 	return res, s.repo.CreateSession(session)
 }
 
-func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models.Tokens, error) {
+func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models2.Tokens, error) {
 	user, err := s.repo.GetByRefreshToken(currentRefreshToken)
 	if err != nil {
-		return models.Tokens{}, err
+		return models2.Tokens{}, err
 	}
 	if user.IsBlocked == true {
 		if err := s.repo.DeleteSession(currentRefreshToken); err != nil {
-			return models.Tokens{}, err
+			return models2.Tokens{}, err
 		}
-		return models.Tokens{}, models.ErrProfileIsBlocked
+		return models2.Tokens{}, models2.ErrProfileIsBlocked
 	}
 
-	var res models.Tokens
+	var res models2.Tokens
 
 	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(user.Id), s.accessTokenTTL)
 	if err != nil {
@@ -149,7 +149,7 @@ func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models.To
 		return res, err
 	}
 
-	session := models.Session{
+	session := models2.Session{
 		UserId: user.Id,
 		RefreshToken: res.RefreshToken,
 		Ip: ip,

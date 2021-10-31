@@ -1,3 +1,4 @@
 .idea
-.env
+data/postgres/pgdata
 .DS_Store
+.env

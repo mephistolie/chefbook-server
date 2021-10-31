@@ -140,6 +140,9 @@ func unmarshal(cfg *Config) error {
 
 func setFromEnv(cfg *Config) {
 
+	cfg.Postgres.DBName = os.Getenv("DB_NAME")
+	cfg.Postgres.Port = os.Getenv("DB_PORT")
+	cfg.Postgres.User = os.Getenv("DB_USER")
 	cfg.Postgres.Password = os.Getenv("DB_PASSWORD")
 
 	cfg.Auth.SaltCost, _ = strconv.Atoi(os.Getenv("SALT_COST"))

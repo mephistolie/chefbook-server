@@ -5,10 +5,7 @@ http:
   writeTimeout: 10s
 
 postgres:
-  host: "localhost"
-  port: "5436"
-  user: "postgres"
-  dbname: "postgres"
+  host: "host.docker.internal"
   sslmode: "disable"
 
 auth:
