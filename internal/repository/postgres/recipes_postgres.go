@@ -82,7 +82,7 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 		cookingTime = recipe.Time
 	}
 
-	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, servings, cookingTime, calories, ingredients," +
+	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, servings, time, calories, ingredients," +
 		"cooking, preview, visibility, encrypted) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING recipe_id",
 		recipesTable)
 	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, servings, cookingTime, recipe.Calories, ingredients,
