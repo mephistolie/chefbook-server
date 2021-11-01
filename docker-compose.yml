@@ -2,8 +2,8 @@ version: '3.9'
 
 services:
   traefik:
+    container_name: "chefbook-traefik"
     image: "traefik:v2.5.3"
-    container_name: "traefik"
     ports:
       - "80:80"
       - "443:443"
@@ -47,10 +47,10 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT?-5000}:5000"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry.rule=Host(`api.${DOMAIN}`, `www.api.${DOMAIN}`)"
+      - "traefik.http.routers.registry.rule=Host(`api.${HTTP_HOST}`)"
       - "traefik.http.routers.registry.entrypoints=websecure"
       - "traefik.http.routers.registry.tls.certresolver=myresolver"
     environment:

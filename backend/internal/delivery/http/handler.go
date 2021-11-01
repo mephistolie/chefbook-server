@@ -37,7 +37,7 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine  {
 
 func (h *Handler) initAPI(router *gin.Engine) {
 	handlerV1 := v1.NewHandler(h.services, h.tokenManager)
-	api := router.Group("/api")
+	api := router.Group("/")
 	{
 		handlerV1.Init(api)
 	}
