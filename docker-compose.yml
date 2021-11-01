@@ -1,24 +1,27 @@
 version: '3.9'
 
 services:
-#  nginx:
-#    image: nginx:1.21.3-alpine
-#    restart: unless-stopped
-#    ports:
-#      - "${HTTP_PORT:-80}:80"
-#      - "${HTTPS_PORT:-443}:443"
-#    volumes:
-#      - ./data/nginx:/etc/nginx/conf.d
-#      - ./data/certbot/conf:/etc/letsencrypt
-#      - ./data/certbot/www:/var/www/certbot
-#    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-#  certbot:
-#    image: certbot/certbot
-#    restart: unless-stopped
-#    volumes:
-#      - ./data/certbot/conf:/etc/letsencrypt
-#      - ./data/certbot/www:/var/www/certbot
-#    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  traefik:
+    image: "traefik:v2.5.3"
+    container_name: "traefik"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=support@chefbook.space"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    volumes:
+        - "./data/letsencrypt:/letsencrypt"
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
   postgres:
     container_name: chefbook-postgres
     image: postgres:14.0-alpine
@@ -45,6 +48,11 @@ services:
       - postgres
     ports:
       - "8000:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.rule=Host(`api.${DOMAIN}`, `www.api.${DOMAIN}`)"
+      - "traefik.http.routers.registry.entrypoints=websecure"
+      - "traefik.http.routers.registry.tls.certresolver=myresolver"
     environment:
       - APP_ENV=${APP_ENV:-debug}
       - GIN_MODE=${APP_ENV:-debug}
@@ -57,3 +65,6 @@ services:
       - SMTP_EMAIL=${SMTP_EMAIL:?err}
       - SMTP_PASSWORD=${SMTP_PASSWORD:?err}
       - WAIT_HOSTS=postgres:5432
+networks:
+  web:
+    external: true

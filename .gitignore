@@ -2,3 +2,4 @@
 data/postgres/pgdata
 .DS_Store
 .env
+data/letsencrypt/
