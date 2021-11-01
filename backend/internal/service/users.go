@@ -6,7 +6,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
-	"os"
 	"strconv"
 	"time"
 )
@@ -56,7 +55,7 @@ func (s *UsersService) SignUp(authData models2.AuthData) (int, error) {
 		}
 		err := s.mailService.SendVerificationEmail(VerificationEmailInput{
 			Email:            authData.Email,
-			Domain:           os.Getenv("HTTP_HOST"),
+			Domain:           s.domain,
 			VerificationCode: candidate.ActivationLink,
 		})
 		return candidate.Id, err
@@ -72,7 +71,7 @@ func (s *UsersService) SignUp(authData models2.AuthData) (int, error) {
 	}
 	err = s.mailService.SendVerificationEmail(VerificationEmailInput{
 		Email:            authData.Email,
-		Domain:           "localhost:8000",
+		Domain:           s.domain,
 		VerificationCode: activationLink,
 	})
 	if err != nil {
