@@ -65,8 +65,8 @@ func NewServices(dependencies Dependencies) *Service {
 
 	return &Service{
 		Users: NewUsersService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
-			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService),
-		Mails:   NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache),
+			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
+		Mails:   mailService,
 		Recipes: NewRecipesService(dependencies.Repos),
 	}
 }

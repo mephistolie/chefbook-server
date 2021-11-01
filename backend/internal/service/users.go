@@ -6,6 +6,7 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
+	"os"
 	"strconv"
 	"time"
 )
@@ -15,15 +16,16 @@ type UsersService struct {
 
 	hashManager hash.HashManager
 
-	tokenManager   auth.TokenManager
-	accessTokenTTL time.Duration
+	tokenManager    auth.TokenManager
+	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
 
 	mailService Mails
+	domain      string
 }
 
 func NewUsersService(repo repository.Users, hashManager hash.HashManager, tokenManager auth.TokenManager,
-	accessTokenTTL time.Duration, refreshTokenTTL time.Duration, mailService Mails) *UsersService {
+	accessTokenTTL time.Duration, refreshTokenTTL time.Duration, mailService Mails, domain string) *UsersService {
 	return &UsersService{
 		repo:            repo,
 		hashManager:     hashManager,
@@ -31,6 +33,7 @@ func NewUsersService(repo repository.Users, hashManager hash.HashManager, tokenM
 		accessTokenTTL:  accessTokenTTL,
 		refreshTokenTTL: refreshTokenTTL,
 		mailService:     mailService,
+		domain:          domain,
 	}
 }
 
@@ -53,7 +56,7 @@ func (s *UsersService) SignUp(authData models2.AuthData) (int, error) {
 		}
 		err := s.mailService.SendVerificationEmail(VerificationEmailInput{
 			Email:            authData.Email,
-			Domain:           "localhost:8000",
+			Domain:           os.Getenv("HTTP_HOST"),
 			VerificationCode: candidate.ActivationLink,
 		})
 		return candidate.Id, err
@@ -116,9 +119,9 @@ func (s *UsersService) CreateSession(userId int, ip string) (models2.Tokens, err
 	}
 
 	session := models2.Session{
-		UserId: userId,
+		UserId:       userId,
 		RefreshToken: res.RefreshToken,
-		Ip: ip,
+		Ip:           ip,
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
 	}
 
@@ -150,9 +153,9 @@ func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models2.T
 	}
 
 	session := models2.Session{
-		UserId: user.Id,
+		UserId:       user.Id,
 		RefreshToken: res.RefreshToken,
-		Ip: ip,
+		Ip:           ip,
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
 	}
 

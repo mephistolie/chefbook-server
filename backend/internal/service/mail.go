@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	verificationLinkTmpl = "http://%s/api/v1/users/activate/%s"
+	verificationLinkTmpl = "https://%s/v1/users/activate/%s"
 )
 
 type EmailService struct {
@@ -25,9 +25,9 @@ type verificationEmailInput struct {
 
 func NewMailService(sender emailProvider.Sender, config config.MailConfig, cache cache.Cache) *EmailService {
 	return &EmailService{
-		sender:           sender,
-		config:           config,
-		cache:            cache,
+		sender: sender,
+		config: config,
+		cache:  cache,
 	}
 }
 

@@ -59,17 +59,17 @@ func Run(configPath string) {
 
 	repositories := repository.NewRepositories(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:                  repositories,
-		Cache:                  memCache,
-		HashManager:            hashManager,
-		TokenManager:           tokenManager,
-		MailSender:            emailSender,
-		MailConfig:            cfg.Mail,
-		AccessTokenTTL:         cfg.Auth.JWT.AccessTokenTTL,
-		RefreshTokenTTL:        cfg.Auth.JWT.RefreshTokenTTL,
-		CacheTTL:               int64(cfg.CacheTTL.Seconds()),
-		Environment:            cfg.Environment,
-		Domain:                 cfg.HTTP.Host,
+		Repos:           repositories,
+		Cache:           memCache,
+		HashManager:     hashManager,
+		TokenManager:    tokenManager,
+		MailSender:      emailSender,
+		MailConfig:      cfg.Mail,
+		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
+		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
+		CacheTTL:        int64(cfg.CacheTTL.Seconds()),
+		Environment:     cfg.Environment,
+		Domain:          cfg.HTTP.Host,
 	})
 	handler := delivery.NewHandler(services, tokenManager)
 
