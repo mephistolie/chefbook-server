@@ -56,7 +56,7 @@ services:
     environment:
       - APP_ENV=${APP_ENV:-debug}
       - GIN_MODE=${APP_ENV:-debug}
-      - HTTP_HOST=${HTTP_HOST:-localhost}
+      - HTTP_HOST=api.${HTTP_HOST:-localhost}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
