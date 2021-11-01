@@ -16,7 +16,11 @@ func NewRecipesService(repo repository.Recipes) *RecipesService {
 }
 
 func (s *RecipesService) GetRecipesByUser(userId int) ([]models2.Recipe, error) {
-	return s.repo.GetRecipesByUser(userId)
+	recipes, err := s.repo.GetRecipesByUser(userId)
+	if recipes == nil {
+		recipes = []models2.Recipe{}
+	}
+	return recipes, err
 }
 
 func (s *RecipesService) AddRecipe(recipe models2.Recipe) (int, error) {
