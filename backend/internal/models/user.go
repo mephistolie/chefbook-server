@@ -20,19 +20,19 @@ type User struct {
 }
 
 type UserInfo struct {
-	Id             int            `json:"user_id,omitempty" db:"user_id"`
-	Username       sql.NullString `json:"username,omitempty"`
-	Avatar         sql.NullString `json:"avatar,omitempty"`
-	Premium        sql.NullTime   `json:"premium,omitempty"`
+	Id       int            `json:"user_id,omitempty" db:"user_id"`
+	Username sql.NullString `json:"username,omitempty"`
+	Avatar   sql.NullString `json:"avatar,omitempty"`
+	Premium  sql.NullTime   `json:"premium,omitempty"`
 }
 
 type UserDetailedInfo struct {
-	Id             int            `json:"user_id,omitempty" db:"user_id"`
-	Email          string         `json:"email" binding:"required,email,max=128"`
-	Username       sql.NullString `json:"username,omitempty"`
-	Avatar         sql.NullString `json:"avatar,omitempty"`
-	Premium        sql.NullTime   `json:"premium,omitempty"`
-	IsBlocked      bool           `json:"is_blocked,omitempty" db:"is_blocked"`
+	Id        int            `json:"user_id,omitempty" db:"user_id"`
+	Email     string         `json:"email" binding:"required,email,max=128"`
+	Username  sql.NullString `json:"username,omitempty"`
+	Avatar    sql.NullString `json:"avatar,omitempty"`
+	Premium   sql.NullTime   `json:"premium,omitempty"`
+	IsBlocked bool           `json:"is_blocked,omitempty" db:"is_blocked"`
 }
 
 type AuthData struct {

@@ -8,7 +8,7 @@ postgres:
   # Docker Config
   host: "postgres"
   port: "5432"
-  sslmode: "enable"
+  sslmode: "require"
 
 auth:
   accessTokenTTL: 30m
