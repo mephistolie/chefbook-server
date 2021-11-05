@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
-	models2 "github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/models"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
@@ -36,7 +36,7 @@ func NewUsersService(repo repository.Users, hashManager hash.HashManager, tokenM
 	}
 }
 
-func (s *UsersService) SignUp(authData models2.AuthData) (int, error) {
+func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
 	hashedPassword, err := s.hashManager.Hash(authData.Password)
 	if err != nil {
 		return -1, err
@@ -60,7 +60,7 @@ func (s *UsersService) SignUp(authData models2.AuthData) (int, error) {
 		})
 		return candidate.Id, err
 	} else if candidate.Id > 0 {
-		return 0, models2.ErrUserAlreadyExists
+		return 0, models.ErrUserAlreadyExists
 	}
 
 	authData.Password = hashedPassword
@@ -84,26 +84,26 @@ func (s *UsersService) ActivateUser(activationLink uuid.UUID) error {
 	return s.repo.ActivateUser(activationLink)
 }
 
-func (s *UsersService) SignIn(authData models2.AuthData, ip string) (models2.Tokens, error) {
+func (s *UsersService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
 	if err != nil {
-		return models2.Tokens{}, models2.ErrUserNotFound
+		return models.Tokens{}, models.ErrUserNotFound
 	}
 	if user.IsActivated == false {
-		return models2.Tokens{}, models2.ErrProfileNotActivated
+		return models.Tokens{}, models.ErrProfileNotActivated
 	}
 	if user.IsBlocked == true {
-		return models2.Tokens{}, models2.ErrProfileIsBlocked
+		return models.Tokens{}, models.ErrProfileIsBlocked
 	}
 	if err = s.hashManager.ValidateByHash(authData.Password, user.Password); err != nil {
-		return models2.Tokens{}, models2.ErrAuthentication
+		return models.Tokens{}, models.ErrAuthentication
 	}
 	return s.CreateSession(user.Id, ip)
 }
 
-func (s *UsersService) CreateSession(userId int, ip string) (models2.Tokens, error) {
+func (s *UsersService) CreateSession(userId int, ip string) (models.Tokens, error) {
 	var (
-		res models2.Tokens
+		res models.Tokens
 		err error
 	)
 
@@ -117,7 +117,7 @@ func (s *UsersService) CreateSession(userId int, ip string) (models2.Tokens, err
 		return res, err
 	}
 
-	session := models2.Session{
+	session := models.Session{
 		UserId:       userId,
 		RefreshToken: res.RefreshToken,
 		Ip:           ip,
@@ -127,19 +127,19 @@ func (s *UsersService) CreateSession(userId int, ip string) (models2.Tokens, err
 	return res, s.repo.CreateSession(session)
 }
 
-func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models2.Tokens, error) {
+func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models.Tokens, error) {
 	user, err := s.repo.GetByRefreshToken(currentRefreshToken)
 	if err != nil {
-		return models2.Tokens{}, err
+		return models.Tokens{}, err
 	}
 	if user.IsBlocked == true {
 		if err := s.repo.DeleteSession(currentRefreshToken); err != nil {
-			return models2.Tokens{}, err
+			return models.Tokens{}, err
 		}
-		return models2.Tokens{}, models2.ErrProfileIsBlocked
+		return models.Tokens{}, models.ErrProfileIsBlocked
 	}
 
-	var res models2.Tokens
+	var res models.Tokens
 
 	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(user.Id), s.accessTokenTTL)
 	if err != nil {
@@ -151,7 +151,7 @@ func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models2.T
 		return res, err
 	}
 
-	session := models2.Session{
+	session := models.Session{
 		UserId:       user.Id,
 		RefreshToken: res.RefreshToken,
 		Ip:           ip,
@@ -159,4 +159,12 @@ func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models2.T
 	}
 
 	return res, s.repo.UpdateSession(session, currentRefreshToken)
+}
+
+func (s *UsersService) GetUserInfo(userId int) (models.User, error) {
+	user, err := s.repo.GetUserById(userId)
+	if err != nil {
+		return models.User{}, models.ErrUserNotFound
+	}
+	return user, nil
 }

@@ -28,5 +28,6 @@ var (
 	ErrUserIdNotFound = errors.New("user id not found")
 	ErrInvalidUserId  = errors.New("invalid user id")
 
+	ErrInvalidRecipeInput = errors.New("invalid recipe input")
 	ErrRecipeNotFound = errors.New("recipe not found")
 )

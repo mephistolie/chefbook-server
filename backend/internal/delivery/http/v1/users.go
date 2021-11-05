@@ -4,8 +4,9 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	models2 "github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/models"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
@@ -16,14 +17,15 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 		auth.POST("/sign-out", h.signIn)
 		auth.GET("/activate/:link", h.activate)
 		auth.GET("/refresh", h.refreshSession)
+		auth.GET("/:user_id", h.getUserInfo)
 	}
 }
 
 func (h *Handler) signUp(c *gin.Context) {
-	var input models2.AuthData
+	var input models.AuthData
 
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
@@ -35,14 +37,14 @@ func (h *Handler) signUp(c *gin.Context) {
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id":      id,
-		"message": models2.RespActivationLink,
+		"message": models.RespActivationLink,
 	})
 }
 
 func (h *Handler) activate(c *gin.Context) {
 	activationLink, err := uuid.Parse(c.Param("link"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
@@ -51,21 +53,21 @@ func (h *Handler) activate(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models2.RespProfileActivated,
+		"message": models.RespProfileActivated,
 	})
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var input models2.AuthData
+	var input models.AuthData
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
 	res, err := h.services.SignIn(input, c.Request.RemoteAddr)
 	if err != nil {
-		if errors.Is(err, models2.ErrUserNotFound) || errors.Is(err, models2.ErrAuthentication) {
-			newResponse(c, http.StatusBadRequest, models2.ErrAuthentication.Error())
+		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
+			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
 			return
 		}
 		newResponse(c, http.StatusInternalServerError, err.Error())
@@ -76,16 +78,16 @@ func (h *Handler) signIn(c *gin.Context) {
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {
-	var input models2.RefreshInput
+	var input models.RefreshInput
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
 	res, err := h.services.RefreshSession(input.Token, c.Request.RemoteAddr)
 	if err != nil {
-		if errors.Is(err, models2.ErrUserNotFound) || errors.Is(err, models2.ErrAuthentication) {
-			newResponse(c, http.StatusBadRequest, models2.ErrAuthentication.Error())
+		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
+			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
 			return
 		}
 		newResponse(c, http.StatusInternalServerError, err.Error())
@@ -93,4 +95,41 @@ func (h *Handler) refreshSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) getUserInfo(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	userProfileId, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	user, err := h.services.GetUserInfo(userProfileId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if userId == user.Id {
+		c.JSON(http.StatusOK, models.UserDetailedInfo{
+			Id:        user.Id,
+			Username:  user.Username,
+			Email:     user.Email,
+			Avatar:    user.Avatar,
+			Premium:   user.Premium,
+			IsBlocked: user.IsBlocked,
+		})
+	} else {
+		c.JSON(http.StatusOK, models.UserInfo{
+			Id:       user.Id,
+			Username: user.Username,
+			Avatar:   user.Avatar,
+			Premium:  user.Premium,
+		})
+	}
 }

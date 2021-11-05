@@ -7,14 +7,30 @@ import (
 )
 
 type User struct {
-	Id             int            `json:"-,omitempty" db:"user_id"`
+	Id             int            `json:"user_id,omitempty" db:"user_id"`
 	Email          string         `json:"email" binding:"required,email,max=128"`
-	Name           sql.NullString `json:"name,omitempty"`
+	Username       sql.NullString `json:"username,omitempty"`
 	Password       string         `json:"password,omitempty" binding:"required,min=8,max=64"`
 	IsActivated    bool           `json:"is_activated,omitempty" db:"is_activated"`
 	ActivationLink uuid.UUID      `json:"activation_link,omitempty" db:"activation_link"`
 	Avatar         sql.NullString `json:"avatar,omitempty"`
 	VkId           sql.NullString `json:"vk_id,omitempty" db:"vk_id"`
+	Premium        sql.NullTime   `json:"premium,omitempty"`
+	IsBlocked      bool           `json:"is_blocked,omitempty" db:"is_blocked"`
+}
+
+type UserInfo struct {
+	Id             int            `json:"user_id,omitempty" db:"user_id"`
+	Username       sql.NullString `json:"username,omitempty"`
+	Avatar         sql.NullString `json:"avatar,omitempty"`
+	Premium        sql.NullTime   `json:"premium,omitempty"`
+}
+
+type UserDetailedInfo struct {
+	Id             int            `json:"user_id,omitempty" db:"user_id"`
+	Email          string         `json:"email" binding:"required,email,max=128"`
+	Username       sql.NullString `json:"username,omitempty"`
+	Avatar         sql.NullString `json:"avatar,omitempty"`
 	Premium        sql.NullTime   `json:"premium,omitempty"`
 	IsBlocked      bool           `json:"is_blocked,omitempty" db:"is_blocked"`
 }

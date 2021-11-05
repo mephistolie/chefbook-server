@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	models2 "github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/models"
 	"net/http"
 	"strconv"
 )
@@ -40,10 +40,10 @@ func (h *Handler) addRecipe(c *gin.Context) {
 		return
 	}
 
-	var recipe models2.Recipe
+	var recipe models.Recipe
 
 	if err := c.BindJSON(&recipe); err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 	recipe.OwnerId = userId
@@ -54,7 +54,7 @@ func (h *Handler) addRecipe(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id":      id,
-		"message": models2.RespRecipeAdded,
+		"message": models.RespRecipeAdded,
 	})
 }
 
@@ -67,7 +67,7 @@ func (h *Handler) getRecipe(c *gin.Context) {
 
 	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 	recipe, err := h.services.GetRecipeById(recipeId, userId)
@@ -76,7 +76,7 @@ func (h *Handler) getRecipe(c *gin.Context) {
 		return
 	}
 	if recipe.OwnerId != userId && recipe.Visibility == "private" {
-		newResponse(c, http.StatusForbidden, models2.ErrAccessDenied.Error())
+		newResponse(c, http.StatusForbidden, models.ErrAccessDenied.Error())
 		return
 	}
 	c.JSON(http.StatusOK, recipe)
@@ -91,14 +91,14 @@ func (h *Handler) updateRecipe(c *gin.Context) {
 
 	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
-	var recipe models2.Recipe
+	var recipe models.Recipe
 
 	if err := c.BindJSON(&recipe); err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 	recipe.Id = recipeId
@@ -109,7 +109,7 @@ func (h *Handler) updateRecipe(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models2.RespRecipeUpdated,
+		"message": models.RespRecipeUpdated,
 	})
 }
 
@@ -122,7 +122,7 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 
 	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models2.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
@@ -132,6 +132,6 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models2.RespRecipeDeleted,
+		"message": models.RespRecipeDeleted,
 	})
 }

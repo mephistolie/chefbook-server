@@ -2,7 +2,7 @@ CREATE TABLE users
 (
     user_id         SERIAL PRIMARY KEY NOT NULL UNIQUE,
     email           VARCHAR(255)       NOT NULL UNIQUE,
-    name            VARCHAR(255),
+    username        VARCHAR(255),
     password        bytea              NOT NULL,
 
     is_activated    BOOLEAN            NOT NULL DEFAULT false,

@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.3'
 
 services:
   traefik:
@@ -20,8 +20,8 @@ services:
       - "--certificatesresolvers.myresolver.acme.email=support@chefbook.space"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     volumes:
-        - "./data/letsencrypt:/letsencrypt"
-        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        - ./data/letsencrypt:/letsencrypt
+        - /var/run/docker.sock:/var/run/docker.sock:ro
   postgres:
     container_name: chefbook-postgres
     image: postgres:14.0-alpine
