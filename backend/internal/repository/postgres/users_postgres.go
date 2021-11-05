@@ -25,8 +25,8 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 		return -1, err
 	}
 
-	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, password, activation_link) values ($1, $2, $3) RETURNING user_id", usersTable)
-	row := tx.QueryRow(createUserQuery, user.Email, user.Password, activationLink)
+	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, username, password, activation_link) values ($1, $2, $3, $4) RETURNING user_id", usersTable)
+	row := tx.QueryRow(createUserQuery, user.Email, user.Email, user.Password, activationLink)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
