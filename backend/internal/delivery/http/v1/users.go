@@ -80,7 +80,7 @@ func (h *Handler) signIn(c *gin.Context) {
 func (h *Handler) refreshSession(c *gin.Context) {
 	var input models.RefreshInput
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
