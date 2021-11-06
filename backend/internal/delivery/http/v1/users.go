@@ -81,11 +81,11 @@ func (h *Handler) signIn(c *gin.Context) {
 func (h *Handler) refreshSession(c *gin.Context) {
 	var input models.RefreshInput
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
-	res, err := h.services.RefreshSession(input.Token, c.Request.RemoteAddr)
+	res, err := h.services.RefreshSession(input.RefreshToken, c.Request.RemoteAddr)
 	if err != nil {
 		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
 			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())

@@ -46,7 +46,7 @@ type Tokens struct {
 }
 
 type RefreshInput struct {
-	Token string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
 type Session struct {
