@@ -17,7 +17,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 		auth.POST("/sign-in", h.signIn)
 		auth.POST("/sign-out", h.signIn)
 		auth.GET("/activate/:link", h.activate)
-		auth.GET("/refresh", h.refreshSession)
+		auth.POST("/refresh", h.refreshSession)
 		auth.GET("/:user_id", h.userIdentity, h.getUserInfo)
 	}
 }
