@@ -29,7 +29,7 @@ type UserInfo struct {
 type UserDetailedInfo struct {
 	Id        int            `json:"user_id,omitempty" db:"user_id"`
 	Email     string         `json:"email" binding:"required,email,max=128"`
-	Username  sql.NullString `json:"username,omitempty"`
+	Username  string `json:"username,omitempty"`
 	Avatar    string         `json:"avatar,omitempty"`
 	Premium   time.Time      `json:"premium,omitempty"`
 	IsBlocked bool           `json:"is_blocked,omitempty" db:"is_blocked"`

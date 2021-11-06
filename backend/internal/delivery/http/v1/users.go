@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"net/http"
 	"strconv"
 )
@@ -115,10 +116,11 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 		return
 	}
 
+	logger.Error(userId)
 	if userId == user.Id {
 		c.JSON(http.StatusOK, models.UserDetailedInfo{
 			Id:        user.Id,
-			Username:  user.Username,
+			Username:  user.Username.String,
 			Email:     user.Email,
 			Avatar:    user.Avatar.String,
 			Premium:   user.Premium.Time,
