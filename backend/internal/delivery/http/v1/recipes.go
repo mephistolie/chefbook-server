@@ -15,8 +15,6 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipes.GET("/:recipe_id", h.getRecipe)
 		recipes.PUT("/:recipe_id", h.updateRecipe)
 		recipes.DELETE("/:recipe_id", h.deleteRecipe)
-
-		recipes.GET("/public", h.addRecipe)
 	}
 }
 

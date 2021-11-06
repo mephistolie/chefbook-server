@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/models"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"net/http"
 	"strconv"
 )
@@ -18,7 +17,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 		auth.POST("/sign-out", h.signIn)
 		auth.GET("/activate/:link", h.activate)
 		auth.POST("/refresh", h.refreshSession)
-		auth.GET("/:user_id", h.userIdentity, h.getUserInfo)
+		auth.GET("/", h.userIdentity, h.getUserInfo)
 	}
 }
 
@@ -104,10 +103,9 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	userProfileId, err := strconv.Atoi(c.Param("user_id"))
+	userProfileId, err := strconv.Atoi(c.Request.URL.Query().Get("user_id"))
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, err.Error())
-		return
+		userProfileId = userId
 	}
 
 	user, err := h.services.GetUserInfo(userProfileId)
@@ -116,7 +114,6 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 		return
 	}
 
-	logger.Error(userId)
 	if userId == user.Id {
 		c.JSON(http.StatusOK, models.UserDetailedInfo{
 			Id:        user.Id,

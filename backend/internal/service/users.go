@@ -6,7 +6,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"strconv"
 	"time"
 )
@@ -44,7 +43,6 @@ func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
 	}
 
 	if candidate, _ := s.repo.GetUserByEmail(authData.Email); candidate.Id > 0 && candidate.IsActivated == false {
-		logger.Error("1")
 		if err = s.hashManager.ValidateByHash(authData.Password, candidate.Password); err != nil {
 			authData.Password = hashedPassword
 			err := s.repo.ChangePassword(authData)
@@ -59,10 +57,8 @@ func (s *UsersService) SignUp(authData models.AuthData) (int, error) {
 		})
 		return candidate.Id, err
 	} else if candidate.Id > 0 {
-		logger.Error("2")
 		return 0, models.ErrUserAlreadyExists
 	}
-	logger.Error("3")
 
 	authData.Password = hashedPassword
 	activationLink := uuid.New()
