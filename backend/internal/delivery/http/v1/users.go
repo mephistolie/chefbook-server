@@ -120,16 +120,16 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 			Id:        user.Id,
 			Username:  user.Username,
 			Email:     user.Email,
-			Avatar:    user.Avatar,
-			Premium:   user.Premium,
+			Avatar:    user.Avatar.String,
+			Premium:   user.Premium.Time,
 			IsBlocked: user.IsBlocked,
 		})
 	} else {
 		c.JSON(http.StatusOK, models.UserInfo{
 			Id:       user.Id,
-			Username: user.Username,
-			Avatar:   user.Avatar,
-			Premium:  user.Premium,
+			Username: user.Username.String,
+			Avatar:   user.Avatar.String,
+			Premium:  user.Premium.Time,
 		})
 	}
 }
