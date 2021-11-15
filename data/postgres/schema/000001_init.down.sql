@@ -10,8 +10,6 @@ DROP TABLE recipes;
 
 DROP TABLE categories;
 
-DROP TABLE shopping_list;
-
 DROP TYPE visibility_type;
 
 DROP TYPE category_type;

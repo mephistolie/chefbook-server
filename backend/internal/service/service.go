@@ -41,10 +41,17 @@ type Recipes interface {
 	MarkRecipeFavourite(recipe models.FavouriteRecipeInput, userId int) error
 }
 
+type ShoppingList interface {
+	GetShoppingList(userId int) ([]models.Purchase, error)
+	SetShoppingList(shoppingList []models.Purchase, userId int) error
+	AddToShoppingList(newPurchases []models.Purchase, userId int) error
+}
+
 type Service struct {
 	Users
 	Mails
 	Recipes
+	ShoppingList
 }
 
 type Dependencies struct {
@@ -71,5 +78,6 @@ func NewServices(dependencies Dependencies) *Service {
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
 		Mails:   mailService,
 		Recipes: NewRecipesService(dependencies.Repos),
+		ShoppingList: NewShoppingListService(dependencies.Repos),
 	}
 }

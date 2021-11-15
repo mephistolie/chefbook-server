@@ -12,6 +12,8 @@ var (
 	RespRecipeDeleted = "recipe has been deleted"
 	RespFavouriteStatusUpdated = "favourite status updated"
 
+	RespShoppingListUpdated = "shopping list has been updated"
+
 	ErrInvalidInput = errors.New("invalid input")
 	ErrAccessDenied   = errors.New("recipe access denied")
 

@@ -31,14 +31,21 @@ type Recipes interface {
 	MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error
 }
 
+type ShoppingList interface {
+	GetShoppingList(userId int) ([]models.Purchase, error)
+	SetShoppingList(shoppingList []models.Purchase, userId int) error
+}
+
 type Repository struct {
 	Users
 	Recipes
+	ShoppingList
 }
 
 func NewRepositories(db *sqlx.DB) *Repository {
 	return &Repository{
-		Users:   postgres.NewUsersPostgres(db),
-		Recipes: postgres.NewRecipesPostgres(db),
+		Users:        postgres.NewUsersPostgres(db),
+		Recipes:      postgres.NewRecipesPostgres(db),
+		ShoppingList: postgres.NewShoppingListPostgres(db),
 	}
 }

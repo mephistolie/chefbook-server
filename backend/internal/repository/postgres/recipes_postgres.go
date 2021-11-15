@@ -10,7 +10,6 @@ import (
 
 type RecipesPostgres struct {
 	db *sqlx.DB
-	visibilities [3]string
 }
 
 func NewRecipesPostgres(db *sqlx.DB) *RecipesPostgres {

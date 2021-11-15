@@ -23,5 +23,6 @@ func (h *Handler) Init(api *gin.RouterGroup)  {
 	{
 		h.initUsersRoutes(v1)
 		h.initRecipesRoutes(v1)
+		h.initShoppingListRoutes(v1)
 	}
 }
