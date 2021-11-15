@@ -5,7 +5,7 @@ CREATE TABLE users
     username        VARCHAR(255),
     password        bytea              NOT NULL,
 
-    shopping_list   JSONB              NOT NULL DEFAULT [],
+    shopping_list   JSONB              NOT NULL DEFAULT '[]'::jsonb,
 
     is_activated    BOOLEAN            NOT NULL DEFAULT false,
     activation_link uuid               NOT NULL,
