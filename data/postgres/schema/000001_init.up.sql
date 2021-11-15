@@ -5,8 +5,6 @@ CREATE TABLE users
     username        VARCHAR(255),
     password        bytea              NOT NULL,
 
-    shopping_list   JSONB              NOT NULL DEFAULT '[]'::jsonb,
-
     is_activated    BOOLEAN            NOT NULL DEFAULT false,
     activation_link uuid               NOT NULL,
 
@@ -15,6 +13,12 @@ CREATE TABLE users
     premium         TIMESTAMP                   DEFAULT null,
 
     is_blocked      BOOLEAN            NOT NULL DEFAULT false
+);
+
+CREATE TABLE shopping_list
+(
+    user_id       INT REFERENCES users (user_id) NOT NULL UNIQUE,
+    shopping_list JSONB                          NOT NULL DEFAULT '[]'::jsonb
 );
 
 CREATE TYPE category_type as ENUM ('red', 'blue');

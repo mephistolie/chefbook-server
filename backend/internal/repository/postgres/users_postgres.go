@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"time"
 )
 
@@ -34,8 +33,16 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 		return -1, err
 	}
 
-	createRoleQuery := fmt.Sprintf("INSERT INTO %s (name, user_id) values ($1, $2) RETURNING user_id", rolesTable)
+	createRoleQuery := fmt.Sprintf("INSERT INTO %s (name, user_id) values ($1, $2)", rolesTable)
 	if _, err := tx.Exec(createRoleQuery, "user", id); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return -1, err
+		}
+		return -1, err
+	}
+
+	createShoppingListQuery := fmt.Sprintf("INSERT INTO %s (user_id) values ($1)", shoppingListTable)
+	if _, err := tx.Exec(createShoppingListQuery, id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
 		}
@@ -64,7 +71,6 @@ func (r *AuthPostgres) GetUserByCredentials(email, password string) (models.User
 	var user models.User
 	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password=$2", usersTable)
 	err := r.db.Get(&user, query, email, password)
-	logger.Error(password)
 	return user, err
 }
 
