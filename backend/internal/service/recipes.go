@@ -90,7 +90,7 @@ func validateRecipe(recipe models.Recipe) (models.Recipe, error) {
 		recipe.Servings = 1
 	}
 
-	if recipe.Time > 1  {
+	if recipe.Time < 1  {
 		recipe.Time = 15
 	}
 

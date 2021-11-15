@@ -5,6 +5,7 @@ import "errors"
 var (
 	RespActivationLink   = "profile activation link sent to email"
 	RespProfileActivated = "profile activated"
+	RespSignOutSuccessfully = "sign out successfully"
 
 	RespRecipeAdded = "recipe added"
 	RespRecipeUpdated = "recipe updated"

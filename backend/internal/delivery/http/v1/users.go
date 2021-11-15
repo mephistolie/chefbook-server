@@ -14,7 +14,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
-		auth.POST("/sign-out", h.signIn)
+		auth.POST("/sign-out", h.signOut)
 		auth.GET("/activate/:link", h.activate)
 		auth.POST("/refresh", h.refreshSession)
 		auth.GET("/", h.userIdentity, h.getUserInfo)
@@ -75,6 +75,28 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) signOut(c *gin.Context) {
+	var input models.RefreshInput
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := h.services.SignOut(userId, input.RefreshToken); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespSignOutSuccessfully,
+	})
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {
