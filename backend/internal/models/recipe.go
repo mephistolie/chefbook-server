@@ -27,6 +27,6 @@ type Recipe struct {
 }
 
 type FavouriteRecipeInput struct {
-	RecipeId        int  `json:"id,omitempty" db:"recipe_id"`
+	RecipeId        int  `json:"recipe_id,omitempty" db:"recipe_id"`
 	Favourite bool `json:"favourite,omitempty"`
 }
