@@ -110,9 +110,10 @@ func (r *AuthPostgres) UpdateSession(session models.Session, oldRefreshToken str
 }
 
 func (r *AuthPostgres) DeleteSession(refreshToken string) error {
-	query := fmt.Sprintf("DELETE FROM %s WHERE refresh_token=$1", sessionsTable)
-	_, err := r.db.Exec(query, refreshToken)
-	return err
+	var id = -1
+	query := fmt.Sprintf("DELETE FROM %s WHERE refresh_token=$1 RETURNING session_id", sessionsTable)
+	row := r.db.QueryRow(query, refreshToken)
+	return row.Scan(&id)
 }
 
 func (r *AuthPostgres) checkRefreshToken(userId int, session models.Session, ip string) error {
