@@ -86,6 +86,7 @@ func (h *Handler) signOut(c *gin.Context) {
 
 	if err := h.services.SignOut(input.RefreshToken); err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{

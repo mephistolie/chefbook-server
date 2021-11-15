@@ -3,13 +3,13 @@ package models
 import "errors"
 
 var (
-	RespActivationLink   = "profile activation link sent to email"
-	RespProfileActivated = "profile activated"
-	RespSignOutSuccessfully = "sign out successfully"
+	RespActivationLink   = "profile activation link has been sent to email"
+	RespProfileActivated = "profile is activated"
+	RespSignOutSuccessfully = "signed out successfully"
 
-	RespRecipeAdded = "recipe added"
-	RespRecipeUpdated = "recipe updated"
-	RespRecipeDeleted = "recipe deleted"
+	RespRecipeAdded = "recipe has been added"
+	RespRecipeUpdated = "recipe has been updated"
+	RespRecipeDeleted = "recipe has been deleted"
 
 	ErrInvalidInput = errors.New("invalid input")
 	ErrAccessDenied   = errors.New("recipe access denied")
