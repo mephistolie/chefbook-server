@@ -156,5 +156,7 @@ func (h *Handler) markRecipeFavourite(c *gin.Context) {
 		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
 		return
 	}
-	c.JSON(http.StatusOK, recipe)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespFavouriteStatusUpdated,
+	})
 }
