@@ -38,6 +38,7 @@ type Recipes interface {
 	GetRecipeById(recipeId, userId int) (models.Recipe, error)
 	UpdateRecipe(recipe models.Recipe, userId int) error
 	DeleteRecipe(recipeId, userId int) error
+	MarkRecipeFavourite(recipe models.FavouriteRecipeInput, userId int) error
 }
 
 type Service struct {

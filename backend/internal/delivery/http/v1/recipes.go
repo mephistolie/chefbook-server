@@ -15,6 +15,10 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipes.GET("/:recipe_id", h.getRecipe)
 		recipes.PUT("/:recipe_id", h.updateRecipe)
 		recipes.DELETE("/:recipe_id", h.deleteRecipe)
+
+		recipes.PUT("/mark-favourite", h.markRecipeFavourite)
+		recipes.PUT("/like", h.markRecipeFavourite)
+		recipes.PUT("/unlike", h.markRecipeFavourite)
 	}
 }
 
@@ -132,4 +136,25 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"message": models.RespRecipeDeleted,
 	})
+}
+
+func (h *Handler) markRecipeFavourite(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	var recipe models.FavouriteRecipeInput
+	if err := c.BindJSON(&recipe); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.MarkRecipeFavourite(recipe, userId)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		return
+	}
+	c.JSON(http.StatusOK, recipe)
 }

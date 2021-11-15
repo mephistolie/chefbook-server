@@ -31,4 +31,5 @@ var (
 
 	ErrInvalidRecipeInput = errors.New("invalid recipe input")
 	ErrRecipeNotFound = errors.New("recipe not found")
+	ErrRecipeNotInRecipeBook = errors.New("recipe isn't in recipe book")
 )

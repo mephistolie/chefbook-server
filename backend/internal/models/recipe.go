@@ -25,3 +25,8 @@ type Recipe struct {
 	CreationTimestamp time.Time `json:"creation_timestamp,omitempty" db:"creation_timestamp"`
 	UpdateTimestamp   time.Time `json:"update_timestamp,omitempty" db:"update_timestamp"`
 }
+
+type FavouriteRecipeInput struct {
+	RecipeId        int  `json:"id,omitempty" db:"recipe_id"`
+	Favourite bool `json:"favourite,omitempty"`
+}

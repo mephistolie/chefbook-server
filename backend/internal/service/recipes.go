@@ -69,6 +69,10 @@ func (s *RecipesService) DeleteRecipe(recipeId, userId int) error {
 	}
 }
 
+func (s *RecipesService) MarkRecipeFavourite(recipe models.FavouriteRecipeInput, userId int) error {
+	return s.repo.MarkRecipeFavourite(recipe.RecipeId, userId, recipe.Favourite)
+}
+
 func validateRecipe(recipe models.Recipe) (models.Recipe, error) {
 	var err error
 	recipe.Ingredients, err = json.Marshal(recipe.Ingredients)

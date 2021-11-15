@@ -129,3 +129,9 @@ func (r *RecipesPostgres) DeleteRecipeLink(recipeId, userId int) error {
 	_, err := r.db.Exec(query, recipeId, userId)
 	return err
 }
+
+func (r *RecipesPostgres) MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error {
+	query := fmt.Sprintf("UPDATE %s SET favourite=$1 recipe_id=$2 AND user_id=$3", usersRecipesTable)
+	_, err := r.db.Exec(query, isFavourite, recipeId, userId)
+	return err
+}
