@@ -110,15 +110,10 @@ func (r *RecipesPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
 }
 
 func (r *RecipesPostgres) UpdateRecipe(recipe models.Recipe, userId int) error {
-	ingredients, err := json.Marshal(recipe.Ingredients)
-	if err != nil {
-		return err
-	}
-
 	query := fmt.Sprintf("UPDATE %s SET name=$1, servings=$2, time=$3, calories=$4, ingredients=$5, " +
 		"cooking=$6, preview=$7, visibility=$8, encrypted=$9, update_timestamp=$10 WHERE recipe_id=$11 AND owner_id=$12",
 		recipesTable)
-	_, err = r.db.Exec(query, recipe.Name, recipe.Servings, recipe.Time, recipe.Calories, ingredients,
+	_, err := r.db.Exec(query, recipe.Name, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
 		recipe.Cooking, recipe.Preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id, userId)
 	return err
 }
