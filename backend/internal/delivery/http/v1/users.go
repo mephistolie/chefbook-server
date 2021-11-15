@@ -84,13 +84,7 @@ func (h *Handler) signOut(c *gin.Context) {
 		return
 	}
 
-	userId, err := getUserId(c)
-	if err != nil {
-		newResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	if err := h.services.SignOut(userId, input.RefreshToken); err != nil {
+	if err := h.services.SignOut(input.RefreshToken); err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 	}
 

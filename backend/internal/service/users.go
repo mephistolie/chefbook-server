@@ -124,16 +124,11 @@ func (s *UsersService) CreateSession(userId int, ip string) (models.Tokens, erro
 	return res, s.repo.CreateSession(session)
 }
 
-func (s *UsersService) SignOut(userId int, refreshToken string) error {
-	user, err := s.repo.GetByRefreshToken(refreshToken)
-	if err != nil {
+func (s *UsersService) SignOut(refreshToken string) error {
+	if err := s.repo.DeleteSession(refreshToken); err != nil {
 		return models.ErrSessionNotFound
 	}
-	if user.Id != userId {
-		return models.ErrAccessDenied
-	}
-
-	return s.repo.DeleteSession(refreshToken)
+	return nil
 }
 
 func (s *UsersService) RefreshSession(currentRefreshToken, ip string) (models.Tokens, error) {

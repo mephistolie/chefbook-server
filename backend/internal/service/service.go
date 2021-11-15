@@ -16,7 +16,7 @@ type Users interface {
 	SignUp(authInput models.AuthData) (int, error)
 	ActivateUser(activationLink uuid.UUID) error
 	SignIn(authInput models.AuthData, ip string) (models.Tokens, error)
-	SignOut(userId int, refreshToken string) error
+	SignOut(refreshToken string) error
 	RefreshSession(refreshToken, ip string) (models.Tokens, error)
 	GetUserInfo(userId int) (models.User, error)
 }
