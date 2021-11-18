@@ -41,6 +41,14 @@ type Recipes interface {
 	MarkRecipeFavourite(recipe models.FavouriteRecipeInput, userId int) error
 }
 
+type Categories interface {
+	GetCategoriesByUser(userId int) ([]models.Category, error)
+	AddCategory(category models.Category) (int, error)
+	GetCategoryById(categoryId, userId int) (models.Category, error)
+	UpdateCategory(category models.Category) error
+	DeleteCategory(categoryId, userId int) error
+}
+
 type ShoppingList interface {
 	GetShoppingList(userId int) ([]models.Purchase, error)
 	SetShoppingList(shoppingList []models.Purchase, userId int) error
@@ -51,6 +59,7 @@ type Service struct {
 	Users
 	Mails
 	Recipes
+	Categories
 	ShoppingList
 }
 
@@ -78,6 +87,7 @@ func NewServices(dependencies Dependencies) *Service {
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
 		Mails:   mailService,
 		Recipes: NewRecipesService(dependencies.Repos),
+		Categories: NewCategoriesService(dependencies.Repos),
 		ShoppingList: NewShoppingListService(dependencies.Repos),
 	}
 }

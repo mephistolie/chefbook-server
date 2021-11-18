@@ -21,13 +21,11 @@ CREATE TABLE shopping_list
     shopping_list JSONB                          NOT NULL DEFAULT '[]'::jsonb
 );
 
-CREATE TYPE category_type as ENUM ('red', 'blue');
-
 CREATE TABLE categories
 (
     category_id SERIAL PRIMARY KEY             NOT NULL UNIQUE,
     name        VARCHAR(255)                   NOT NULL,
-    type        category_type DEFAULT NULL,
+    type        INT DEFAULT 0,
     user_id     INT REFERENCES users (user_id) NOT NULL
 );
 

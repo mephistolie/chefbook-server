@@ -10,7 +10,7 @@ import (
 func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 	recipes := api.Group("/recipes", h.userIdentity)
 	{
-		recipes.GET("/", h.getRecipes)
+		recipes.GET("", h.getRecipes)
 		recipes.POST("/create", h.addRecipe)
 		recipes.GET("/:recipe_id", h.getRecipe)
 		recipes.PUT("/:recipe_id", h.updateRecipe)

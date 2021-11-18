@@ -12,6 +12,10 @@ var (
 	RespRecipeDeleted = "recipe has been deleted"
 	RespFavouriteStatusUpdated = "favourite status updated"
 
+	RespCategoryAdded = "category has been added"
+	RespCategoryUpdated = "category has been updated"
+	RespCategoryDeleted = "category has been deleted"
+
 	RespShoppingListUpdated = "shopping list has been updated"
 
 	ErrInvalidInput = errors.New("invalid input")

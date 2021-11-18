@@ -31,6 +31,14 @@ type Recipes interface {
 	MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error
 }
 
+type Categories interface {
+	GetCategoriesByUser(userId int) ([]models.Category, error)
+	AddCategory(category models.Category) (int, error)
+	GetCategoryById(categoryId, userId int) (models.Category, error)
+	UpdateCategory(category models.Category) error
+	DeleteCategory(categoryId, userId int) error
+}
+
 type ShoppingList interface {
 	GetShoppingList(userId int) ([]models.Purchase, error)
 	SetShoppingList(shoppingList []models.Purchase, userId int) error
@@ -39,6 +47,7 @@ type ShoppingList interface {
 type Repository struct {
 	Users
 	Recipes
+	Categories
 	ShoppingList
 }
 
@@ -46,6 +55,7 @@ func NewRepositories(db *sqlx.DB) *Repository {
 	return &Repository{
 		Users:        postgres.NewUsersPostgres(db),
 		Recipes:      postgres.NewRecipesPostgres(db),
+		Categories:   postgres.NewCategoriesPostgres(db),
 		ShoppingList: postgres.NewShoppingListPostgres(db),
 	}
 }

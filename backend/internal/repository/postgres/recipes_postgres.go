@@ -67,9 +67,9 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 		return -1, err
 	}
 
-	createRoleQuery := fmt.Sprintf("INSERT INTO %s (user_id, recipe_id) values ($1, $2) RETURNING user_id",
+	createRecipeLinkQuery := fmt.Sprintf("INSERT INTO %s (user_id, recipe_id) values ($1, $2) RETURNING user_id",
 		usersRecipesTable)
-	if _, err := tx.Exec(createRoleQuery, recipe.OwnerId, id); err != nil {
+	if _, err := tx.Exec(createRecipeLinkQuery, recipe.OwnerId, id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
 		}
