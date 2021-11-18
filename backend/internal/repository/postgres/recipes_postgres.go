@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"time"
 )
 
@@ -77,7 +78,8 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 	}
 	err = tx.Commit()
 
-	_ = r.setRecipeCategories(recipe.Categories, id, recipe.OwnerId)
+	err = r.setRecipeCategories(recipe.Categories, id, recipe.OwnerId)
+	logger.Error(err)
 	return id, nil
 }
 
@@ -98,7 +100,7 @@ func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, use
 	}
 
 	addCategoriesQuery := fmt.Sprintf("INSERT INTO %s (recipe_id, category_id, user_id) values ",
-		usersRecipesTable)
+		recipesCategoriesTable)
 	for _, categoryId := range categoriesIds {
 		addCategoriesQuery += fmt.Sprintf("(%d, %d, %d), ", recipeId, categoryId, userId)
 	}
@@ -110,8 +112,7 @@ func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, use
 		return err
 	}
 
-	err = tx.Commit()
-	return nil
+	return tx.Commit()
 }
 
 func (r *RecipesPostgres) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
