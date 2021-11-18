@@ -75,9 +75,43 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 		}
 		return -1, err
 	}
+	err = tx.Commit()
+
+	_ = r.setRecipeCategories(recipe.Categories, id, recipe.OwnerId)
+	return id, nil
+}
+
+func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, userId int) error {
+	var id int
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	clearCategoriesQuery := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesTable)
+	row := tx.QueryRow(clearCategoriesQuery, recipeId, userId)
+	if err := row.Scan(&id); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
+	}
+
+	addCategoriesQuery := fmt.Sprintf("INSERT INTO %s (recipe_id, category_id, user_id) values ",
+		usersRecipesTable)
+	for _, categoryId := range categoriesIds {
+		addCategoriesQuery += fmt.Sprintf("(%d, %d, %d), ", recipeId, categoryId, userId)
+	}
+	addCategoriesQuery = addCategoriesQuery[:len(addCategoriesQuery)-2]
+	if _, err := tx.Exec(addCategoriesQuery); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
+	}
 
 	err = tx.Commit()
-	return id, nil
+	return nil
 }
 
 func (r *RecipesPostgres) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
@@ -114,6 +148,8 @@ func (r *RecipesPostgres) UpdateRecipe(recipe models.Recipe, userId int) error {
 		recipesTable)
 	_, err := r.db.Exec(query, recipe.Name, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
 		recipe.Cooking, recipe.Preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id, userId)
+
+	_ = r.setRecipeCategories(recipe.Categories, recipe.Id, userId)
 	return err
 }
 

@@ -9,6 +9,8 @@ type Recipe struct {
 	Name    string `json:"name"`
 	OwnerId int    `json:"owner_id,omitempty" db:"owner_id"`
 
+	Categories []int `json:"categories,omitempty"`
+
 	Favourite bool `json:"favourite,omitempty"`
 	Liked     bool `json:"liked,omitempty"`
 
@@ -27,6 +29,6 @@ type Recipe struct {
 }
 
 type FavouriteRecipeInput struct {
-	RecipeId        int  `json:"recipe_id,omitempty" db:"recipe_id"`
+	RecipeId  int  `json:"recipe_id,omitempty" db:"recipe_id"`
 	Favourite bool `json:"favourite,omitempty"`
 }
