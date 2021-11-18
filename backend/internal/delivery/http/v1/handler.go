@@ -21,6 +21,7 @@ func NewHandler(services *service.Service, tokenManager auth.TokenManager) *Hand
 func (h *Handler) Init(api *gin.RouterGroup)  {
 	v1 := api.Group("/v1")
 	{
+		h.initAuthRoutes(v1)
 		h.initUsersRoutes(v1)
 		h.initRecipesRoutes(v1)
 		h.initShoppingListRoutes(v1)
