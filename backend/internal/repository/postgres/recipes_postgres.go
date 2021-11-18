@@ -90,7 +90,7 @@ func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, use
 		return err
 	}
 
-	clearCategoriesQuery := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesTable)
+	clearCategoriesQuery := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesCategoriesTable)
 	row := tx.QueryRow(clearCategoriesQuery, recipeId, userId)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
