@@ -51,7 +51,7 @@ func (r *CategoriesPostgres) GetCategoryById(categoryId, userId int) (models.Cat
 }
 
 func (r *CategoriesPostgres) UpdateCategory(category models.Category) error {
-	query := fmt.Sprintf("UPDATE %s SET name=$1, type=$2 WHERE category_id=$1 AND user_id=$2", categoriesTable)
+	query := fmt.Sprintf("UPDATE %s SET name=$1, type=$2 WHERE category_id=$3 AND user_id=$4", categoriesTable)
 	_, err := r.db.Exec(query, category.Name, category.Type, category.Id, category.UserId)
 	return err
 }
