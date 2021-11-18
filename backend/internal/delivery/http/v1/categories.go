@@ -11,7 +11,7 @@ func (h *Handler) initCategoriesRoutes(api *gin.RouterGroup) {
 	categories := api.Group("/categories", h.userIdentity)
 	{
 		categories.GET("", h.getCategories)
-		categories.POST("/create", h.addCategory)
+		categories.POST("/add", h.addCategory)
 		categories.GET("/:category_id", h.getCategory)
 		categories.PUT("/:category_id", h.updateCategory)
 		categories.DELETE("/:category_id", h.deleteCategory)
