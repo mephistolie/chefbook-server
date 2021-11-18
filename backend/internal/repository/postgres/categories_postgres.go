@@ -44,7 +44,7 @@ func (r *CategoriesPostgres) AddCategory(category models.Category) (int, error) 
 
 func (r *CategoriesPostgres) GetCategoryById(categoryId, userId int) (models.Category, error) {
 	var category models.Category
-	query := fmt.Sprintf("SELECT %s WHERE category_id=$1 AND user_id=$2", categoriesTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE category_id=$1 AND user_id=$2", categoriesTable)
 	row := r.db.QueryRow(query, categoryId, userId)
 	err := row.Scan(&category.Id, &category.Name, &category.Type, &category.UserId)
 	return category, err
@@ -52,12 +52,12 @@ func (r *CategoriesPostgres) GetCategoryById(categoryId, userId int) (models.Cat
 
 func (r *CategoriesPostgres) UpdateCategory(category models.Category) error {
 	query := fmt.Sprintf("UPDATE %s SET name=$1, type=$2 WHERE category_id=$1 AND user_id=$2", categoriesTable)
-	_, err := r.db.Exec(query, category.Id, category.UserId)
+	_, err := r.db.Exec(query, category.Name, category.Type, category.Id, category.UserId)
 	return err
 }
 
 func (r *CategoriesPostgres) DeleteCategory(categoryId, userId int) error {
-	query := fmt.Sprintf("DELETE FROM %s category_id=$1 AND user_id=$2", categoriesTable)
+	query := fmt.Sprintf("DELETE FROM %s WHERE category_id=$1 AND user_id=$2", categoriesTable)
 	_, err := r.db.Exec(query, categoryId, userId)
 	return err
 }

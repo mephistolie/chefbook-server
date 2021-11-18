@@ -30,7 +30,7 @@ func (s *CategoriesService) AddCategory(category models.Category) (int, error) {
 func (s *CategoriesService) GetCategoryById(categoryId, userId int) (models.Category, error) {
 	category, err := s.repo.GetCategoryById(categoryId, userId)
 	if err != nil {
-		return models.Category{}, models.ErrRecipeNotFound
+		return models.Category{}, models.ErrCategoryNotFound
 	}
 	return category, err
 }
