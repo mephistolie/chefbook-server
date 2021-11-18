@@ -84,15 +84,13 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 }
 
 func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, userId int) error {
-	var id int
 	tx, err := r.db.Begin()
 	if err != nil {
 		return err
 	}
 
 	clearCategoriesQuery := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesCategoriesTable)
-	row := tx.QueryRow(clearCategoriesQuery, recipeId, userId)
-	if err := row.Scan(&id); err != nil {
+	if _, err := tx.Exec(clearCategoriesQuery, recipeId, userId); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return err
 		}
