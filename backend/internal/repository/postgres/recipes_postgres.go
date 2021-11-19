@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"time"
 )
 
@@ -79,7 +78,6 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 	err = tx.Commit()
 
 	err = r.setRecipeCategories(recipe.Categories, id, recipe.OwnerId)
-	logger.Error(err)
 	return id, nil
 }
 

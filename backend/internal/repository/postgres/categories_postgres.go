@@ -61,3 +61,21 @@ func (r *CategoriesPostgres) DeleteCategory(categoryId, userId int) error {
 	_, err := r.db.Exec(query, categoryId, userId)
 	return err
 }
+
+func (r *CategoriesPostgres) GetRecipeCategories(recipeId, userId int) ([]int, error) {
+	var categories []int
+	query := fmt.Sprintf("SELECT category_id FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesCategoriesTable)
+	rows, err := r.db.Query(query, recipeId, userId)
+	if err != nil {
+		return []int{}, err
+	}
+	for rows.Next() {
+		var categoryId int
+		err := rows.Scan(&categoryId)
+		if err != nil {
+			return []int{}, err
+		}
+		categories = append(categories, categoryId)
+	}
+	return categories, nil
+}

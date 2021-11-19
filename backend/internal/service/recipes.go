@@ -14,19 +14,24 @@ const (
 )
 
 type RecipesService struct {
-	repo repository.Recipes
+	recipesRepo repository.Recipes
+	categoriesRepo repository.Categories
 }
 
-func NewRecipesService(repo repository.Recipes) *RecipesService {
+func NewRecipesService(recipesRepo repository.Recipes, categoriesRepo repository.Categories) *RecipesService {
 	return &RecipesService{
-		repo: repo,
+		recipesRepo: recipesRepo,
+		categoriesRepo: categoriesRepo,
 	}
 }
 
 func (s *RecipesService) GetRecipesByUser(userId int) ([]models.Recipe, error) {
-	recipes, err := s.repo.GetRecipesByUser(userId)
+	recipes, err := s.recipesRepo.GetRecipesByUser(userId)
 	if recipes == nil {
 		recipes = []models.Recipe{}
+	}
+	for i, _ := range recipes {
+		recipes[i].Categories, _ = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
 	}
 	return recipes, err
 }
@@ -36,11 +41,15 @@ func (s *RecipesService) AddRecipe(recipe models.Recipe) (int, error) {
 	if err != nil {
 		return 0, models.ErrInvalidRecipeInput
 	}
-	return s.repo.CreateRecipe(recipe)
+	return s.recipesRepo.CreateRecipe(recipe)
 }
 
 func (s *RecipesService) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
-	recipe, err := s.repo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	if err != nil {
+		return models.Recipe{}, models.ErrRecipeNotFound
+	}
+	recipe.Categories, err = s.categoriesRepo.GetRecipeCategories(recipeId, userId)
 	if err != nil {
 		return models.Recipe{}, models.ErrRecipeNotFound
 	}
@@ -52,25 +61,25 @@ func (s *RecipesService) UpdateRecipe(recipe models.Recipe, userId int) error {
 	if err != nil {
 		return models.ErrInvalidRecipeInput
 	}
-	return s.repo.UpdateRecipe(recipe, userId)
+	return s.recipesRepo.UpdateRecipe(recipe, userId)
 }
 
 func (s *RecipesService) DeleteRecipe(recipeId, userId int) error {
-	ownerId, err := s.repo.GetRecipeOwnerId(recipeId)
+	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return models.ErrRecipeNotFound
 	}
 	if ownerId == userId {
-		err = s.repo.DeleteRecipe(recipeId)
+		err = s.recipesRepo.DeleteRecipe(recipeId)
 		return err
 	} else {
-		err = s.repo.DeleteRecipeLink(recipeId, userId)
+		err = s.recipesRepo.DeleteRecipeLink(recipeId, userId)
 		return err
 	}
 }
 
 func (s *RecipesService) MarkRecipeFavourite(recipe models.FavouriteRecipeInput, userId int) error {
-	return s.repo.MarkRecipeFavourite(recipe.RecipeId, userId, recipe.Favourite)
+	return s.recipesRepo.MarkRecipeFavourite(recipe.RecipeId, userId, recipe.Favourite)
 }
 
 func validateRecipe(recipe models.Recipe) (models.Recipe, error) {

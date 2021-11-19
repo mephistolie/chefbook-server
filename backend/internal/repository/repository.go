@@ -37,6 +37,7 @@ type Categories interface {
 	GetCategoryById(categoryId, userId int) (models.Category, error)
 	UpdateCategory(category models.Category) error
 	DeleteCategory(categoryId, userId int) error
+	GetRecipeCategories(recipeId, userId int) ([]int, error)
 }
 
 type ShoppingList interface {

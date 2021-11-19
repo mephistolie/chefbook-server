@@ -47,6 +47,7 @@ type Categories interface {
 	GetCategoryById(categoryId, userId int) (models.Category, error)
 	UpdateCategory(category models.Category) error
 	DeleteCategory(categoryId, userId int) error
+	GetRecipeCategories(recipeId, userId int) ([]int, error)
 }
 
 type ShoppingList interface {
@@ -86,7 +87,7 @@ func NewServices(dependencies Dependencies) *Service {
 		Users: NewUsersService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
 		Mails:   mailService,
-		Recipes: NewRecipesService(dependencies.Repos),
+		Recipes: NewRecipesService(dependencies.Repos, dependencies.Repos),
 		Categories: NewCategoriesService(dependencies.Repos),
 		ShoppingList: NewShoppingListService(dependencies.Repos),
 	}
