@@ -103,6 +103,8 @@ func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, use
 		addCategoriesQuery += fmt.Sprintf("(%d, %d, %d), ", recipeId, categoryId, userId)
 	}
 	addCategoriesQuery = addCategoriesQuery[:len(addCategoriesQuery)-2]
+	addCategoriesQuery += fmt.Sprintf(" WHERE %[1]v.category_id=%[2]v.category_id AND %[1]v.user_id=%[2]v.user_id)",
+		categoriesTable, recipesCategoriesTable)
 	if _, err := tx.Exec(addCategoriesQuery); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return err
