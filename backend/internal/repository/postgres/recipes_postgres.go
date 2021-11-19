@@ -96,15 +96,15 @@ func (r *RecipesPostgres) setRecipeCategories(categoriesIds []int, recipeId, use
 		}
 		return err
 	}
-
-	addCategoriesQuery := fmt.Sprintf("INSERT INTO %s (recipe_id, category_id, user_id) values ",
-		recipesCategoriesTable)
+	
+	categoriesArrayString := "("
 	for _, categoryId := range categoriesIds {
-		addCategoriesQuery += fmt.Sprintf("(%d, %d, %d), ", recipeId, categoryId, userId)
+		categoriesArrayString += fmt.Sprintf("%d, ", categoryId)
 	}
-	addCategoriesQuery = addCategoriesQuery[:len(addCategoriesQuery)-2]
-	addCategoriesQuery += fmt.Sprintf(" WHERE %[1]v.category_id=%[2]v.category_id AND %[1]v.user_id=%[2]v.user_id)",
-		categoriesTable, recipesCategoriesTable)
+	categoriesArrayString = categoriesArrayString[:len(categoriesArrayString)-2] + ")"
+	addCategoriesQuery := fmt.Sprintf("INSERT INTO %[1]v (recipe_id, category_id, user_id) " +
+		"SELECT %[2]v.recipe_id, %[3]v.category_id, %[3]v.user_id FROM %[3]v LEFT JOIN %[2]v ON %[2]v.recipe_id=$1 WHERE category_id IN %[4]v AND user_id=$2",
+		recipesCategoriesTable, recipesTable, categoriesTable, categoriesArrayString)
 	if _, err := tx.Exec(addCategoriesQuery); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return err
