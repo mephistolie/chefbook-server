@@ -25,7 +25,7 @@ func (r *CategoriesPostgres) GetCategoriesByUser(userId int) ([]models.Category,
 	}
 	for rows.Next() {
 		var category models.Category
-		err := rows.Scan(&category.Id, &category.Name, &category.Type, &category.UserId)
+		err := rows.Scan(&category.Id, &category.Name, &category.Cover, &category.UserId)
 		if err != nil {
 			return []models.Category{}, err
 		}
@@ -36,8 +36,8 @@ func (r *CategoriesPostgres) GetCategoriesByUser(userId int) ([]models.Category,
 
 func (r *CategoriesPostgres) AddCategory(category models.Category) (int, error) {
 	var id int
-	query := fmt.Sprintf("INSERT INTO %s (name, type, user_id) values ($1, $2, $3) RETURNING category_id", categoriesTable)
-	row := r.db.QueryRow(query, category.Name, category.Type, category.UserId)
+	query := fmt.Sprintf("INSERT INTO %s (name, cover, user_id) values ($1, $2, $3) RETURNING category_id", categoriesTable)
+	row := r.db.QueryRow(query, category.Name, category.Cover, category.UserId)
 	err := row.Scan(&id)
 	return id, err
 }
@@ -46,13 +46,13 @@ func (r *CategoriesPostgres) GetCategoryById(categoryId, userId int) (models.Cat
 	var category models.Category
 	query := fmt.Sprintf("SELECT * FROM %s WHERE category_id=$1 AND user_id=$2", categoriesTable)
 	row := r.db.QueryRow(query, categoryId, userId)
-	err := row.Scan(&category.Id, &category.Name, &category.Type, &category.UserId)
+	err := row.Scan(&category.Id, &category.Name, &category.Cover, &category.UserId)
 	return category, err
 }
 
 func (r *CategoriesPostgres) UpdateCategory(category models.Category) error {
-	query := fmt.Sprintf("UPDATE %s SET name=$1, type=$2 WHERE category_id=$3 AND user_id=$4", categoriesTable)
-	_, err := r.db.Exec(query, category.Name, category.Type, category.Id, category.UserId)
+	query := fmt.Sprintf("UPDATE %s SET name=$1, cover=$2 WHERE category_id=$3 AND user_id=$4", categoriesTable)
+	_, err := r.db.Exec(query, category.Name, category.Cover, category.Id, category.UserId)
 	return err
 }
 

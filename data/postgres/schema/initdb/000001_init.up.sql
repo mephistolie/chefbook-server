@@ -25,7 +25,7 @@ CREATE TABLE categories
 (
     category_id SERIAL PRIMARY KEY             NOT NULL UNIQUE,
     name        VARCHAR(255)                   NOT NULL,
-    type        INT DEFAULT 0,
+    cover       VARCHAR(20) DEFAULT '',
     user_id     INT REFERENCES users (user_id) NOT NULL
 );
 
