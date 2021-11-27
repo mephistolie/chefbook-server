@@ -1,6 +1,7 @@
 package models
 
 type Purchase struct {
-	Item        string  `json:"item"`
-	IsPurchased bool `json:"is_selected"`
+	Id          string `json:"purchase_id"`
+	Item        string `json:"name"`
+	IsPurchased bool   `json:"is_purchased"`
 }
