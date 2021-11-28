@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
+	"time"
 )
 
 type ShoppingList struct {
@@ -28,6 +29,7 @@ func (r *ShoppingList) GetShoppingList(userId int) (models.ShoppingList, error) 
 }
 
 func (r *ShoppingList) SetShoppingList(shoppingList models.ShoppingList, userId int) error {
+	shoppingList.Timestamp = time.Now()
 	var shoppingListJSON, err = json.Marshal(shoppingList)
 	if err != nil {
 		return err
