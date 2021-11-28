@@ -57,13 +57,13 @@ func (h *Handler) setShoppingList(c *gin.Context) {
 		return
 	}
 
-	var purchases []models.Purchase
-	if err := c.BindJSON(&purchases); err != nil {
+	var shoppingList models.ShoppingList
+	if err := c.BindJSON(&shoppingList); err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
-	if err := 	h.services.ShoppingList.SetShoppingList(purchases, userId); err != nil {
+	if err := 	h.services.ShoppingList.SetShoppingList(shoppingList, userId); err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}

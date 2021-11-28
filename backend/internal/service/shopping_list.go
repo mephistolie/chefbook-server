@@ -15,19 +15,19 @@ func NewShoppingListService(repo repository.ShoppingList) *ShoppingListService {
 	}
 }
 
-func (s *ShoppingListService) GetShoppingList(userId int) ([]models.Purchase, error)  {
+func (s *ShoppingListService) GetShoppingList(userId int) (models.ShoppingList, error)  {
 	return s.repo.GetShoppingList(userId)
 }
 
-func (s *ShoppingListService) SetShoppingList(shoppingList []models.Purchase, userId int) error  {
+func (s *ShoppingListService) SetShoppingList(shoppingList models.ShoppingList, userId int) error  {
 	return s.repo.SetShoppingList(shoppingList, userId)
 }
 
 func (s *ShoppingListService) AddToShoppingList(newPurchases []models.Purchase, userId int) error {
-	originalPurchases, err := s.repo.GetShoppingList(userId)
+	shoppingList, err := s.repo.GetShoppingList(userId)
 	if err != nil {
 		return err
 	}
-	shoppingList := append(originalPurchases, newPurchases...)
+	shoppingList.Purchases = append(shoppingList.Purchases, newPurchases...)
 	return s.repo.SetShoppingList(shoppingList, userId)
 }

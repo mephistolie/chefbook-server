@@ -51,8 +51,8 @@ type Categories interface {
 }
 
 type ShoppingList interface {
-	GetShoppingList(userId int) ([]models.Purchase, error)
-	SetShoppingList(shoppingList []models.Purchase, userId int) error
+	GetShoppingList(userId int) (models.ShoppingList, error)
+	SetShoppingList(shoppingList models.ShoppingList, userId int) error
 	AddToShoppingList(newPurchases []models.Purchase, userId int) error
 }
 
