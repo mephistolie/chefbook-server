@@ -62,9 +62,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SIGNING_KEY=${JWT_SIGNING_KEY:?err}
       - SALT_COST=${SALT_COST:-10}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY:?err}
+      - S3_SECRET_KEY=${S3_SECRET_KEY:?err}
       - SMTP_EMAIL=${SMTP_EMAIL:?err}
       - SMTP_PASSWORD=${SMTP_PASSWORD:?err}
       - WAIT_HOSTS=postgres:5432
-networks:
-  web:
-    external: true

@@ -7,6 +7,9 @@ var (
 	RespProfileActivated = "profile is activated"
 	RespSignOutSuccessfully = "signed out successfully"
 
+	RespUsernameChanged = "username successfully changed"
+	RespAvatarDeleted = "avatar has been deleted"
+
 	RespRecipeAdded = "recipe has been added"
 	RespRecipeUpdated = "recipe has been updated"
 	RespRecipeDeleted = "recipe has been deleted"
@@ -19,6 +22,8 @@ var (
 	RespShoppingListUpdated = "shopping list has been updated"
 
 	ErrInvalidInput = errors.New("invalid input")
+	ErrInvalidFileInput = errors.New("invalid input. File must be < 500KB")
+	ErrFileTypeNotSupported = errors.New("file type isn't supported")
 	ErrAccessDenied   = errors.New("recipe access denied")
 
 	ErrUserAlreadyExists   = errors.New("user with such email already exists")
@@ -35,6 +40,8 @@ var (
 
 	ErrUserIdNotFound = errors.New("user id not found")
 	ErrInvalidUserId  = errors.New("invalid user id")
+
+	ErrUnableDeleteAvatar = errors.New("unable to delete avatar")
 
 	ErrInvalidRecipeInput = errors.New("invalid recipe input")
 	ErrRecipeNotFound = errors.New("recipe not found")

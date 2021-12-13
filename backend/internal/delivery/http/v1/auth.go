@@ -27,7 +27,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	id, err := h.services.Users.SignUp(input)
+	id, err := h.services.Auth.SignUp(input)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -46,7 +46,7 @@ func (h *Handler) activate(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Users.ActivateUser(activationLink); err != nil {
+	if err := h.services.Auth.ActivateUser(activationLink); err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}

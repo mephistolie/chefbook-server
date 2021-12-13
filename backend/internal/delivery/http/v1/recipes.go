@@ -11,7 +11,7 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 	recipes := api.Group("/recipes", h.userIdentity)
 	{
 		recipes.GET("", h.getRecipes)
-		recipes.POST("/create", h.addRecipe)
+		recipes.POST("/create", h.createRecipe)
 		recipes.GET("/:recipe_id", h.getRecipe)
 		recipes.PUT("/:recipe_id", h.updateRecipe)
 		recipes.DELETE("/:recipe_id", h.deleteRecipe)
@@ -35,7 +35,7 @@ func (h *Handler) getRecipes(c *gin.Context) {
 	c.JSON(http.StatusOK, recipes)
 }
 
-func (h *Handler) addRecipe(c *gin.Context) {
+func (h *Handler) createRecipe(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())

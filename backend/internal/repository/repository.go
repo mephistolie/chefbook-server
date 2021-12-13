@@ -1,10 +1,13 @@
 package repository
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
 	"github.com/mephistolie/chefbook-server/internal/repository/postgres"
+	"github.com/mephistolie/chefbook-server/internal/repository/s3"
+	"github.com/minio/minio-go/v7"
 )
 
 type Users interface {
@@ -18,6 +21,9 @@ type Users interface {
 	UpdateSession(session models.Session, oldRefreshToken string) error
 	DeleteSession(refreshToken string) error
 	ChangePassword(user models.AuthData) error
+
+	SetUserName(userId int, username string) error
+	SetUserAvatar(userId int, url string) error
 }
 
 type Recipes interface {
@@ -45,18 +51,25 @@ type ShoppingList interface {
 	SetShoppingList(shoppingList models.ShoppingList, userId int) error
 }
 
+type Files interface {
+	UploadAvatar(ctx context.Context, input s3.UploadInput) (string, error)
+	DeleteAvatar(ctx context.Context, url string) error
+}
+
 type Repository struct {
 	Users
 	Recipes
 	Categories
 	ShoppingList
+	Files
 }
 
-func NewRepositories(db *sqlx.DB) *Repository {
+func NewRepositories(db *sqlx.DB, client *minio.Client) *Repository {
 	return &Repository{
 		Users:        postgres.NewUsersPostgres(db),
 		Recipes:      postgres.NewRecipesPostgres(db),
 		Categories:   postgres.NewCategoriesPostgres(db),
 		ShoppingList: postgres.NewShoppingListPostgres(db),
+		Files:        s3.NewAWSFileManager(client),
 	}
 }

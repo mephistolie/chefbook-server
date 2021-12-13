@@ -15,6 +15,8 @@ import (
 	"github.com/mephistolie/chefbook-server/pkg/hash"
 	"github.com/mephistolie/chefbook-server/pkg/logger"
 	smtp "github.com/mephistolie/chefbook-server/pkg/mail"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"net/http"
 	"os"
 	"os/signal"
@@ -57,7 +59,12 @@ func Run(configPath string) {
 		return
 	}
 
-	repositories := repository.NewRepositories(db)
+	client, err := minio.New(cfg.S3.Host, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.S3.AccessKey, cfg.S3.SecretKey, ""),
+		Secure: true,
+	})
+
+	repositories := repository.NewRepositories(db, client)
 	services := service.NewServices(service.Dependencies{
 		Repos:           repositories,
 		Cache:           memCache,

@@ -16,6 +16,7 @@ type User struct {
 	Avatar         sql.NullString `json:"avatar,omitempty"`
 	VkId           sql.NullString `json:"vk_id,omitempty" db:"vk_id"`
 	Premium        sql.NullTime   `json:"premium,omitempty"`
+	Broccoins      int            `json:"broccoins,omitempty" db:"broccoins"`
 	IsBlocked      bool           `json:"is_blocked,omitempty" db:"is_blocked"`
 }
 
@@ -27,12 +28,12 @@ type UserInfo struct {
 }
 
 type UserDetailedInfo struct {
-	Id        int            `json:"user_id,omitempty" db:"user_id"`
-	Email     string         `json:"email" binding:"required,email,max=128"`
-	Username  string `json:"username,omitempty"`
-	Avatar    string         `json:"avatar,omitempty"`
-	Premium   time.Time      `json:"premium,omitempty"`
-	IsBlocked bool           `json:"is_blocked,omitempty" db:"is_blocked"`
+	Id        int       `json:"user_id,omitempty" db:"user_id"`
+	Email     string    `json:"email" binding:"required,email,max=128"`
+	Username  string    `json:"username,omitempty"`
+	Avatar    string    `json:"avatar,omitempty"`
+	Premium   time.Time `json:"premium,omitempty"`
+	IsBlocked bool      `json:"is_blocked,omitempty" db:"is_blocked"`
 }
 
 type AuthData struct {
@@ -54,4 +55,8 @@ type Session struct {
 	RefreshToken string    `json:"refresh_token" bson:"refreshToken" db:"refresh_token"`
 	Ip           string    `json:"ip" bson:"ip" db:"ip"`
 	ExpiresAt    time.Time `json:"expires_at" bson:"expiresAt" db:"expires_at"`
+}
+
+type UserNameInput struct {
+	Username string `json:"username,omitempty" db:"username"`
 }

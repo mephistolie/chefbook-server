@@ -142,3 +142,17 @@ func (r *AuthPostgres) ChangePassword(authData models.AuthData) error {
 	}
 	return nil
 }
+
+func (r *AuthPostgres) SetUserName(userId int, username string) error {
+	query := fmt.Sprintf("UPDATE %s SET username=$1 WHERE user_id=$1", usersTable)
+	_, err := r.db.Exec(query, userId, username)
+	return err
+}
+
+func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
+	var avatar interface{}
+	if url != "" { avatar = url} else { avatar = nil}
+	query := fmt.Sprintf("UPDATE %s SET avatar=$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, avatar, userId)
+	return err
+}

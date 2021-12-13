@@ -27,6 +27,7 @@ type (
 		Environment string
 		Postgres    PostgresConfig
 		HTTP        HTTPConfig
+		S3          S3Config
 		Auth        AuthConfig
 		Mail        MailConfig
 		Limiter     LimiterConfig
@@ -75,6 +76,12 @@ type (
 		MaxHeaderMegabytes int           `mapstructure:"maxHeaderBytes"`
 	}
 
+	S3Config struct {
+		Host      string `mapstructure:"host"`
+		AccessKey string `mapstructure:"accessKey"`
+		SecretKey string `mapstructure:"secretKey"`
+	}
+
 	LimiterConfig struct {
 		RPS   int
 		Burst int
@@ -119,6 +126,10 @@ func unmarshal(cfg *Config) error {
 		return err
 	}
 
+	if err := viper.UnmarshalKey("s3", &cfg.S3); err != nil {
+		return err
+	}
+
 	if err := viper.UnmarshalKey("auth", &cfg.Auth.JWT); err != nil {
 		return err
 	}
@@ -148,6 +159,9 @@ func setFromEnv(cfg *Config) {
 	cfg.Auth.JWT.SigningKey = os.Getenv("JWT_SIGNING_KEY")
 
 	cfg.HTTP.Host = os.Getenv("HTTP_HOST")
+
+	cfg.S3.AccessKey = os.Getenv("S3_ACCESS_KEY")
+	cfg.S3.SecretKey = os.Getenv("S3_SECRET_KEY")
 
 	cfg.SMTP.From = os.Getenv("SMTP_EMAIL")
 	cfg.SMTP.Password = os.Getenv("SMTP_PASSWORD")

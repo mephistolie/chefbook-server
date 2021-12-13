@@ -10,7 +10,9 @@ CREATE TABLE users
 
     avatar          VARCHAR(255) UNIQUE         DEFAULT NULL,
     vk_id           VARCHAR(255) UNIQUE         DEFAULT NULL,
-    premium         TIMESTAMP                   DEFAULT null,
+
+    premium         TIMESTAMP                   DEFAULT NULL,
+    broccoins       INT                NOT NULL DEFAULT 0,
 
     is_blocked      BOOLEAN            NOT NULL DEFAULT false
 );

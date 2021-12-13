@@ -14,6 +14,9 @@ auth:
   accessTokenTTL: 30m
   refreshTokenTTL: 720h #30 days
 
+s3:
+  host: "storage.yandexcloud.net"
+
 smtp:
   host: "smtp.mail.ru"
   port: "465"

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"bytes"
+	"context"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/config"
 	"github.com/mephistolie/chefbook-server/internal/models"
@@ -12,13 +14,19 @@ import (
 	"time"
 )
 
-type Users interface {
+type Auth interface {
 	SignUp(authInput models.AuthData) (int, error)
 	ActivateUser(activationLink uuid.UUID) error
 	SignIn(authInput models.AuthData, ip string) (models.Tokens, error)
 	SignOut(refreshToken string) error
 	RefreshSession(refreshToken, ip string) (models.Tokens, error)
+}
+
+type Users interface {
 	GetUserInfo(userId int) (models.User, error)
+	SetUserName(userId int, username string) error
+	UploadAvatar(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
+	DeleteAvatar(ctx context.Context, userId int) error
 }
 
 type VerificationEmailInput struct {
@@ -57,6 +65,7 @@ type ShoppingList interface {
 }
 
 type Service struct {
+	Auth
 	Users
 	Mails
 	Recipes
@@ -73,7 +82,6 @@ type Dependencies struct {
 	MailConfig     config.MailConfig
 	AccessTokenTTL time.Duration
 	RefreshTokenTTL  time.Duration
-	FondyCallbackURL string
 	CacheTTL         int64
 	Environment      string
 	Domain           string
@@ -84,8 +92,9 @@ func NewServices(dependencies Dependencies) *Service {
 	mailService := NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
 
 	return &Service{
-		Users: NewUsersService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
+		Auth : NewAuthService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
+		Users: NewUsersService(*dependencies.Repos),
 		Mails:   mailService,
 		Recipes: NewRecipesService(dependencies.Repos, dependencies.Repos),
 		Categories: NewCategoriesService(dependencies.Repos),
