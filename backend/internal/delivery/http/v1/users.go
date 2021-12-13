@@ -48,6 +48,7 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 			Email:     user.Email,
 			Avatar:    user.Avatar.String,
 			Premium:   user.Premium.Time,
+			Broccoins: user.Broccoins,
 			IsBlocked: user.IsBlocked,
 		})
 	} else {

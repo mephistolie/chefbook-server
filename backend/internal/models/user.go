@@ -33,6 +33,7 @@ type UserDetailedInfo struct {
 	Username  string    `json:"username,omitempty"`
 	Avatar    string    `json:"avatar,omitempty"`
 	Premium   time.Time `json:"premium,omitempty"`
+	Broccoins int       `json:"broccoins,omitempty" db:"broccoins"`
 	IsBlocked bool      `json:"is_blocked,omitempty" db:"is_blocked"`
 }
 
