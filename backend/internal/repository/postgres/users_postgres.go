@@ -144,8 +144,8 @@ func (r *AuthPostgres) ChangePassword(authData models.AuthData) error {
 }
 
 func (r *AuthPostgres) SetUserName(userId int, username string) error {
-	query := fmt.Sprintf("UPDATE %s SET username=$1 WHERE user_id=$1", usersTable)
-	_, err := r.db.Exec(query, userId, username)
+	query := fmt.Sprintf("UPDATE %s SET username=$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, username, userId)
 	return err
 }
 
