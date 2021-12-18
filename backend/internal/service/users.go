@@ -28,7 +28,7 @@ func (s *UsersService) GetUserInfo(userId int) (models.User, error) {
 }
 
 func (s *UsersService) SetUserName(userId int, username string) error  {
-	return s.SetUserName(userId, username)
+	return s.repo.SetUserName(userId, username)
 }
 
 func (s *UsersService) UploadAvatar(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
