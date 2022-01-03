@@ -32,7 +32,7 @@ func (r *RecipesPostgres) GetRecipesByUser(userId int) ([]models.Recipe, error) 
 	}
 	for rows.Next() {
 		var recipe models.Recipe
-		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Servings, &recipe.Time, &recipe.Calories,
+		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories,
 			&ingredients, &cooking, &recipe.Preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
 			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked)
 		if err != nil {
