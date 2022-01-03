@@ -13,7 +13,8 @@ var (
 	RespRecipeAdded = "recipe has been added"
 	RespRecipeUpdated = "recipe has been updated"
 	RespRecipeDeleted = "recipe has been deleted"
-	RespFavouriteStatusUpdated = "favourite status updated"
+	RespCategoriesUpdated = "categories has been updated"
+	RespFavouriteStatusUpdated = "favourite status has been updated"
 
 	RespCategoryAdded = "category has been added"
 	RespCategoryUpdated = "category has been updated"
@@ -46,6 +47,7 @@ var (
 	ErrInvalidRecipeInput = errors.New("invalid recipe input")
 	ErrRecipeNotFound = errors.New("recipe not found")
 	ErrRecipeNotInRecipeBook = errors.New("recipe isn't in recipe book")
+	ErrRecipeLikeSetAlready = errors.New("recipe like status already set")
 
 	ErrCategoryNotFound = errors.New("category not found")
 )

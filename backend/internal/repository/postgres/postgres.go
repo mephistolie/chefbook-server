@@ -13,6 +13,7 @@ const (
 	categoriesTable        = "categories"
 	shoppingListTable      = "shopping_list"
 	usersRecipesTable      = "users_recipes"
+	likesTable             = "likes"
 	recipesCategoriesTable = "recipes_categories"
 )
 

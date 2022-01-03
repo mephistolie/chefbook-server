@@ -11,14 +11,16 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 	recipes := api.Group("/recipes", h.userIdentity)
 	{
 		recipes.GET("", h.getRecipes)
-		recipes.POST("/create", h.createRecipe)
+		recipes.POST("", h.createRecipe)
 		recipes.GET("/:recipe_id", h.getRecipe)
 		recipes.PUT("/:recipe_id", h.updateRecipe)
 		recipes.DELETE("/:recipe_id", h.deleteRecipe)
 
-		recipes.PUT("/mark-favourite", h.markRecipeFavourite)
-		recipes.PUT("/like", h.markRecipeFavourite)
-		recipes.PUT("/unlike", h.markRecipeFavourite)
+		recipes.PUT("/:recipe_id/categories", h.setRecipeCategories)
+		recipes.PUT("/favourites/:recipe_id", h.markRecipeFavourite)
+		recipes.DELETE("/favourites/:recipe_id", h.unmarkRecipeFavourite)
+		recipes.PUT("/liked/:recipe_id", h.likeRecipe)
+		recipes.DELETE("/liked/:recipe_id", h.unlikeRecipe)
 	}
 }
 
@@ -138,20 +140,126 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 	})
 }
 
-func (h *Handler) markRecipeFavourite(c *gin.Context) {
-	userId, err := getUserId(c)
+func (h *Handler) setRecipeCategories(c *gin.Context) {
+	var input models.RecipeCategoriesInput
+	var err error
+	input.UserId, err = getUserId(c)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	var recipe models.FavouriteRecipeInput
-	if err := c.BindJSON(&recipe); err != nil {
+	input.RecipeId, err = strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
 
-	err = h.services.MarkRecipeFavourite(recipe, userId)
+	err = h.services.SetRecipeCategories(input)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespCategoriesUpdated,
+	})
+}
+
+func (h *Handler) markRecipeFavourite(c *gin.Context) {
+	var err error
+	input := models.FavouriteRecipeInput {
+		Favourite: true,
+	}
+	input.UserId, err = getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	input.RecipeId, err = strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.MarkRecipeFavourite(input)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespFavouriteStatusUpdated,
+	})
+}
+
+func (h *Handler) unmarkRecipeFavourite(c *gin.Context) {
+	var err error
+	input := models.FavouriteRecipeInput {
+		Favourite: false,
+	}
+	input.UserId, err = getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	input.RecipeId, err = strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.MarkRecipeFavourite(input)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespFavouriteStatusUpdated,
+	})
+}
+
+func (h *Handler) likeRecipe(c *gin.Context) {
+	var err error
+	input := models.RecipeLikeInput {
+		Liked: true,
+	}
+	input.UserId, err = getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	input.RecipeId, err = strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.SetRecipeLike(input)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespFavouriteStatusUpdated,
+	})
+}
+
+func (h *Handler) unlikeRecipe(c *gin.Context) {
+	var err error
+	input := models.RecipeLikeInput {
+		Liked: true,
+	}
+	input.UserId, err = getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	input.RecipeId, err = strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.SetRecipeLike(input)
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
 		return

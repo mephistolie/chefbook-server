@@ -3,10 +3,10 @@ package service
 import (
 	"bytes"
 	"context"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/models"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/internal/repository/s3"
-	"strconv"
 )
 
 type UsersService struct {
@@ -33,7 +33,7 @@ func (s *UsersService) SetUserName(userId int, username string) error  {
 
 func (s *UsersService) UploadAvatar(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
 	url, err := s.repo.Files.UploadAvatar(ctx, s3.UploadInput{
-		Name:        strconv.Itoa(userId),
+		Name:        uuid.NewString(),
 		File:        file,
 		Size:        size,
 		ContentType: contentType,

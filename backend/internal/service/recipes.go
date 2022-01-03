@@ -78,8 +78,16 @@ func (s *RecipesService) DeleteRecipe(recipeId, userId int) error {
 	}
 }
 
-func (s *RecipesService) MarkRecipeFavourite(recipe models.FavouriteRecipeInput, userId int) error {
-	return s.recipesRepo.MarkRecipeFavourite(recipe.RecipeId, userId, recipe.Favourite)
+func (s *RecipesService) SetRecipeCategories(input models.RecipeCategoriesInput) error  {
+	return s.recipesRepo.SetRecipeCategories(input.Categories, input.RecipeId, input.UserId)
+}
+
+func (s *RecipesService) MarkRecipeFavourite(input models.FavouriteRecipeInput) error {
+	return s.recipesRepo.MarkRecipeFavourite(input.RecipeId, input.UserId, input.Favourite)
+}
+
+func (s *RecipesService) SetRecipeLike(input models.RecipeLikeInput) error  {
+	return s.recipesRepo.SetRecipeLike(input.RecipeId, input.UserId, input.Liked)
 }
 
 func validateRecipe(recipe models.Recipe) (models.Recipe, error) {

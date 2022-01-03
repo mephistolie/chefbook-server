@@ -34,7 +34,9 @@ type Recipes interface {
 	UpdateRecipe(recipe models.Recipe, userId int) error
 	DeleteRecipe(recipeId int) error
 	DeleteRecipeLink(recipeId, userId int) error
+	SetRecipeCategories(categoriesIds []int, recipeId, userId int) error
 	MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error
+	SetRecipeLike(recipeId, userId int, isLiked bool) error
 }
 
 type Categories interface {

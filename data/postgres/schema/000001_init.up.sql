@@ -39,13 +39,17 @@ CREATE TABLE recipes
     name               VARCHAR(255)                                     NOT NULL,
     owner_id           INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
 
+    description        TEXT                                                      DEFAULT NULL,
+    likes              INT                                              NOT NULL DEFAULT 0,
+
     servings           SMALLINT                                         NOT NULL DEFAULT 1,
     time               INT                                              NOT NULL,
     calories           SMALLINT                                                  DEFAULT NULL,
 
     ingredients        JSONB                                            NOT NULL,
     cooking            JSONB                                            NOT NULL,
-    preview            VARCHAR(255),
+
+    preview            VARCHAR(255)                                              DEFAULT NULL,
     visibility         visibility_type                                  NOT NULL DEFAULT 'private',
     encrypted          BOOLEAN                                          NOT NULL DEFAULT false,
     creation_timestamp TIMESTAMP                                        NOT NULL DEFAULT now(),
@@ -56,8 +60,13 @@ CREATE TABLE users_recipes
 (
     user_id   INT REFERENCES users (user_id) ON DELETE CASCADE     NOT NULL,
     recipe_id INT REFERENCES recipes (recipe_id) ON DELETE CASCADE NOT NULL,
-    favourite BOOLEAN                                              NOT NULL DEFAULT false,
-    liked     BOOLEAN                                              NOT NULL DEFAULT false
+    favourite BOOLEAN                                              NOT NULL DEFAULT false
+);
+
+CREATE TABLE likes
+(
+    user_id   INT REFERENCES users (user_id) ON DELETE CASCADE     NOT NULL,
+    recipe_id INT REFERENCES recipes (recipe_id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE TABLE recipes_categories
