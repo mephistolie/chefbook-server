@@ -165,7 +165,7 @@ func (r *RecipesPostgres) DeleteRecipeLink(recipeId, userId int) error {
 
 func (r *RecipesPostgres) SetRecipeLike(recipeId, userId int, isLiked bool) error {
 	var exists bool
-	checkLikeQuery := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM %s WHERE recipe_id=$1 AND user_id=$2", likesTable)
+	checkLikeQuery := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM %s WHERE recipe_id=$1 AND user_id=$2)", likesTable)
 
 	err := r.db.QueryRow(checkLikeQuery, recipeId, userId).Scan(&exists); if err != nil && err != sql.ErrNoRows {
 		return err
