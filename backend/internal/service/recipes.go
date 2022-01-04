@@ -32,6 +32,9 @@ func (s *RecipesService) GetRecipesByUser(userId int) ([]models.Recipe, error) {
 	}
 	for i, _ := range recipes {
 		recipes[i].Categories, _ = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
+		if recipes[i].OwnerId == userId {
+			recipes[i].Owned = true
+		}
 	}
 	return recipes, err
 }
@@ -52,6 +55,9 @@ func (s *RecipesService) GetRecipeById(recipeId, userId int) (models.Recipe, err
 	recipe.Categories, err = s.categoriesRepo.GetRecipeCategories(recipeId, userId)
 	if err != nil {
 		return models.Recipe{}, models.ErrRecipeNotFound
+	}
+	if recipe.OwnerId == userId {
+		recipe.Owned = true
 	}
 	return recipe, err
 }
