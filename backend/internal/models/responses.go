@@ -15,7 +15,7 @@ var (
 	RespRecipeDeleted = "recipe has been deleted"
 	RespCategoriesUpdated = "categories has been updated"
 	RespFavouriteStatusUpdated = "favourite status has been updated"
-	RespRecipeLikeSet = errors.New("recipe like status has been set")
+	RespRecipeLikeSet = "recipe like status has been set"
 
 	RespCategoryAdded = "category has been added"
 	RespCategoryUpdated = "category has been updated"
