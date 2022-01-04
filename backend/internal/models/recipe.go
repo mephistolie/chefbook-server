@@ -5,10 +5,11 @@ import (
 )
 
 type Recipe struct {
-	Id      int    `json:"id,omitempty" db:"recipe_id"`
-	Name    string `json:"name"`
-	OwnerId int    `json:"owner_id,omitempty" db:"owner_id"`
-
+	Id          int    `json:"id,omitempty" db:"recipe_id"`
+	Name        string `json:"name"`
+	OwnerId     int    `json:"owner_id,omitempty" db:"owner_id"`
+	OwnerName   string `json:"owner_name,omitempty"`
+	Owned       bool   `json:"owned,omitempty"`
 	Description string `json:"description,omitempty" db:"description"`
 	Likes       int16  `json:"likes,omitempty" db:"likes"`
 

@@ -21,9 +21,9 @@ func NewRecipesPostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) GetRecipesByUser(userId int) ([]models.Recipe, error) {
 	var recipes []models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.*, %[2]v.favourite, (SELECT EXISTS (SELECT 1 FROM %[3]v WHERE recipe_id=5 AND user_id=1)) FROM %[1]v LEFT JOIN %[2]v ON " +
-		"%[2]v.recipe_id=%[1]v.recipe_id WHERE %[2]v.user_id=$1",
-		recipesTable, usersRecipesTable, likesTable)
+	query := fmt.Sprintf("SELECT %[1]v.*, %[2]v.favourite, (SELECT EXISTS (SELECT 1 FROM likes WHERE %[4]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v ON " +
+		"%[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id WHERE %[2]v.user_id=$1",
+		recipesTable, usersRecipesTable, likesTable, usersTable)
 	var ingredients []byte
 	var cooking []byte
 	rows, err := r.db.Query(query, userId)
@@ -34,7 +34,7 @@ func (r *RecipesPostgres) GetRecipesByUser(userId int) ([]models.Recipe, error) 
 		var recipe models.Recipe
 		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories,
 			&ingredients, &cooking, &recipe.Preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
-			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked)
+			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName)
 		if err != nil {
 			return []models.Recipe{}, err
 		}
@@ -116,9 +116,9 @@ func (r *RecipesPostgres) SetRecipeCategories(categoriesIds []int, recipeId, use
 
 func (r *RecipesPostgres) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
 	var recipe models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.*, %[2]v.favourite, %[2]v.liked FROM %[1]v LEFT JOIN %[2]v ON " +
-		"%[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id WHERE %[1]v.recipe_id=$2",
-		recipesTable, usersRecipesTable)
+	query := fmt.Sprintf("SELECT %[1]v.*, %[2]v.favourite, (SELECT EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=1)) as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v ON " +
+		"%[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id LEFT JOIN users ON %[4]v.user_id=%[1]v.owner_id WHERE %[1]v.recipe_id=$2",
+		recipesTable, usersRecipesTable, likesTable, usersTable)
 	var ingredients []byte
 	var cooking []byte
 	row := r.db.QueryRow(query, userId, recipeId)
