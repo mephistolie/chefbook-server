@@ -143,6 +143,10 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 func (h *Handler) setRecipeCategories(c *gin.Context) {
 	var input models.RecipeCategoriesInput
 	var err error
+	if err = c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
 	input.UserId, err = getUserId(c)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
