@@ -21,7 +21,7 @@ func NewRecipesPostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) GetRecipesByUser(userId int) ([]models.Recipe, error) {
 	var recipes []models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.*, %[2]v.favourite, (SELECT EXISTS (SELECT 1 FROM likes WHERE %[4]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v ON " +
+	query := fmt.Sprintf("SELECT %[1]v.*, %[2]v.favourite, (SELECT EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v ON " +
 		"%[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id WHERE %[2]v.user_id=$1",
 		recipesTable, usersRecipesTable, likesTable, usersTable)
 	var ingredients []byte
