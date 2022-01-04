@@ -235,11 +235,11 @@ func (h *Handler) likeRecipe(c *gin.Context) {
 
 	err = h.services.SetRecipeLike(input)
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespFavouriteStatusUpdated,
+		"message": models.RespRecipeLikeSet,
 	})
 }
 
@@ -261,10 +261,10 @@ func (h *Handler) unlikeRecipe(c *gin.Context) {
 
 	err = h.services.SetRecipeLike(input)
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrRecipeNotInRecipeBook.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespFavouriteStatusUpdated,
+		"message": models.RespRecipeLikeSet,
 	})
 }
