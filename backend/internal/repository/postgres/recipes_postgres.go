@@ -122,8 +122,8 @@ func (r *RecipesPostgres) GetRecipeById(recipeId, userId int) (models.Recipe, er
 	var ingredients []byte
 	var cooking []byte
 	row := r.db.QueryRow(query, userId, recipeId)
-	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
-		&cooking, &recipe.Preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked); err != nil {
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
+		&cooking, &recipe.Preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName); err != nil {
 		return models.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
