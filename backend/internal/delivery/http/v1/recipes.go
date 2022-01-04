@@ -246,7 +246,7 @@ func (h *Handler) likeRecipe(c *gin.Context) {
 func (h *Handler) unlikeRecipe(c *gin.Context) {
 	var err error
 	input := models.RecipeLikeInput {
-		Liked: true,
+		Liked: false,
 	}
 	input.UserId, err = getUserId(c)
 	if err != nil {
