@@ -321,7 +321,7 @@ func (h *Handler) uploadRecipePreview(c *gin.Context) {
 		return
 	}
 
-	url, err := h.services.UploadRecipePreview(c.Request.Context(), userId, recipeId, fileBytes, fileHeader.Size, "image/jpeg")
+	url, err := h.services.UploadRecipePreview(c.Request.Context(), recipeId, userId, fileBytes, fileHeader.Size, "image/jpeg")
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -374,7 +374,7 @@ func (h *Handler) uploadRecipePicture(c *gin.Context) {
 		return
 	}
 
-	url, err := h.services.UploadRecipePicture(c.Request.Context(), userId, recipeId, fileBytes, fileHeader.Size, "image/jpeg")
+	url, err := h.services.UploadRecipePicture(c.Request.Context(), recipeId, userId, fileBytes, fileHeader.Size, "image/jpeg")
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
