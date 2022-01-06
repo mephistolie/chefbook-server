@@ -399,12 +399,12 @@ func (h *Handler) deleteRecipePreview(c *gin.Context) {
 
 	err = h.services.DeleteRecipePreview(c.Request.Context(), recipeId, userId)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteAvatar.Error())
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipePicture.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespAvatarDeleted,
+		"message": models.RespRecipePictureDeleted,
 	})
 }
 
@@ -427,11 +427,11 @@ func (h *Handler) deleteRecipePicture(c *gin.Context) {
 
 	err = h.services.DeleteRecipePicture(c.Request.Context(), recipeId, userId, picture.PictureName)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteAvatar.Error())
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipePicture.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespAvatarDeleted,
+		"message": models.RespRecipePictureDeleted,
 	})
 }

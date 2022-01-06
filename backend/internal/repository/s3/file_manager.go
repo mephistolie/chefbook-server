@@ -71,6 +71,6 @@ func (r *AWSFileManager) DeleteFile(ctx context.Context, url string) error {
 }
 
 func (r *AWSFileManager) GetRecipePictureLink(recipeId int, pictureName string) string {
-	filePath := fmt.Sprintf("%s/%d/%s.jpg", recipesDirectory, recipeId, pictureName)
+	filePath := fmt.Sprintf("%s/%d/%s", recipesDirectory, recipeId, pictureName)
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath)
 }

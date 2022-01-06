@@ -16,6 +16,7 @@ var (
 	RespCategoriesUpdated = "categories has been updated"
 	RespFavouriteStatusUpdated = "favourite status has been updated"
 	RespRecipeLikeSet = "recipe like status has been set"
+	RespRecipePictureDeleted = "picture has been deleted"
 
 	RespCategoryAdded = "category has been added"
 	RespCategoryUpdated = "category has been updated"
@@ -50,6 +51,7 @@ var (
 	ErrRecipeNotFound = errors.New("recipe not found")
 	ErrRecipeNotInRecipeBook = errors.New("recipe isn't in recipe book")
 	ErrRecipeLikeSetAlready = errors.New("recipe like status already set")
+	ErrUnableDeleteRecipePicture = errors.New("unable to delete picture")
 
 	ErrCategoryNotFound = errors.New("category not found")
 )
