@@ -52,7 +52,7 @@ func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, 
 		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
 	}
 
-	filePath := fmt.Sprintf("%s/%s/%s.jpg", recipesDirectory, recipeId, input.Name)
+	filePath := fmt.Sprintf("%s/%d/%s.jpg", recipesDirectory, recipeId, input.Name)
 	_, err := r.client.PutObject(ctx, chefBookBucket, filePath, input.File, input.Size, opts)
 	if err != nil {
 		return "", err
@@ -71,6 +71,6 @@ func (r *AWSFileManager) DeleteFile(ctx context.Context, url string) error {
 }
 
 func (r *AWSFileManager) GetRecipePictureLink(recipeId int, pictureName string) string {
-	filePath := fmt.Sprintf("%s/%s/%s.jpg", recipesDirectory, recipeId, pictureName)
+	filePath := fmt.Sprintf("%s/%d/%s.jpg", recipesDirectory, recipeId, pictureName)
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath)
 }

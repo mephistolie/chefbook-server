@@ -12,8 +12,8 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/users", h.userIdentity)
 	{
 		auth.GET("", h.getUserInfo)
-		auth.POST("/change-name", h.setUserName)
-		auth.POST("/avatar", h.uploadAvatar)
+		auth.PUT("/change-name", h.setUserName)
+		auth.PUT("/avatar", h.uploadAvatar)
 		auth.DELETE("/avatar", h.deleteAvatar)
 	}
 }
