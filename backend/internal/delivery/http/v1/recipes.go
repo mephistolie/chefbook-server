@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/mephistolie/chefbook-server/internal/models"
 	"net/http"
@@ -21,6 +22,11 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipes.DELETE("/favourites/:recipe_id", h.unmarkRecipeFavourite)
 		recipes.PUT("/liked/:recipe_id", h.likeRecipe)
 		recipes.DELETE("/liked/:recipe_id", h.unlikeRecipe)
+
+		recipes.PUT("/:recipe_id/preview", h.uploadRecipePreview)
+		recipes.DELETE("/:recipe_id/preview", h.deleteRecipePreview)
+		recipes.PUT("/:recipe_id/pictures", h.uploadRecipePicture)
+		recipes.DELETE("/:recipe_id/pictures", h.deleteRecipePicture)
 	}
 }
 
@@ -270,5 +276,162 @@ func (h *Handler) unlikeRecipe(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"message": models.RespRecipeLikeSet,
+	})
+}
+
+func (h *Handler) uploadRecipePreview(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			newResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}()
+
+	buffer := make([]byte, fileHeader.Size)
+	_, err = file.Read(buffer)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	fileType := http.DetectContentType(buffer)
+
+	fileBytes := bytes.NewReader(buffer)
+
+	if _, ex := ImageTypes[fileType]; !ex {
+		newResponse(c, http.StatusBadRequest, models.ErrFileTypeNotSupported.Error())
+		return
+	}
+
+	url, err := h.services.UploadRecipePreview(c.Request.Context(), userId, recipeId, fileBytes, fileHeader.Size, "image/jpeg")
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"link": url,
+	})
+}
+
+func (h *Handler) uploadRecipePicture(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			newResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}()
+
+	buffer := make([]byte, fileHeader.Size)
+	_, err = file.Read(buffer)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	fileType := http.DetectContentType(buffer)
+
+	fileBytes := bytes.NewReader(buffer)
+
+	if _, ex := ImageTypes[fileType]; !ex {
+		newResponse(c, http.StatusBadRequest, models.ErrFileTypeNotSupported.Error())
+		return
+	}
+
+	url, err := h.services.UploadRecipePicture(c.Request.Context(), userId, recipeId, fileBytes, fileHeader.Size, "image/jpeg")
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"link": url,
+	})
+}
+
+func (h *Handler) deleteRecipePreview(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.DeleteRecipePreview(c.Request.Context(), recipeId, userId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteAvatar.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespAvatarDeleted,
+	})
+}
+
+func (h *Handler) deleteRecipePicture(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+	var picture models.RecipeDeletePictureInput
+	if err := c.BindJSON(&picture); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.DeleteRecipePicture(c.Request.Context(), recipeId, userId, picture.PictureName)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteAvatar.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespAvatarDeleted,
 	})
 }

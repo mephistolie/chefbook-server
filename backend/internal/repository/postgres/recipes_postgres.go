@@ -214,3 +214,9 @@ func (r *RecipesPostgres) MarkRecipeFavourite(recipeId, userId int, isFavourite 
 	_, err := r.db.Exec(query, isFavourite, recipeId, userId)
 	return err
 }
+
+func (r *RecipesPostgres) SetRecipePreview(recipeId int, url string) error {
+	query := fmt.Sprintf("UPDATE %s SET preview=$1 WHERE recipe_id=$2", recipesTable)
+	_, err := r.db.Exec(query, url, recipeId)
+	return err
+}

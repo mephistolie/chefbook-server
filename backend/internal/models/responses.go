@@ -45,6 +45,7 @@ var (
 
 	ErrUnableDeleteAvatar = errors.New("unable to delete avatar")
 
+	ErrNotOwner = errors.New("you aren't owner of this recipe")
 	ErrInvalidRecipeInput = errors.New("invalid recipe input")
 	ErrRecipeNotFound = errors.New("recipe not found")
 	ErrRecipeNotInRecipeBook = errors.New("recipe isn't in recipe book")

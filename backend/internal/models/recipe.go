@@ -48,3 +48,8 @@ type RecipeLikeInput struct {
 	UserId   int  `json:"user_id,omitempty" db:"user_id"`
 	Liked    bool `json:"liked,omitempty"`
 }
+
+type RecipeDeletePictureInput struct {
+	PictureName string  `json:"picture_name,omitempty"`
+}
+

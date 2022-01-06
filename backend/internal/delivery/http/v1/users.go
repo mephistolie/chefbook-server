@@ -8,12 +8,6 @@ import (
 	"strconv"
 )
 
-const MaxUploadSize = 1 << 20
-var ImageTypes = map[string]interface{} {
-	"image/jpeg": nil,
-	"image/png": nil,
-}
-
 func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/users", h.userIdentity)
 	{

@@ -49,6 +49,10 @@ type Recipes interface {
 	SetRecipeCategories(input models.RecipeCategoriesInput) error
 	MarkRecipeFavourite(input models.FavouriteRecipeInput) error
 	SetRecipeLike(input models.RecipeLikeInput) error
+	UploadRecipePreview(ctx context.Context, recipeId int, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
+	UploadRecipePicture(ctx context.Context, recipeId int, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
+	DeleteRecipePreview(ctx context.Context, recipeId, userId int) error
+	DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error
 }
 
 type Categories interface {
@@ -96,9 +100,9 @@ func NewServices(dependencies Dependencies) *Service {
 	return &Service{
 		Auth : NewAuthService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
-		Users: NewUsersService(*dependencies.Repos),
+		Users: NewUsersService(dependencies.Repos.Users, dependencies.Repos.Files),
 		Mails:   mailService,
-		Recipes: NewRecipesService(dependencies.Repos, dependencies.Repos),
+		Recipes: NewRecipesService(dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.Files),
 		Categories: NewCategoriesService(dependencies.Repos),
 		ShoppingList: NewShoppingListService(dependencies.Repos),
 	}

@@ -37,6 +37,7 @@ type Recipes interface {
 	SetRecipeCategories(categoriesIds []int, recipeId, userId int) error
 	MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error
 	SetRecipeLike(recipeId, userId int, isLiked bool) error
+	SetRecipePreview(recipeId int, url string)  error
 }
 
 type Categories interface {
@@ -55,7 +56,9 @@ type ShoppingList interface {
 
 type Files interface {
 	UploadAvatar(ctx context.Context, input s3.UploadInput) (string, error)
-	DeleteAvatar(ctx context.Context, url string) error
+	UploadRecipePicture(ctx context.Context, recipeId int, input s3.UploadInput) (string, error)
+	GetRecipePictureLink(recipeId int, pictureName string) string
+	DeleteFile(ctx context.Context, url string) error
 }
 
 type Repository struct {

@@ -10,17 +10,19 @@ import (
 )
 
 type UsersService struct {
-	repo repository.Repository
+	usersRepo repository.Users
+	filesRepo repository.Files
 }
 
-func NewUsersService(repo repository.Repository) *UsersService {
+func NewUsersService(usersRepo repository.Users, filesRepo repository.Files) *UsersService {
 	return &UsersService{
-		repo: repo,
+		usersRepo: usersRepo,
+		filesRepo: filesRepo,
 	}
 }
 
 func (s *UsersService) GetUserInfo(userId int) (models.User, error) {
-	user, err := s.repo.GetUserById(userId)
+	user, err := s.usersRepo.GetUserById(userId)
 	if err != nil {
 		return models.User{}, models.ErrUserNotFound
 	}
@@ -28,11 +30,15 @@ func (s *UsersService) GetUserInfo(userId int) (models.User, error) {
 }
 
 func (s *UsersService) SetUserName(userId int, username string) error  {
-	return s.repo.SetUserName(userId, username)
+	return s.usersRepo.SetUserName(userId, username)
 }
 
 func (s *UsersService) UploadAvatar(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
-	url, err := s.repo.Files.UploadAvatar(ctx, s3.UploadInput{
+	user, err := s.usersRepo.GetUserById(userId)
+	if err != nil {
+		return "", err
+	}
+	url, err := s.filesRepo.UploadAvatar(ctx, s3.UploadInput{
 		Name:        uuid.NewString(),
 		File:        file,
 		Size:        size,
@@ -41,23 +47,26 @@ func (s *UsersService) UploadAvatar(ctx context.Context, userId int, file *bytes
 	if err != nil {
 		return "", err
 	}
-	err = s.repo.Users.SetUserAvatar(userId, url)
+	err = s.usersRepo.SetUserAvatar(userId, url)
 	if err != nil {
 		return "", err
+	}
+	if user.Avatar.String != "" {
+		_ = s.filesRepo.DeleteFile(ctx, user.Avatar.String)
 	}
 	return url, nil
 }
 
 func (s *UsersService) DeleteAvatar(ctx context.Context, userId int) error  {
-	user, err := s.repo.GetUserById(userId)
+	user, err := s.usersRepo.GetUserById(userId)
 	if err != nil {
 		return err
 	}
-	err = s.repo.DeleteAvatar(ctx, user.Avatar.String)
+	err = s.filesRepo.DeleteFile(ctx, user.Avatar.String)
 	if err != nil {
 		return err
 	}
-	err = s.repo.Users.SetUserAvatar(userId, "")
+	err = s.usersRepo.SetUserAvatar(userId, "")
 	if err != nil {
 		return err
 	}
