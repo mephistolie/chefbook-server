@@ -22,6 +22,10 @@ type Auth interface {
 	RefreshSession(refreshToken, ip string) (models.Tokens, error)
 }
 
+type Firebase interface {
+	FirebaseSignIn(authData models.AuthData) (models.FirebaseUser, error)
+}
+
 type Users interface {
 	GetUserInfo(userId int) (models.User, error)
 	SetUserName(userId int, username string) error
@@ -72,6 +76,7 @@ type ShoppingList interface {
 
 type Service struct {
 	Auth
+	Firebase
 	Users
 	Mails
 	Recipes
@@ -80,17 +85,18 @@ type Service struct {
 }
 
 type Dependencies struct {
-	Repos          *repository.Repository
-	Cache          cache.Cache
-	HashManager    hash.HashManager
-	TokenManager   auth.TokenManager
-	MailSender     mail.Sender
-	MailConfig     config.MailConfig
-	AccessTokenTTL time.Duration
-	RefreshTokenTTL  time.Duration
-	CacheTTL         int64
-	Environment      string
-	Domain           string
+	Repos           *repository.Repository
+	Cache           cache.Cache
+	HashManager     hash.HashManager
+	TokenManager    auth.TokenManager
+	MailSender      mail.Sender
+	MailConfig      config.MailConfig
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
+	CacheTTL        int64
+	Environment     string
+	Domain          string
+	FirebaseApiKey  string
 }
 
 func NewServices(dependencies Dependencies) *Service {
@@ -98,12 +104,13 @@ func NewServices(dependencies Dependencies) *Service {
 	mailService := NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
 
 	return &Service{
-		Auth : NewAuthService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
+		Auth: NewAuthService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
-		Users: NewUsersService(dependencies.Repos.Users, dependencies.Repos.Files),
-		Mails:   mailService,
-		Recipes: NewRecipesService(dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.Files),
-		Categories: NewCategoriesService(dependencies.Repos),
+		Firebase:     NewFirebaseService(dependencies.FirebaseApiKey),
+		Users:        NewUsersService(dependencies.Repos.Users, dependencies.Repos.Files),
+		Mails:        mailService,
+		Recipes:      NewRecipesService(dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.Files),
+		Categories:   NewCategoriesService(dependencies.Repos),
 		ShoppingList: NewShoppingListService(dependencies.Repos),
 	}
 }

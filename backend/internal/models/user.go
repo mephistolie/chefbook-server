@@ -61,3 +61,12 @@ type Session struct {
 type UserNameInput struct {
 	Username string `json:"username,omitempty" db:"username"`
 }
+
+type FirebaseUser struct {
+	idToken      string
+	email        string
+	refreshToken string
+	expiresIn    string
+	localId      string
+	registered   bool
+}

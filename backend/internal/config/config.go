@@ -29,6 +29,7 @@ type (
 		HTTP        HTTPConfig
 		S3          S3Config
 		Auth        AuthConfig
+		Firebase    FirebaseConfig
 		Mail        MailConfig
 		Limiter     LimiterConfig
 		CacheTTL    time.Duration `mapstructure:"ttl"`
@@ -47,6 +48,10 @@ type (
 	AuthConfig struct {
 		JWT      JWTConfig
 		SaltCost int
+	}
+
+	FirebaseConfig struct {
+		ApiKey string
 	}
 
 	JWTConfig struct {
@@ -154,6 +159,8 @@ func setFromEnv(cfg *Config) {
 	cfg.Postgres.DBName = os.Getenv("DB_NAME")
 	cfg.Postgres.User = os.Getenv("DB_USER")
 	cfg.Postgres.Password = os.Getenv("DB_PASSWORD")
+
+	cfg.Firebase.ApiKey = os.Getenv("FIREBASE_API_KEY")
 
 	cfg.Auth.SaltCost, _ = strconv.Atoi(os.Getenv("SALT_COST"))
 	cfg.Auth.JWT.SigningKey = os.Getenv("JWT_SIGNING_KEY")

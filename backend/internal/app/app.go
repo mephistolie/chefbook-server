@@ -77,6 +77,7 @@ func Run(configPath string) {
 		CacheTTL:        int64(cfg.CacheTTL.Seconds()),
 		Environment:     cfg.Environment,
 		Domain:          cfg.HTTP.Host,
+		FirebaseApiKey:  cfg.Firebase.ApiKey,
 	})
 	handler := delivery.NewHandler(services, tokenManager)
 
