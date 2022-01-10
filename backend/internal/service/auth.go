@@ -101,7 +101,11 @@ func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens
 		authData.Password = hashedPassword
 		err = s.firebaseService.migrateFromFirebase(authData, firebaseUser)
 		if err != nil {
-			return models.Tokens{}, models.ErrUserNotFound
+			return models.Tokens{}, err
+		}
+		user, err = s.repo.GetUserByEmail(authData.Email)
+		if err != nil {
+			return models.Tokens{}, err
 		}
 	}
 	if user.IsActivated == false {
