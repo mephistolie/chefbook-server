@@ -143,6 +143,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			Calories:    int16(firebaseRecipe["calories"].(int64)),
 			Ingredients: jsonIngredients,
 			Cooking:     jsonCooking,
+			Visibility: "private",
 		}
 		_, err = s.recipesRepo.CreateRecipe(recipe)
 		if err != nil {
