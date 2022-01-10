@@ -107,13 +107,13 @@ func (s *FirebaseService) importFirebaseShoppingList(userId int, userDoc map[str
 	shoppingList := models.ShoppingList{
 		Timestamp: time.Now(),
 	}
-	var firebaseShoppingList []string
-	firebaseShoppingList, ok := userDoc["shoppingList"].([]string)
+
+	firebaseShoppingList, ok := userDoc["shoppingList"].([]interface{})
 	if ok {
 		for _, firebasePurchase := range firebaseShoppingList {
 			purchase := models.Purchase{
 				Id:          uuid.NewString(),
-				Item:        firebasePurchase,
+				Item:        firebasePurchase.(string),
 				Multiplier:  1,
 				IsPurchased: false,
 			}
