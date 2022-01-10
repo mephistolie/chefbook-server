@@ -24,6 +24,7 @@ HTTPS_PORT=443
 # FIREBASE CONFIGURATION
 FIREBASE_API_KEY=
 FIREBASE_PROJECT_ID=
+FIREBASE_KEY_FILE_NAME=
 
 # DB CONFIGURATION
 DB_NAME=
@@ -44,4 +45,5 @@ S3_SECRET_KEY=
 SMTP_EMAIL=
 SMTP_PASSWORD=
 ```
-3. Use `sudo docker-compose up` command to run server
+3. Put Firebase Private Key to `backend/configs` directory
+4. Use `sudo docker-compose up` command to run server

@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 	"errors"
+	firebase "firebase.google.com/go/v4"
+	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/mephistolie/chefbook-server/internal/config"
 	delivery "github.com/mephistolie/chefbook-server/internal/delivery/http"
@@ -17,9 +19,9 @@ import (
 	smtp "github.com/mephistolie/chefbook-server/pkg/mail"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"google.golang.org/api/option"
 	"net/http"
 	"os"
-	"cloud.google.com/go/firestore"
 	"os/signal"
 	"syscall"
 	"time"
@@ -65,7 +67,15 @@ func Run(configPath string) {
 		Secure: true,
 	})
 
-	firestoreClient, err := firestore.NewClient(context.Background(), cfg.Firebase.ProjectId)
+	firebaseKeyPath := fmt.Sprintf("%s/%s", configPath, cfg.Firebase.PrivateKeyFileName)
+	opt := option.WithCredentialsFile(firebaseKeyPath)
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	firestoreClient, err := app.Firestore(context.Background())
 	if err != nil {
 		logger.Error(err)
 		return

@@ -51,8 +51,9 @@ type (
 	}
 
 	FirebaseConfig struct {
-		ApiKey    string
-		ProjectId string
+		ApiKey             string
+		ProjectId          string
+		PrivateKeyFileName string
 	}
 
 	JWTConfig struct {
@@ -163,6 +164,7 @@ func setFromEnv(cfg *Config) {
 
 	cfg.Firebase.ApiKey = os.Getenv("FIREBASE_API_KEY")
 	cfg.Firebase.ProjectId = os.Getenv("FIREBASE_PROJECT_ID")
+	cfg.Firebase.PrivateKeyFileName = os.Getenv("FIREBASE_KEY_FILE_NAME")
 
 	cfg.Auth.SaltCost, _ = strconv.Atoi(os.Getenv("SALT_COST"))
 	cfg.Auth.JWT.SigningKey = os.Getenv("JWT_SIGNING_KEY")
