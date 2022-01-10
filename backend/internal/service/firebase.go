@@ -91,7 +91,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 	}
 	premium, ok := userDoc["isPremium"].(bool)
 	if ok && premium {
-		lifetimePremium := time.Date(3000, 1, 1, 0, 0, 0, 0, nil)
+		lifetimePremium := time.Date(3000, 1, 1, 00, 00, 00, 00, time.UTC)
 		err := s.usersRepo.SetPremiumDate(userId, lifetimePremium)
 		if err != nil {
 			logger.Warn("migration: error during activating premium")
