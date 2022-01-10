@@ -29,11 +29,11 @@ type FirebaseService struct {
 func NewFirebaseService(apiKey string, usersRepo repository.Users, recipesRepo repository.Recipes,
 	categoriesRepo repository.Categories, firestore firestore.Client) *FirebaseService {
 	return &FirebaseService{
-		usersRepo: usersRepo,
-		recipesRepo: recipesRepo,
+		usersRepo:      usersRepo,
+		recipesRepo:    recipesRepo,
 		categoriesRepo: categoriesRepo,
-		apiKey: apiKey,
-		firestore: firestore,
+		apiKey:         apiKey,
+		firestore:      firestore,
 	}
 }
 
@@ -57,9 +57,9 @@ func (s *FirebaseService) FirebaseSignIn(authData models.AuthData) (models.Fireb
 	return firebaseUser, nil
 }
 
-type SelectableStruct struct {
-	Item     int  `json:"item"`
-	Selected bool `json:"selected"`
+type MarkdownString struct {
+	Text string `json:"text"`
+	Type string `json:"type"`
 }
 
 func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebaseUser models.FirebaseUser) error {
@@ -89,29 +89,64 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 	}
 	for _, firebaseRecipeSnapshot := range firebaseRecipes {
 		firebaseRecipe := firebaseRecipeSnapshot.Data()
+
 		var firebaseIngredients []interface{}
 		firebaseIngredients = firebaseRecipe["ingredients"].([]interface{})
-		logger.Error(firebaseIngredients)
-		//for _, firebaseIngredient := range firebaseIngredients {
-		//	var ingredient := models.
-		//	f := ingredient.(map[string]interface{})["item"].(string)
-		//}
+		var ingredients []MarkdownString
+		for _, firebaseIngredient := range firebaseIngredients {
+			mapIngredient := firebaseIngredient.(map[string]interface{})
+			item := mapIngredient["item"].(string)
+			selected := mapIngredient["selected"].(bool)
+			stringType := "string"
+			if selected {
+				stringType = "header"
+			}
+			ingredient := MarkdownString {
+				Text: item,
+				Type: stringType,
+			}
+			ingredients = append(ingredients, ingredient)
+		}
+		jsonIngredients, err := json.Marshal(ingredients)
+		if err != nil {
+			continue
+		}
 
-		var steps []interface {}
-		steps = firebaseRecipe["cooking"].([]interface{})
+		var firebaseCooking []interface{}
+		firebaseCooking = firebaseRecipe["cooking"].([]interface{})
+		var cooking []MarkdownString
+		for _, firebaseStep := range firebaseCooking {
+			mapStep := firebaseStep.(map[string]interface{})
+			item := mapStep["item"].(string)
+			selected := mapStep["selected"].(bool)
+			stringType := "string"
+			if selected {
+				stringType = "header"
+			}
+			step := MarkdownString {
+				Text: item,
+				Type: stringType,
+			}
+			cooking = append(cooking, step)
+		}
+		jsonCooking, err := json.Marshal(cooking)
+		if err != nil {
+			continue
+		}
+
 		recipe := models.Recipe{
-			Name:        firebaseRecipe["name"].(string),
-			OwnerId:     userId,
-			Favourite:   firebaseRecipe["favourite"].(bool),
-			Servings:    firebaseRecipe["servings"].(int16),
+			Name:      firebaseRecipe["name"].(string),
+			OwnerId:   userId,
+			Favourite: firebaseRecipe["favourite"].(bool),
+			Servings:  firebaseRecipe["servings"].(int16),
 			// Time     int16 `json:"time,omitempty"`
 			Calories:    firebaseRecipe["calories"].(int16),
-			Ingredients: firebaseIngredients,
-			Cooking:     steps,
+			Ingredients: jsonIngredients,
+			Cooking:     jsonCooking,
 		}
-		_, err := s.recipesRepo.CreateRecipe(recipe)
+		_, err = s.recipesRepo.CreateRecipe(recipe)
 		if err != nil {
-			logger.Error("failed to import recipe ", recipe.Name)
+			continue
 		}
 	}
 	return nil
