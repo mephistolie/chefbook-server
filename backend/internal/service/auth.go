@@ -86,6 +86,11 @@ func (s *AuthService) ActivateUser(activationLink uuid.UUID) error {
 func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
 	if err != nil {
+		hashedPassword, err := s.hashManager.Hash(authData.Password)
+		if err != nil {
+			return models.Tokens{}, err
+		}
+		authData.Password = hashedPassword
 		firebaseUser, err := s.firebaseService.FirebaseSignIn(authData)
 		if err != nil {
 			return models.Tokens{}, models.ErrUserNotFound

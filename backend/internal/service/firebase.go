@@ -88,10 +88,16 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 	}
 	for _, firebaseRecipeSnapshot := range firebaseRecipes {
 		firebaseRecipe := firebaseRecipeSnapshot.Data()
-		var ingredients []SelectableStruct
-		ingredients = firebaseRecipe["ingredients"].([]SelectableStruct)
-		var steps []SelectableStruct
-		steps = firebaseRecipe["cooking"].([]SelectableStruct)
+		var firebaseIngredients []interface{}
+		firebaseIngredients = firebaseRecipe["ingredients"].([]interface{})
+		logger.Error(firebaseIngredients)
+		//for _, firebaseIngredient := range firebaseIngredients {
+		//	var ingredient := models.
+		//	f := ingredient.(map[string]interface{})["item"].(string)
+		//}
+
+		var steps []interface {}
+		steps = firebaseRecipe["cooking"].([]interface{})
 		recipe := models.Recipe{
 			Name:        firebaseRecipe["name"].(string),
 			OwnerId:     userId,
@@ -99,7 +105,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			Servings:    firebaseRecipe["servings"].(int16),
 			// Time     int16 `json:"time,omitempty"`
 			Calories:    firebaseRecipe["calories"].(int16),
-			Ingredients: ingredients,
+			Ingredients: firebaseIngredients,
 			Cooking:     steps,
 		}
 		_, err := s.recipesRepo.CreateRecipe(recipe)
