@@ -104,7 +104,7 @@ type Dependencies struct {
 func NewServices(dependencies Dependencies) *Service {
 
 	mailService := NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
-	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Users, dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.FirestoreClient)
+	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Users, dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.ShoppingList, dependencies.FirestoreClient)
 
 	return &Service{
 		Auth: NewAuthService(dependencies.Repos, *firebaseService, dependencies.HashManager, dependencies.TokenManager,
