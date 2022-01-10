@@ -156,3 +156,9 @@ func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
 	_, err := r.db.Exec(query, avatar, userId)
 	return err
 }
+
+func (r *AuthPostgres) SetPremiumDate(userId int, expiresAt time.Time) error {
+	query := fmt.Sprintf("UPDATE %s SET premium=$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, expiresAt, userId)
+	return err
+}

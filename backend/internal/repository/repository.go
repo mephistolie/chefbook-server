@@ -8,6 +8,7 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository/postgres"
 	"github.com/mephistolie/chefbook-server/internal/repository/s3"
 	"github.com/minio/minio-go/v7"
+	"time"
 )
 
 type Users interface {
@@ -24,6 +25,7 @@ type Users interface {
 
 	SetUserName(userId int, username string) error
 	SetUserAvatar(userId int, url string) error
+	SetPremiumDate(userId int, expiresAt time.Time) error
 }
 
 type Recipes interface {
