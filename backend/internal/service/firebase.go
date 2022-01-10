@@ -137,7 +137,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 		}
 
 		time := 0
-		firebaseTime := firebaseRecipe["name"].(string)
+		firebaseTime := firebaseRecipe["time"].(string)
 		numberFilter := regexp.MustCompile("[0-9]+")
 		timeSlice := numberFilter.FindAllString(firebaseTime, -1)
 		timeSliceLength := len(timeSlice)
