@@ -82,15 +82,15 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 		logger.Warn("migration: error during activating link ", activationLink)
 	}
 
-	username := userDoc["name"].(string)
-	if len(username) > 0 {
+	username, ok := userDoc["name"].(string)
+	if ok && len(username) > 0 {
 		err = s.usersRepo.SetUserName(userId, username)
 		if err != nil {
 			logger.Warn("migration: error during setting name ", username)
 		}
 	}
-	premium := userDoc["premium"].(bool)
-	if premium {
+	premium, ok := userDoc["isPremium"].(bool)
+	if ok && premium {
 		lifetimePremium := time.Date(3000, 1, 1, 0, 0, 0, 0, nil)
 		err := s.usersRepo.SetPremiumDate(userId, lifetimePremium)
 		if err != nil {
@@ -108,19 +108,21 @@ func (s *FirebaseService) importFirebaseShoppingList(userId int, userDoc map[str
 		Timestamp: time.Now(),
 	}
 	var firebaseShoppingList []string
-	firebaseShoppingList = userDoc["shoppingList"].([]string)
-	for _, firebasePurchase := range firebaseShoppingList {
-		purchase := models.Purchase{
-			Id:          uuid.NewString(),
-			Item:        firebasePurchase,
-			Multiplier:  1,
-			IsPurchased: false,
+	firebaseShoppingList, ok := userDoc["shoppingList"].([]string)
+	if ok {
+		for _, firebasePurchase := range firebaseShoppingList {
+			purchase := models.Purchase{
+				Id:          uuid.NewString(),
+				Item:        firebasePurchase,
+				Multiplier:  1,
+				IsPurchased: false,
+			}
+			shoppingList.Purchases = append(shoppingList.Purchases, purchase)
 		}
-		shoppingList.Purchases = append(shoppingList.Purchases, purchase)
-	}
-	err := s.shoppingListRepo.SetShoppingList(shoppingList, userId)
-	if err != nil {
-		logger.Warn("migration: error during setting shopping list ")
+		err := s.shoppingListRepo.SetShoppingList(shoppingList, userId)
+		if err != nil {
+			logger.Warn("migration: error during setting shopping list ")
+		}
 	}
 }
 
@@ -135,8 +137,54 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 		for _, firebaseRecipeSnapshot := range firebaseRecipes {
 			firebaseRecipe := firebaseRecipeSnapshot.Data()
 
+			name, ok := firebaseRecipe["name"].(string)
+			if !ok {
+				logger.Warn("migration: error during import name of recipe")
+				continue
+			}
+			favourite, ok := firebaseRecipe["favourite"].(bool)
+			if !ok {
+				favourite = false
+			}
+			servings, ok := firebaseRecipe["servings"].(int64)
+			if !ok {
+				servings = 5
+			}
+			calories, ok := firebaseRecipe["calories"].(int64)
+			if !ok {
+				calories = 0
+			}
+
+			recipeTime := 60
+			firebaseTime, ok := firebaseRecipe["time"].(string)
+			if ok {
+				numberFilter := regexp.MustCompile("[0-9]+")
+				timeSlice := numberFilter.FindAllString(firebaseTime, -1)
+				timeSliceLength := len(timeSlice)
+				if timeSliceLength > 0 {
+					multiplier := 1
+					if timeSliceLength == 1 && len(timeSlice[timeSliceLength-1]) == 1 {
+						multiplier = 60
+					}
+					number, err := strconv.Atoi(timeSlice[timeSliceLength-1])
+					if err == nil {
+						recipeTime = recipeTime + number*multiplier
+					}
+				}
+				if timeSliceLength > 1 {
+					hours, err := strconv.Atoi(timeSlice[timeSliceLength-2])
+					if err == nil {
+						recipeTime = recipeTime + hours*60
+					}
+				}
+			}
+
 			var firebaseIngredients []interface{}
-			firebaseIngredients = firebaseRecipe["ingredients"].([]interface{})
+			firebaseIngredients, ok = firebaseRecipe["ingredients"].([]interface{})
+			if !ok {
+				logger.Warn("migration: error during import ingredients of recipe")
+				continue
+			}
 			var ingredients []MarkdownString
 			for _, firebaseIngredient := range firebaseIngredients {
 				mapIngredient := firebaseIngredient.(map[string]interface{})
@@ -200,29 +248,6 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 				}
 			}
 
-
-			recipeTime := 0
-			firebaseTime := firebaseRecipe["time"].(string)
-			numberFilter := regexp.MustCompile("[0-9]+")
-			timeSlice := numberFilter.FindAllString(firebaseTime, -1)
-			timeSliceLength := len(timeSlice)
-			if timeSliceLength > 0 {
-				multiplier := 1
-				if timeSliceLength == 1 && len(timeSlice[timeSliceLength-1]) == 1 {
-					multiplier = 60
-				}
-				number, err := strconv.Atoi(timeSlice[timeSliceLength-1])
-				if err == nil {
-					recipeTime = recipeTime + number*multiplier
-				}
-			}
-			if timeSliceLength > 1 {
-				hours, err := strconv.Atoi(timeSlice[timeSliceLength-2])
-				if err == nil {
-					recipeTime = recipeTime + hours*60
-				}
-			}
-
 			firebaseCategories := firebaseRecipe["categories"].([]string)
 			var recipeCategoriesIds []int
 			for _, category := range firebaseCategories {
@@ -250,12 +275,12 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			}
 
 			recipe := models.Recipe{
-				Name:        firebaseRecipe["name"].(string),
+				Name:        name,
 				OwnerId:     userId,
-				Favourite:   firebaseRecipe["favourite"].(bool),
-				Servings:    int16(firebaseRecipe["servings"].(int64)),
+				Favourite:   favourite,
+				Servings:    int16(servings),
 				Time:        int16(recipeTime),
-				Calories:    int16(firebaseRecipe["calories"].(int64)),
+				Calories:    int16(calories),
 				Ingredients: jsonIngredients,
 				Cooking:     jsonCooking,
 				Visibility:  "private",
