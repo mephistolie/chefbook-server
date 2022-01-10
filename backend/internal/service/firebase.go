@@ -264,7 +264,7 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 					if !isAdded && len(category) > 0 {
 						dbCategory := models.Category{
 							Name: category,
-							Cover: category[:1],
+							Cover: string([]rune(category)[0:1]),
 							UserId: userId,
 						}
 						categoryId, err := s.categoriesRepo.AddCategory(dbCategory)
@@ -280,7 +280,6 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			recipe := models.Recipe{
 				Name:        name,
 				OwnerId:     userId,
-				Favourite:   favourite,
 				Servings:    int16(servings),
 				Time:        int16(recipeTime),
 				Calories:    int16(calories),
@@ -293,6 +292,9 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 				continue
 			}
 			if err = s.recipesRepo.SetRecipeCategories(recipeCategoriesIds, recipeId, userId); err != nil {
+				continue
+			}
+			if err = s.recipesRepo.MarkRecipeFavourite(recipeId, userId, favourite); err != nil {
 				continue
 			}
 		}
