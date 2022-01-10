@@ -19,16 +19,16 @@ CREATE TABLE users
 
 CREATE TABLE shopping_list
 (
-    user_id       INT REFERENCES users (user_id) NOT NULL UNIQUE,
-    shopping_list JSONB                          NOT NULL DEFAULT '[]'::jsonb
+    user_id       INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL UNIQUE,
+    shopping_list JSONB                                            NOT NULL DEFAULT '[]'::jsonb
 );
 
 CREATE TABLE categories
 (
-    category_id SERIAL PRIMARY KEY             NOT NULL UNIQUE,
-    name        VARCHAR(255)                   NOT NULL,
+    category_id SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
+    name        VARCHAR(255)                                     NOT NULL,
     cover       VARCHAR(20) DEFAULT '',
-    user_id     INT REFERENCES users (user_id) NOT NULL
+    user_id     INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE TYPE visibility_type as ENUM ('private', 'shared', 'public');

@@ -11,6 +11,8 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"net/http"
+	"regexp"
+	"strconv"
 )
 
 const FirebaseSignInEmailEndpoint = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
@@ -97,9 +99,9 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			mapIngredient := firebaseIngredient.(map[string]interface{})
 			item := mapIngredient["item"].(string)
 			selected := mapIngredient["selected"].(bool)
-			stringType := "string"
+			stringType := "STRING"
 			if selected {
-				stringType = "header"
+				stringType = "HEADER"
 			}
 			ingredient := MarkdownString{
 				Text: item,
@@ -119,9 +121,9 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			mapStep := firebaseStep.(map[string]interface{})
 			item := mapStep["item"].(string)
 			selected := mapStep["selected"].(bool)
-			stringType := "string"
+			stringType := "STRING"
 			if selected {
-				stringType = "header"
+				stringType = "HEADER"
 			}
 			step := MarkdownString{
 				Text: item,
@@ -134,16 +136,38 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			continue
 		}
 
+		time := 0
+		firebaseTime := firebaseRecipe["name"].(string)
+		numberFilter := regexp.MustCompile("[0-9]+")
+		timeSlice := numberFilter.FindAllString(firebaseTime, -1)
+		timeSliceLength := len(timeSlice)
+		if timeSliceLength > 0 {
+			multiplier := 1
+			if timeSliceLength == 1 && len(timeSlice[timeSliceLength-1]) == 1 {
+				multiplier = 60
+			}
+			number, err := strconv.Atoi(timeSlice[timeSliceLength-1])
+			if err == nil {
+				time = time + number * multiplier
+			}
+		}
+		if timeSliceLength > 1 {
+			hours, err := strconv.Atoi(timeSlice[timeSliceLength-2])
+			if err == nil {
+				time = time + hours * 60
+			}
+		}
+
 		recipe := models.Recipe{
 			Name:        firebaseRecipe["name"].(string),
 			OwnerId:     userId,
 			Favourite:   firebaseRecipe["favourite"].(bool),
 			Servings:    int16(firebaseRecipe["servings"].(int64)),
-			// Time     int16 `json:"time,omitempty"`
+			Time:        int16(time),
 			Calories:    int16(firebaseRecipe["calories"].(int64)),
 			Ingredients: jsonIngredients,
 			Cooking:     jsonCooking,
-			Visibility: "private",
+			Visibility:  "private",
 		}
 		_, err = s.recipesRepo.CreateRecipe(recipe)
 		if err != nil {
