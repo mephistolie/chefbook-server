@@ -101,7 +101,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			if selected {
 				stringType = "header"
 			}
-			ingredient := MarkdownString {
+			ingredient := MarkdownString{
 				Text: item,
 				Type: stringType,
 			}
@@ -123,7 +123,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 			if selected {
 				stringType = "header"
 			}
-			step := MarkdownString {
+			step := MarkdownString{
 				Text: item,
 				Type: stringType,
 			}
@@ -135,12 +135,12 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 		}
 
 		recipe := models.Recipe{
-			Name:      firebaseRecipe["name"].(string),
-			OwnerId:   userId,
-			Favourite: firebaseRecipe["favourite"].(bool),
-			Servings:  firebaseRecipe["servings"].(int16),
+			Name:        firebaseRecipe["name"].(string),
+			OwnerId:     userId,
+			Favourite:   firebaseRecipe["favourite"].(bool),
+			Servings:    int16(firebaseRecipe["servings"].(int64)),
 			// Time     int16 `json:"time,omitempty"`
-			Calories:    firebaseRecipe["calories"].(int16),
+			Calories:    int16(firebaseRecipe["calories"].(int64)),
 			Ingredients: jsonIngredients,
 			Cooking:     jsonCooking,
 		}
