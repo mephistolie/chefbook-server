@@ -6,7 +6,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"strconv"
 	"time"
 )
@@ -92,9 +91,6 @@ func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens
 		if err != nil {
 			return models.Tokens{}, models.ErrUserNotFound
 		}
-		logger.Error("TEST")
-		logger.Error(firebaseUser.LocalId)
-		logger.Error(firebaseUser.IdToken)
 		hashedPassword, err := s.hashManager.Hash(authData.Password)
 		if err != nil {
 			return models.Tokens{}, err
