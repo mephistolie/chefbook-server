@@ -248,28 +248,31 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 				}
 			}
 
-			firebaseCategories := firebaseRecipe["categories"].([]string)
 			var recipeCategoriesIds []int
-			for _, category := range firebaseCategories {
-				isAdded := false
-				for i, addedCategory := range categories {
-					if addedCategory == category {
-						recipeCategoriesIds = append(recipeCategoriesIds, categoriesIds[i])
-						isAdded = true
-						break
+			firebaseCategories, ok := firebaseRecipe["categories"].([]interface{})
+			if ok {
+				for _, interfaceCategory := range firebaseCategories {
+					category := interfaceCategory.(string)
+					isAdded := false
+					for i, addedCategory := range categories {
+						if addedCategory == category {
+							recipeCategoriesIds = append(recipeCategoriesIds, categoriesIds[i])
+							isAdded = true
+							break
+						}
 					}
-				}
-				if !isAdded && len(category) > 0 {
-					dbCategory := models.Category{
-						Name: category,
-						Cover: category[:1],
-						UserId: userId,
-					}
-					categoryId, err := s.categoriesRepo.AddCategory(dbCategory)
-					if err == nil {
-						categories = append(categories, category)
-						categoriesIds = append(categoriesIds, categoryId)
-						recipeCategoriesIds = append(recipeCategoriesIds, categoryId)
+					if !isAdded && len(category) > 0 {
+						dbCategory := models.Category{
+							Name: category,
+							Cover: category[:1],
+							UserId: userId,
+						}
+						categoryId, err := s.categoriesRepo.AddCategory(dbCategory)
+						if err == nil {
+							categories = append(categories, category)
+							categoriesIds = append(categoriesIds, categoryId)
+							recipeCategoriesIds = append(recipeCategoriesIds, categoryId)
+						}
 					}
 				}
 			}
