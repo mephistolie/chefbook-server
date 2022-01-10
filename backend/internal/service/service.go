@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/config"
@@ -97,16 +98,18 @@ type Dependencies struct {
 	Environment     string
 	Domain          string
 	FirebaseApiKey  string
+	FirestoreClient firestore.Client
 }
 
 func NewServices(dependencies Dependencies) *Service {
 
 	mailService := NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
+	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Users, dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.FirestoreClient)
 
 	return &Service{
-		Auth: NewAuthService(dependencies.Repos, dependencies.HashManager, dependencies.TokenManager,
+		Auth: NewAuthService(dependencies.Repos, *firebaseService, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
-		Firebase:     NewFirebaseService(dependencies.FirebaseApiKey),
+		Firebase:     firebaseService,
 		Users:        NewUsersService(dependencies.Repos.Users, dependencies.Repos.Files),
 		Mails:        mailService,
 		Recipes:      NewRecipesService(dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.Files),

@@ -19,6 +19,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"net/http"
 	"os"
+	"cloud.google.com/go/firestore"
 	"os/signal"
 	"syscall"
 	"time"
@@ -64,6 +65,12 @@ func Run(configPath string) {
 		Secure: true,
 	})
 
+	firestoreClient, err := firestore.NewClient(context.Background(), cfg.Firebase.ProjectId)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
 	repositories := repository.NewRepositories(db, client)
 	services := service.NewServices(service.Dependencies{
 		Repos:           repositories,
@@ -78,6 +85,7 @@ func Run(configPath string) {
 		Environment:     cfg.Environment,
 		Domain:          cfg.HTTP.Host,
 		FirebaseApiKey:  cfg.Firebase.ApiKey,
+		FirestoreClient: *firestoreClient,
 	})
 	handler := delivery.NewHandler(services, tokenManager)
 

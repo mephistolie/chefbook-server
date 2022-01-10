@@ -13,7 +13,8 @@ import (
 type AuthService struct {
 	repo repository.Users
 
-	hashManager hash.HashManager
+	hashManager     hash.HashManager
+	firebaseService FirebaseService
 
 	tokenManager    auth.TokenManager
 	accessTokenTTL  time.Duration
@@ -23,10 +24,11 @@ type AuthService struct {
 	domain      string
 }
 
-func NewAuthService(repo repository.Users, hashManager hash.HashManager, tokenManager auth.TokenManager,
+func NewAuthService(repo repository.Users, firebaseService FirebaseService, hashManager hash.HashManager, tokenManager auth.TokenManager,
 	accessTokenTTL time.Duration, refreshTokenTTL time.Duration, mailService Mails, domain string) *AuthService {
 	return &AuthService{
 		repo:            repo,
+		firebaseService: firebaseService,
 		hashManager:     hashManager,
 		tokenManager:    tokenManager,
 		accessTokenTTL:  accessTokenTTL,
@@ -84,7 +86,14 @@ func (s *AuthService) ActivateUser(activationLink uuid.UUID) error {
 func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
 	if err != nil {
-		return models.Tokens{}, models.ErrUserNotFound
+		firebaseUser, err := s.firebaseService.FirebaseSignIn(authData)
+		if err != nil {
+			return models.Tokens{}, models.ErrUserNotFound
+		}
+		err = s.firebaseService.migrateFromFirebase(authData, firebaseUser)
+		if err != nil {
+			return models.Tokens{}, models.ErrUserNotFound
+		}
 	}
 	if user.IsActivated == false {
 		return models.Tokens{}, models.ErrProfileNotActivated
