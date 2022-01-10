@@ -86,6 +86,7 @@ func (s *AuthService) ActivateUser(activationLink uuid.UUID) error {
 
 func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
+	password := authData.Password
 	if err != nil {
 		firebaseUser, err := s.firebaseService.FirebaseSignIn(authData)
 		if err != nil {
@@ -114,7 +115,7 @@ func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens
 	if user.IsBlocked == true {
 		return models.Tokens{}, models.ErrProfileIsBlocked
 	}
-	if err = s.hashManager.ValidateByHash(authData.Password, user.Password); err != nil {
+	if err = s.hashManager.ValidateByHash(password, user.Password); err != nil {
 		return models.Tokens{}, models.ErrAuthentication
 	}
 	return s.CreateSession(user.Id, ip)
