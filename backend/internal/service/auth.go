@@ -6,6 +6,7 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
+	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"strconv"
 	"time"
 )
@@ -86,15 +87,18 @@ func (s *AuthService) ActivateUser(activationLink uuid.UUID) error {
 func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
 	if err != nil {
+		firebaseUser, err := s.firebaseService.FirebaseSignIn(authData)
+		if err != nil {
+			return models.Tokens{}, models.ErrUserNotFound
+		}
+		logger.Error("TEST")
+		logger.Error(firebaseUser.LocalId)
+		logger.Error(firebaseUser.IdToken)
 		hashedPassword, err := s.hashManager.Hash(authData.Password)
 		if err != nil {
 			return models.Tokens{}, err
 		}
 		authData.Password = hashedPassword
-		firebaseUser, err := s.firebaseService.FirebaseSignIn(authData)
-		if err != nil {
-			return models.Tokens{}, models.ErrUserNotFound
-		}
 		err = s.firebaseService.migrateFromFirebase(authData, firebaseUser)
 		if err != nil {
 			return models.Tokens{}, models.ErrUserNotFound

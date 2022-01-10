@@ -63,6 +63,7 @@ type SelectableStruct struct {
 }
 
 func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebaseUser models.FirebaseUser) error {
+	logger.Error(firebaseUser.LocalId)
 	userSnapshot, err := s.firestore.Collection(FirestoreUsersCollection).Doc(firebaseUser.LocalId).Get(context.Background())
 	userDoc := userSnapshot.Data()
 
