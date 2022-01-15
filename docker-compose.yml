@@ -15,13 +15,15 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.email=support@chefbook.space"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.primary.acme.httpchallenge=true"
+      - "--certificatesresolvers.primary.acme.httpchallenge.entrypoint=websecure"
+      - "--certificatesresolvers.primary.acme.email=support@chefbook.space"
+      - "--certificatesresolvers.primary.acme.storage=/letsencrypt/acme.json"
     volumes:
         - ./data/letsencrypt:/letsencrypt
         - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      chefbook-web:
   postgres:
     container_name: chefbook-postgres
     image: postgres:14.0-alpine
@@ -41,6 +43,8 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      chefbook-web:
   backend:
     container_name: chefbook-backend
     build: backend
@@ -52,7 +56,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.registry.rule=Host(`api.${HTTP_HOST}`)"
       - "traefik.http.routers.registry.entrypoints=websecure"
-      - "traefik.http.routers.registry.tls.certresolver=myresolver"
+      - "traefik.http.routers.registry.tls.certresolver=primary"
     environment:
       - APP_ENV=${APP_ENV:-debug}
       - GIN_MODE=${APP_ENV:-debug}
@@ -70,3 +74,23 @@ services:
       - SMTP_EMAIL=${SMTP_EMAIL:?err}
       - SMTP_PASSWORD=${SMTP_PASSWORD:?err}
       - WAIT_HOSTS=postgres:5432
+    networks:
+      chefbook-web:
+  frontend:
+    container_name: chefbook-frontend
+    image: nginx:1.15.7-alpine
+    restart: always
+    depends_on:
+      - traefik
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${HTTP_HOST}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=primary"
+    networks:
+      chefbook-web:
+
+networks:
+  chefbook-web:

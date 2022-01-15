@@ -45,5 +45,6 @@ S3_SECRET_KEY=
 SMTP_EMAIL=
 SMTP_PASSWORD=
 ```
-3. Put Firebase Private Key to `backend/configs` directory
-4. Use `sudo docker-compose up` command to run server
+3. Paste SHA-256 key to `frontend/.well-known/assetlinks.json`
+4. Put Firebase Private Key to `backend/configs` directory
+5. Use `sudo docker-compose up` command to run server
