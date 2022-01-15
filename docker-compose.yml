@@ -16,14 +16,12 @@ services:
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--certificatesresolvers.primary.acme.httpchallenge=true"
-      - "--certificatesresolvers.primary.acme.httpchallenge.entrypoint=websecure"
+      - "--certificatesresolvers.primary.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.primary.acme.email=support@chefbook.space"
       - "--certificatesresolvers.primary.acme.storage=/letsencrypt/acme.json"
     volumes:
         - ./data/letsencrypt:/letsencrypt
         - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      chefbook-web:
   postgres:
     container_name: chefbook-postgres
     image: postgres:14.0-alpine
@@ -43,8 +41,6 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-    networks:
-      chefbook-web:
   backend:
     container_name: chefbook-backend
     build: backend
@@ -74,8 +70,6 @@ services:
       - SMTP_EMAIL=${SMTP_EMAIL:?err}
       - SMTP_PASSWORD=${SMTP_PASSWORD:?err}
       - WAIT_HOSTS=postgres:5432
-    networks:
-      chefbook-web:
   frontend:
     container_name: chefbook-frontend
     image: nginx:1.15.7-alpine
@@ -89,8 +83,3 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`${HTTP_HOST}`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=primary"
-    networks:
-      chefbook-web:
-
-networks:
-  chefbook-web:
