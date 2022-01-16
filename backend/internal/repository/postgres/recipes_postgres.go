@@ -61,12 +61,15 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 		return -1, err
 	}
 
+	var preview interface{}
+	if recipe.Preview != "" { preview = recipe.Preview} else { preview = nil}
+
 	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, description, servings, time, calories," +
 		"ingredients, cooking, preview, visibility, encrypted) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)" +
 		"RETURNING recipe_id",
 		recipesTable)
 	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
-		recipe.Cooking, recipe.Preview, recipe.Visibility, recipe.Encrypted)
+		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
@@ -154,11 +157,15 @@ func (r *RecipesPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
 }
 
 func (r *RecipesPostgres) UpdateRecipe(recipe models.Recipe, userId int) error {
+
+	var preview interface{}
+	if recipe.Preview != "" { preview = recipe.Preview} else { preview = nil}
+
 	query := fmt.Sprintf("UPDATE %s SET name=$1, description=$2, servings=$3, time=$4, calories=$5, ingredients=$6, " +
 		"cooking=$7, preview=$8, visibility=$9, encrypted=$10, update_timestamp=$11 WHERE recipe_id=$12 AND owner_id=$13",
 		recipesTable)
 	_, err := r.db.Exec(query, recipe.Name, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
-		recipe.Cooking, recipe.Preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id, userId)
+		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id, userId)
 	return err
 }
 

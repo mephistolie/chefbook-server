@@ -64,7 +64,8 @@ func (r *AuthPostgres) GetUserById(id int) (models.User, error) {
 
 func (r *AuthPostgres) GetUserByEmail(email string) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1", usersTable)
+	query := fmt.Sprintf("SELECT id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+		"premium, broccoins, is_blocked FROM %s WHERE email=$1", usersTable)
 	err := r.db.Get(&user, query, email)
 	return user, err
 }
