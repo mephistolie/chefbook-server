@@ -456,19 +456,14 @@ func (h *Handler) deleteRecipeKey(c *gin.Context) {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
-	var picture models.RecipeDeletePictureInput
-	if err := c.BindJSON(&picture); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
-		return
-	}
 
 	err = h.services.DeleteRecipeKey(c.Request.Context(), recipeId, userId)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipePicture.Error())
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipeKey.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespRecipePictureDeleted,
+		"message": models.RespKeyDeleted,
 	})
 }

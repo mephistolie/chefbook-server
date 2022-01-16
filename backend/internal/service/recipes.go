@@ -162,12 +162,19 @@ func (s *RecipesService) UploadRecipeKey(ctx context.Context, recipeId, userId i
 	if recipe.OwnerId != userId {
 		return "", models.ErrNotOwner
 	}
+	oldKey, err := s.recipesRepo.GetRecipeKey(recipeId)
+	if err != nil {
+		return "", err
+	}
 	url, err := s.filesRepo.UploadRecipeKey(ctx, recipeId, s3.UploadInput{
 		Name:        uuid.NewString(),
 		File:        file,
 		Size:        size,
 		ContentType: contentType,
 	})
+	if oldKey != "" {
+		_ = s.filesRepo.DeleteFile(ctx, oldKey)
+	}
 	return url, err
 }
 

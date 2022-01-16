@@ -218,7 +218,7 @@ func (h *Handler) deleteUserKey(c *gin.Context) {
 
 	err = h.services.DeleteUserKey(c.Request.Context(), userId)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteAvatar.Error())
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteUserKey.Error())
 		return
 	}
 

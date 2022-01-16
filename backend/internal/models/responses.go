@@ -46,6 +46,7 @@ var (
 	ErrInvalidUserId  = errors.New("invalid user id")
 
 	ErrUnableDeleteAvatar = errors.New("unable to delete avatar")
+	ErrUnableDeleteUserKey = errors.New("unable to delete user key")
 
 	ErrNotOwner = errors.New("you aren't owner of this recipe")
 	ErrInvalidRecipeInput = errors.New("invalid recipe input")
@@ -53,6 +54,7 @@ var (
 	ErrRecipeNotInRecipeBook = errors.New("recipe isn't in recipe book")
 	ErrRecipeLikeSetAlready = errors.New("recipe like status already set")
 	ErrUnableDeleteRecipePicture = errors.New("unable to delete picture")
+	ErrUnableDeleteRecipeKey = errors.New("unable to delete recipe key")
 
 	ErrCategoryNotFound = errors.New("category not found")
 )
