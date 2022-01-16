@@ -13,7 +13,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	{
 		auth.GET("", h.getUserInfo)
 		auth.PUT("/change-name", h.setUserName)
-		auth.PUT("/avatar", h.uploadAvatar)
+		auth.POST("/avatar", h.uploadAvatar)
 		auth.DELETE("/avatar", h.deleteAvatar)
 
 		auth.GET("/key", h.getUserKey)
