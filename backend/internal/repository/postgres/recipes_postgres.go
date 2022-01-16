@@ -260,7 +260,7 @@ func (r *RecipesPostgres) SetRecipePreview(recipeId int, url string) error {
 
 func (r *RecipesPostgres) GetRecipeKey(recipeId int) (string, error) {
 	var key string
-	query := fmt.Sprintf("SELECT rsa FROM %s WHERE WHERE recipe_id=$2", recipesTable)
+	query := fmt.Sprintf("SELECT rsa FROM %s WHERE recipe_id=$2", recipesTable)
 	err := r.db.Get(&key, query, recipeId)
 	return key, err
 }

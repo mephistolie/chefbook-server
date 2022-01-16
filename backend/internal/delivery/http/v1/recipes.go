@@ -436,7 +436,7 @@ func (h *Handler) uploadRecipeKey(c *gin.Context) {
 
 	url, err := h.services.UploadRecipeKey(c.Request.Context(), recipeId, userId, fileBytes, fileHeader.Size, fileType)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, err.Error())
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -459,7 +459,11 @@ func (h *Handler) deleteRecipeKey(c *gin.Context) {
 
 	err = h.services.DeleteRecipeKey(c.Request.Context(), recipeId, userId)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipeKey.Error())
+		if err == models.ErrNotOwner {
+			newResponse(c, http.StatusBadRequest, models.ErrNotOwner.Error())
+		} else {
+			newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipeKey.Error())
+		}
 		return
 	}
 
