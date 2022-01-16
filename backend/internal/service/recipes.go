@@ -200,6 +200,10 @@ func (s *RecipesService) DeleteRecipeKey(ctx context.Context, recipeId, userId i
 		return err
 	}
 	err = s.filesRepo.DeleteFile(ctx, url)
+	if err != nil {
+		return err
+	}
+	err = s.recipesRepo.SetRecipeKey(userId, "")
 	return err
 }
 

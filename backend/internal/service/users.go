@@ -110,5 +110,9 @@ func (s *UsersService) DeleteUserKey(ctx context.Context, userId int) error  {
 		return err
 	}
 	err = s.filesRepo.DeleteFile(ctx, url)
+	err = s.usersRepo.SetUserKey(userId, "")
+	if err != nil {
+		return err
+	}
 	return err
 }
