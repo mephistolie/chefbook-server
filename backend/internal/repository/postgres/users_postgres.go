@@ -163,7 +163,7 @@ func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
 
 func (r *AuthPostgres) GetUserKey(userId int) (string, error) {
 	var key string
-	query := fmt.Sprintf("SELECT rsa FROM %s WHERE WHERE user_id=$2", usersTable)
+	query := fmt.Sprintf("SELECT rsa FROM %s WHERE WHERE user_id=$1", usersTable)
 	err := r.db.Get(&key, query, userId)
 	return key, err
 }
