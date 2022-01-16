@@ -26,6 +26,9 @@ type Users interface {
 	SetUserName(userId int, username string) error
 	SetUserAvatar(userId int, url string) error
 	SetPremiumDate(userId int, expiresAt time.Time) error
+
+	GetUserKey(userId int) (string, error)
+	SetUserKey(userId int, url string) error
 }
 
 type Recipes interface {
@@ -40,6 +43,8 @@ type Recipes interface {
 	MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error
 	SetRecipeLike(recipeId, userId int, isLiked bool) error
 	SetRecipePreview(recipeId int, url string)  error
+	GetRecipeKey(recipeId int) (string, error)
+    SetRecipeKey(recipeId int, url string) error
 }
 
 type Categories interface {
@@ -57,9 +62,12 @@ type ShoppingList interface {
 }
 
 type Files interface {
-	UploadAvatar(ctx context.Context, input s3.UploadInput) (string, error)
+	UploadAvatar(ctx context.Context, userId int, input s3.UploadInput) (string, error)
+	UploadUserKey(ctx context.Context, userId int, input s3.UploadInput) (string, error)
 	UploadRecipePicture(ctx context.Context, recipeId int, input s3.UploadInput) (string, error)
+	UploadRecipeKey(ctx context.Context, recipeId int, input s3.UploadInput) (string, error)
 	GetRecipePictureLink(recipeId int, pictureName string) string
+	GetRecipeKeysLink(recipeId int, pictureName string) string
 	DeleteFile(ctx context.Context, url string) error
 }
 

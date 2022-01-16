@@ -9,6 +9,7 @@ var (
 
 	RespUsernameChanged = "username successfully changed"
 	RespAvatarDeleted = "avatar has been deleted"
+	RespKeyDeleted = "encrypted rsa key deleted"
 
 	RespRecipeAdded = "recipe has been added"
 	RespRecipeUpdated = "recipe has been updated"

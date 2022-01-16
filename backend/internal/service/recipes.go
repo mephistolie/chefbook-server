@@ -109,34 +109,7 @@ func (s *RecipesService) SetRecipeLike(input models.RecipeLikeInput) error  {
 	return s.recipesRepo.SetRecipeLike(input.RecipeId, input.UserId, input.Liked)
 }
 
-func (s *RecipesService) UploadRecipePreview(ctx context.Context, recipeId int, userId int, file *bytes.Reader, size int64, contentType string) (string, error)  {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
-	if err != nil {
-		return "", err
-	}
-	if recipe.OwnerId != userId {
-		return "", models.ErrNotOwner
-	}
-	url, err := s.filesRepo.UploadRecipePicture(ctx, recipeId, s3.UploadInput{
-		Name:        uuid.NewString(),
-		File:        file,
-		Size:        size,
-		ContentType: contentType,
-	})
-	if err != nil {
-		return "", err
-	}
-	err = s.recipesRepo.SetRecipePreview(recipeId, url)
-	if err != nil {
-		return "", err
-	}
-	if recipe.Preview != "" {
-		_ = s.filesRepo.DeleteFile(ctx, recipe.Preview)
-	}
-	return url, nil
-}
-
-func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId int, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
+func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
 	if err != nil {
 		return "", err
@@ -153,22 +126,6 @@ func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId int, 
 	return url, err
 }
 
-func (s *RecipesService) DeleteRecipePreview(ctx context.Context, recipeId, userId int) error  {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
-	if err != nil {
-		return err
-	}
-	if recipe.OwnerId != userId {
-		return models.ErrNotOwner
-	}
-	err = s.filesRepo.DeleteFile(ctx, recipe.Preview)
-	if err != nil {
-		return err
-	}
-	err = s.recipesRepo.SetRecipePreview(recipeId, "")
-	return err
-}
-
 func (s *RecipesService) DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error  {
 	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
 	if err != nil {
@@ -178,6 +135,54 @@ func (s *RecipesService) DeleteRecipePicture(ctx context.Context, recipeId, user
 		return models.ErrNotOwner
 	}
 	url := s.filesRepo.GetRecipePictureLink(recipeId, pictureName)
+	err = s.filesRepo.DeleteFile(ctx, url)
+	return err
+}
+
+func (s *RecipesService) GetRecipeKey(recipeId, userId int) (string, error) {
+	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	if err != nil {
+		return "", err
+	}
+	if recipe.OwnerId != userId {
+		return "", models.ErrNotOwner
+	}
+	url, err := s.recipesRepo.GetRecipeKey(recipeId)
+	if err != nil {
+		return "", err
+	}
+	return url, err
+}
+
+func (s *RecipesService) UploadRecipeKey(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
+	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	if err != nil {
+		return "", err
+	}
+	if recipe.OwnerId != userId {
+		return "", models.ErrNotOwner
+	}
+	url, err := s.filesRepo.UploadRecipeKey(ctx, recipeId, s3.UploadInput{
+		Name:        uuid.NewString(),
+		File:        file,
+		Size:        size,
+		ContentType: contentType,
+	})
+	return url, err
+}
+
+func (s *RecipesService) DeleteRecipeKey(ctx context.Context, recipeId, userId int) error  {
+	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	if err != nil {
+		return err
+	}
+	if recipe.OwnerId != userId {
+		return models.ErrNotOwner
+	}
+	url, err := s.recipesRepo.GetRecipeKey(recipeId)
+	if err != nil {
+		return err
+	}
 	err = s.filesRepo.DeleteFile(ctx, url)
 	return err
 }

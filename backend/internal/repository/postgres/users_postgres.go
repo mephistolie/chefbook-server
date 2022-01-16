@@ -24,7 +24,8 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 		return -1, err
 	}
 
-	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, username, password, activation_link) values ($1, $2, $3, $4) RETURNING user_id", usersTable)
+	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, username, password, activation_link) values " +
+		"($1, $2, $3, $4) RETURNING user_id", usersTable)
 	row := tx.QueryRow(createUserQuery, user.Email, user.Email, user.Password, activationLink)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
@@ -55,7 +56,8 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 
 func (r *AuthPostgres) GetUserById(id int) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id=$1", usersTable)
+	query := fmt.Sprintf("SELECT id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+		"premium, broccoins, is_blocked FROM %s WHERE user_id=$1", usersTable)
 	err := r.db.Get(&user, query, id)
 	return user, err
 }
@@ -69,7 +71,8 @@ func (r *AuthPostgres) GetUserByEmail(email string) (models.User, error) {
 
 func (r *AuthPostgres) GetUserByCredentials(email, password string) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password=$2", usersTable)
+	query := fmt.Sprintf("SELECT id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+		"premium, broccoins, is_blocked FROM %s WHERE email=$1 AND password=$2", usersTable)
 	err := r.db.Get(&user, query, email, password)
 	return user, err
 }
@@ -154,6 +157,21 @@ func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
 	if url != "" { avatar = url} else { avatar = nil}
 	query := fmt.Sprintf("UPDATE %s SET avatar=$1 WHERE user_id=$2", usersTable)
 	_, err := r.db.Exec(query, avatar, userId)
+	return err
+}
+
+func (r *AuthPostgres) GetUserKey(userId int) (string, error) {
+	var key string
+	query := fmt.Sprintf("SELECT rsa FROM %s WHERE WHERE user_id=$2", usersTable)
+	err := r.db.Get(&key, query, userId)
+	return key, err
+}
+
+func (r *AuthPostgres) SetUserKey(userId int, url string) error {
+	var key interface{}
+	if url != "" { key = url} else { key = nil}
+	query := fmt.Sprintf("UPDATE %s SET rsa=$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, key, userId)
 	return err
 }
 

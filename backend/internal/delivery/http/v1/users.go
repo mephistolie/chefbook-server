@@ -15,6 +15,10 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 		auth.PUT("/change-name", h.setUserName)
 		auth.PUT("/avatar", h.uploadAvatar)
 		auth.DELETE("/avatar", h.deleteAvatar)
+
+		auth.GET("/key", h.getUserKey)
+		auth.POST("/key", h.uploadUserKey)
+		auth.DELETE("/key", h.deleteUserKey)
 	}
 }
 
@@ -79,6 +83,24 @@ func (h *Handler) setUserName(c *gin.Context) {
 	})
 }
 
+func (h *Handler) getUserKey(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	url, err := h.services.GetUserKey(userId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"link": url,
+	})
+}
+
 func (h *Handler) uploadAvatar(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -116,7 +138,7 @@ func (h *Handler) uploadAvatar(c *gin.Context) {
 		return
 	}
 
-	url, err := h.services.UploadAvatar(c.Request.Context(), userId, fileBytes, fileHeader.Size, "image/jpeg")
+	url, err := h.services.UploadAvatar(c.Request.Context(), userId, fileBytes, fileHeader.Size, fileType)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -142,5 +164,65 @@ func (h *Handler) deleteAvatar(c *gin.Context) {
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"message": models.RespAvatarDeleted,
+	})
+}
+
+func (h *Handler) uploadUserKey(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())
+		return
+	}
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			newResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}()
+
+	buffer := make([]byte, fileHeader.Size)
+	_, err = file.Read(buffer)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	fileType := http.DetectContentType(buffer)
+	fileBytes := bytes.NewReader(buffer)
+
+	url, err := h.services.UploadUserKey(c.Request.Context(), userId, fileBytes, fileHeader.Size, fileType)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"link": url,
+	})
+}
+
+func (h *Handler) deleteUserKey(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = h.services.DeleteUserKey(c.Request.Context(), userId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteAvatar.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespKeyDeleted,
 	})
 }

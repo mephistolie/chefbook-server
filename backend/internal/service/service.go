@@ -32,6 +32,10 @@ type Users interface {
 	SetUserName(userId int, username string) error
 	UploadAvatar(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
 	DeleteAvatar(ctx context.Context, userId int) error
+
+	GetUserKey(userId int) (string, error)
+	UploadUserKey(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
+	DeleteUserKey(ctx context.Context, userId int) error
 }
 
 type VerificationEmailInput struct {
@@ -54,10 +58,12 @@ type Recipes interface {
 	SetRecipeCategories(input models.RecipeCategoriesInput) error
 	MarkRecipeFavourite(input models.FavouriteRecipeInput) error
 	SetRecipeLike(input models.RecipeLikeInput) error
-	UploadRecipePreview(ctx context.Context, recipeId int, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
-	UploadRecipePicture(ctx context.Context, recipeId int, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
-	DeleteRecipePreview(ctx context.Context, recipeId, userId int) error
+	UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
 	DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error
+
+	GetRecipeKey(recipeId, userId int) (string, error)
+	UploadRecipeKey(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
+	DeleteRecipeKey(ctx context.Context, recipeId, userId int) error
 }
 
 type Categories interface {

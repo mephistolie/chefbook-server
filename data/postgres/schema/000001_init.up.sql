@@ -14,7 +14,8 @@ CREATE TABLE users
     premium         TIMESTAMP                   DEFAULT NULL,
     broccoins       INT                NOT NULL DEFAULT 0,
 
-    is_blocked      BOOLEAN            NOT NULL DEFAULT false
+    is_blocked      BOOLEAN            NOT NULL DEFAULT false,
+    rsa             VARCHAR(255)                DEFAULT NULL
 );
 
 CREATE TABLE shopping_list
@@ -52,15 +53,25 @@ CREATE TABLE recipes
     preview            VARCHAR(255)                                              DEFAULT NULL,
     visibility         visibility_type                                  NOT NULL DEFAULT 'private',
     encrypted          BOOLEAN                                          NOT NULL DEFAULT false,
+    rsa                VARCHAR(255)                                              DEFAULT NULL,
     creation_timestamp TIMESTAMP                                        NOT NULL DEFAULT now(),
     update_timestamp   TIMESTAMP                                        NOT NULL DEFAULT now()
 );
 
 CREATE TABLE users_recipes
 (
-    user_id   INT REFERENCES users (user_id) ON DELETE CASCADE     NOT NULL,
-    recipe_id INT REFERENCES recipes (recipe_id) ON DELETE CASCADE NOT NULL,
-    favourite BOOLEAN                                              NOT NULL DEFAULT false
+    user_id          INT REFERENCES users (user_id) ON DELETE CASCADE     NOT NULL,
+    recipe_id        INT REFERENCES recipes (recipe_id) ON DELETE CASCADE NOT NULL,
+    favourite        BOOLEAN                                              NOT NULL DEFAULT false,
+    update_timestamp TIMESTAMP                                            NOT NULL DEFAULT now()
+);
+
+CREATE TABLE encrypted_recipes_requests
+(
+    user_id              INT REFERENCES users (user_id) ON DELETE CASCADE     NOT NULL,
+    recipe_id            INT REFERENCES recipes (recipe_id) ON DELETE CASCADE NOT NULL,
+    encrypted_user_key   TEXT                                                 NOT NULL,
+    encrypted_recipe_key TEXT DEFAULT NULL
 );
 
 CREATE TABLE likes

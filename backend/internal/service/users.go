@@ -38,7 +38,7 @@ func (s *UsersService) UploadAvatar(ctx context.Context, userId int, file *bytes
 	if err != nil {
 		return "", err
 	}
-	url, err := s.filesRepo.UploadAvatar(ctx, s3.UploadInput{
+	url, err := s.filesRepo.UploadAvatar(ctx, userId, s3.UploadInput{
 		Name:        uuid.NewString(),
 		File:        file,
 		Size:        size,
@@ -71,4 +71,42 @@ func (s *UsersService) DeleteAvatar(ctx context.Context, userId int) error  {
 		return err
 	}
 	return nil
+}
+
+func (s *UsersService) GetUserKey(userId int) (string, error) {
+	key, err := s.usersRepo.GetUserKey(userId)
+	if err != nil {
+		return "", err
+	}
+	return key, err
+}
+
+func (s *UsersService) UploadUserKey(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
+	key, err := s.usersRepo.GetUserKey(userId)
+	if err != nil {
+		return "", err
+	}
+	url, err := s.filesRepo.UploadUserKey(ctx, userId, s3.UploadInput{
+		Name:        uuid.NewString(),
+		File:        file,
+		Size:        size,
+		ContentType: contentType,
+	})
+	err = s.usersRepo.SetUserKey(userId, url)
+	if err != nil {
+		return "", err
+	}
+	if key != "" {
+		_ = s.filesRepo.DeleteFile(ctx, key)
+	}
+	return url, err
+}
+
+func (s *UsersService) DeleteUserKey(ctx context.Context, userId int) error  {
+	url, err := s.usersRepo.GetUserKey(userId)
+	if err != nil {
+		return err
+	}
+	err = s.filesRepo.DeleteFile(ctx, url)
+	return err
 }
