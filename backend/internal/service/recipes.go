@@ -123,6 +123,10 @@ func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId, user
 		Size:        size,
 		ContentType: contentType,
 	})
+	if err != nil {
+		_ = s.filesRepo.DeleteFile(ctx, url)
+		return "", err
+	}
 	return url, err
 }
 
@@ -172,6 +176,11 @@ func (s *RecipesService) UploadRecipeKey(ctx context.Context, recipeId, userId i
 		Size:        size,
 		ContentType: contentType,
 	})
+	err = s.recipesRepo.SetRecipeKey(recipeId, url)
+	if err != nil {
+		_ = s.filesRepo.DeleteFile(ctx, url)
+		return "", err
+	}
 	if oldKey != "" {
 		_ = s.filesRepo.DeleteFile(ctx, oldKey)
 	}

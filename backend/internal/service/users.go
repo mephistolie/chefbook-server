@@ -49,6 +49,7 @@ func (s *UsersService) UploadAvatar(ctx context.Context, userId int, file *bytes
 	}
 	err = s.usersRepo.SetUserAvatar(userId, url)
 	if err != nil {
+		_ = s.filesRepo.DeleteFile(ctx, url)
 		return "", err
 	}
 	if user.Avatar.String != "" {
@@ -94,6 +95,7 @@ func (s *UsersService) UploadUserKey(ctx context.Context, userId int, file *byte
 	})
 	err = s.usersRepo.SetUserKey(userId, url)
 	if err != nil {
+		_ = s.filesRepo.DeleteFile(ctx, url)
 		return "", err
 	}
 	if key != "" {
