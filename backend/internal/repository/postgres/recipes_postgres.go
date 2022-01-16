@@ -21,12 +21,12 @@ func NewRecipesPostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) GetRecipesByUser(userId int) ([]models.Recipe, error) {
 	var recipes []models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.owner_name, %[1]v.owned, " +
-		"%[1]v.description, %[1]v.likes, %[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, " +
-		"%[1]v.cooking, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted, %[1]v.creation_timestamp, " +
-		"%[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS (SELECT 1 FROM %[3]v " +
-		"WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v " +
-		"ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id WHERE %[2]v.user_id=$1",
+	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.description, %[1]v.likes, "+
+		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, %[1]v.preview, %[1]v.visibility, "+
+		"%[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT "+
+		"EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username "+
+		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id "+
+		"WHERE %[2]v.user_id=$1",
 		recipesTable, usersRecipesTable, likesTable, usersTable)
 	var ingredients []byte
 	var cooking []byte
@@ -62,10 +62,14 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 	}
 
 	var preview interface{}
-	if recipe.Preview != "" { preview = recipe.Preview} else { preview = nil}
+	if recipe.Preview != "" {
+		preview = recipe.Preview
+	} else {
+		preview = nil
+	}
 
-	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, description, servings, time, calories," +
-		"ingredients, cooking, preview, visibility, encrypted) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)" +
+	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, description, servings, time, calories,"+
+		"ingredients, cooking, preview, visibility, encrypted) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"+
 		"RETURNING recipe_id",
 		recipesTable)
 	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
@@ -109,8 +113,8 @@ func (r *RecipesPostgres) SetRecipeCategories(categoriesIds []int, recipeId, use
 			categoriesArrayString += fmt.Sprintf("%d, ", categoryId)
 		}
 		categoriesArrayString = categoriesArrayString[:len(categoriesArrayString)-2] + ")"
-		addCategoriesQuery := fmt.Sprintf("INSERT INTO %[1]v (recipe_id, category_id, user_id) " +
-			"SELECT %[2]v.recipe_id, %[3]v.category_id, %[3]v.user_id FROM %[3]v LEFT JOIN %[2]v ON %[2]v.recipe_id=$1 " +
+		addCategoriesQuery := fmt.Sprintf("INSERT INTO %[1]v (recipe_id, category_id, user_id) "+
+			"SELECT %[2]v.recipe_id, %[3]v.category_id, %[3]v.user_id FROM %[3]v LEFT JOIN %[2]v ON %[2]v.recipe_id=$1 "+
 			"WHERE category_id IN %[4]v AND user_id=$2",
 			recipesCategoriesTable, recipesTable, categoriesTable, categoriesArrayString)
 		if _, err := tx.Exec(addCategoriesQuery, recipeId, userId); err != nil {
@@ -126,12 +130,12 @@ func (r *RecipesPostgres) SetRecipeCategories(categoriesIds []int, recipeId, use
 
 func (r *RecipesPostgres) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
 	var recipe models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.owner_name, %[1]v.owned, " +
-		"%[1]v.description, %[1]v.likes, %[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, " +
-		"%[1]v.preview, %[1]v.visibility, %[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, " +
-		"coalesce(%[2]v.favourite, false), (SELECT EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id " +
-		"AND user_id=$1)) as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v ON %[2]v.user_id=$1 AND " +
-		"%[1]v.recipe_id=%[2]v.recipe_id LEFT JOIN users ON %[4]v.user_id=%[1]v.owner_id WHERE %[1]v.recipe_id=$2",
+	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.description, %[1]v.likes, "+
+		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, %[1]v.preview, %[1]v.visibility, "+
+		"%[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT " +
+		"EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username " +
+		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id LEFT JOIN users ON " +
+		"%[4]v.user_id=%[1]v.owner_id WHERE %[1]v.recipe_id=$2",
 		recipesTable, usersRecipesTable, likesTable, usersTable)
 	var ingredients []byte
 	var cooking []byte
@@ -159,9 +163,13 @@ func (r *RecipesPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
 func (r *RecipesPostgres) UpdateRecipe(recipe models.Recipe, userId int) error {
 
 	var preview interface{}
-	if recipe.Preview != "" { preview = recipe.Preview} else { preview = nil}
+	if recipe.Preview != "" {
+		preview = recipe.Preview
+	} else {
+		preview = nil
+	}
 
-	query := fmt.Sprintf("UPDATE %s SET name=$1, description=$2, servings=$3, time=$4, calories=$5, ingredients=$6, " +
+	query := fmt.Sprintf("UPDATE %s SET name=$1, description=$2, servings=$3, time=$4, calories=$5, ingredients=$6, "+
 		"cooking=$7, preview=$8, visibility=$9, encrypted=$10, update_timestamp=$11 WHERE recipe_id=$12 AND owner_id=$13",
 		recipesTable)
 	_, err := r.db.Exec(query, recipe.Name, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
@@ -185,7 +193,8 @@ func (r *RecipesPostgres) SetRecipeLike(recipeId, userId int, isLiked bool) erro
 	var exists bool
 	checkLikeQuery := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM %s WHERE recipe_id=$1 AND user_id=$2)", likesTable)
 
-	err := r.db.QueryRow(checkLikeQuery, recipeId, userId).Scan(&exists); if err != nil && err != sql.ErrNoRows {
+	err := r.db.QueryRow(checkLikeQuery, recipeId, userId).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 	if (exists && isLiked) || (!exists && !isLiked) {
@@ -235,7 +244,11 @@ func (r *RecipesPostgres) MarkRecipeFavourite(recipeId, userId int, isFavourite 
 
 func (r *RecipesPostgres) SetRecipePreview(recipeId int, url string) error {
 	var preview interface{}
-	if url != "" { preview = url} else { preview = nil}
+	if url != "" {
+		preview = url
+	} else {
+		preview = nil
+	}
 	query := fmt.Sprintf("UPDATE %s SET preview=$1 WHERE recipe_id=$2", recipesTable)
 	_, err := r.db.Exec(query, preview, recipeId)
 	return err
@@ -250,7 +263,11 @@ func (r *RecipesPostgres) GetRecipeKey(recipeId int) (string, error) {
 
 func (r *RecipesPostgres) SetRecipeKey(recipeId int, url string) error {
 	var key interface{}
-	if url != "" { key = url} else { key = nil}
+	if url != "" {
+		key = url
+	} else {
+		key = nil
+	}
 	query := fmt.Sprintf("UPDATE %s SET rsa=$1 WHERE recipe_id=$2", recipesTable)
 	_, err := r.db.Exec(query, key, recipeId)
 	return err
