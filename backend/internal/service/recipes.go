@@ -203,7 +203,7 @@ func (s *RecipesService) DeleteRecipeKey(ctx context.Context, recipeId, userId i
 	if err != nil {
 		return err
 	}
-	err = s.recipesRepo.SetRecipeKey(userId, "")
+	err = s.recipesRepo.SetRecipeKey(recipeId, "")
 	return err
 }
 
