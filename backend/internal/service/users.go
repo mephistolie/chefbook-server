@@ -75,8 +75,8 @@ func (s *UsersService) DeleteAvatar(ctx context.Context, userId int) error  {
 
 func (s *UsersService) GetUserKey(userId int) (string, error) {
 	key, err := s.usersRepo.GetUserKey(userId)
-	if err != nil {
-		return "", err
+	if err != nil || key == "" {
+		return "", models.ErrNoKey
 	}
 	return key, err
 }

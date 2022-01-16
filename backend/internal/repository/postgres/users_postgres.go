@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -162,10 +163,10 @@ func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
 }
 
 func (r *AuthPostgres) GetUserKey(userId int) (string, error) {
-	var key string
+	var key sql.NullString
 	query := fmt.Sprintf("SELECT rsa FROM %s WHERE WHERE user_id=$1", usersTable)
 	err := r.db.Get(&key, query, userId)
-	return key, err
+	return key.String, err
 }
 
 func (r *AuthPostgres) SetUserKey(userId int, url string) error {

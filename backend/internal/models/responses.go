@@ -3,32 +3,32 @@ package models
 import "errors"
 
 var (
-	RespActivationLink   = "profile activation link has been sent to email"
-	RespProfileActivated = "profile is activated"
+	RespActivationLink      = "profile activation link has been sent to email"
+	RespProfileActivated    = "profile is activated"
 	RespSignOutSuccessfully = "signed out successfully"
 
 	RespUsernameChanged = "username successfully changed"
-	RespAvatarDeleted = "avatar has been deleted"
-	RespKeyDeleted = "encrypted rsa key deleted"
+	RespAvatarDeleted   = "avatar has been deleted"
+	RespKeyDeleted      = "encrypted rsa key deleted"
 
-	RespRecipeAdded = "recipe has been added"
-	RespRecipeUpdated = "recipe has been updated"
-	RespRecipeDeleted = "recipe has been deleted"
-	RespCategoriesUpdated = "categories has been updated"
+	RespRecipeAdded            = "recipe has been added"
+	RespRecipeUpdated          = "recipe has been updated"
+	RespRecipeDeleted          = "recipe has been deleted"
+	RespCategoriesUpdated      = "categories has been updated"
 	RespFavouriteStatusUpdated = "favourite status has been updated"
-	RespRecipeLikeSet = "recipe like status has been set"
-	RespRecipePictureDeleted = "picture has been deleted"
+	RespRecipeLikeSet          = "recipe like status has been set"
+	RespRecipePictureDeleted   = "picture has been deleted"
 
-	RespCategoryAdded = "category has been added"
+	RespCategoryAdded   = "category has been added"
 	RespCategoryUpdated = "category has been updated"
 	RespCategoryDeleted = "category has been deleted"
 
 	RespShoppingListUpdated = "shopping list has been updated"
 
-	ErrInvalidInput = errors.New("invalid input")
-	ErrInvalidFileInput = errors.New("invalid input. File must be < 500KB")
+	ErrInvalidInput         = errors.New("invalid input")
+	ErrInvalidFileInput     = errors.New("invalid input. File must be < 500KB")
 	ErrFileTypeNotSupported = errors.New("file type isn't supported")
-	ErrAccessDenied   = errors.New("recipe access denied")
+	ErrAccessDenied         = errors.New("recipe access denied")
 
 	ErrUserAlreadyExists   = errors.New("user with such email already exists")
 	ErrUserNotFound        = errors.New("user not found")
@@ -45,16 +45,17 @@ var (
 	ErrUserIdNotFound = errors.New("user id not found")
 	ErrInvalidUserId  = errors.New("invalid user id")
 
-	ErrUnableDeleteAvatar = errors.New("unable to delete avatar")
+	ErrUnableDeleteAvatar  = errors.New("unable to delete avatar")
+	ErrNoKey               = errors.New("encrypted key not found")
 	ErrUnableDeleteUserKey = errors.New("unable to delete user key")
 
-	ErrNotOwner = errors.New("you aren't owner of this recipe")
-	ErrInvalidRecipeInput = errors.New("invalid recipe input")
-	ErrRecipeNotFound = errors.New("recipe not found")
-	ErrRecipeNotInRecipeBook = errors.New("recipe isn't in recipe book")
-	ErrRecipeLikeSetAlready = errors.New("recipe like status already set")
+	ErrNotOwner                  = errors.New("you aren't owner of this recipe")
+	ErrInvalidRecipeInput        = errors.New("invalid recipe input")
+	ErrRecipeNotFound            = errors.New("recipe not found")
+	ErrRecipeNotInRecipeBook     = errors.New("recipe isn't in recipe book")
+	ErrRecipeLikeSetAlready      = errors.New("recipe like status already set")
 	ErrUnableDeleteRecipePicture = errors.New("unable to delete picture")
-	ErrUnableDeleteRecipeKey = errors.New("unable to delete recipe key")
+	ErrUnableDeleteRecipeKey     = errors.New("unable to delete recipe key")
 
 	ErrCategoryNotFound = errors.New("category not found")
 )

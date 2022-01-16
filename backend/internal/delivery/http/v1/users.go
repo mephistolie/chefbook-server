@@ -200,11 +200,7 @@ func (h *Handler) uploadUserKey(c *gin.Context) {
 
 	url, err := h.services.UploadUserKey(c.Request.Context(), userId, fileBytes, fileHeader.Size, fileType)
 	if err != nil {
-		if err == models.ErrNotOwner {
-			newResponse(c, http.StatusBadRequest, models.ErrNotOwner.Error())
-		} else {
-			newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipeKey.Error())
-		}
+		newResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -225,7 +221,7 @@ func (h *Handler) deleteUserKey(c *gin.Context) {
 		if err == models.ErrNotOwner {
 			newResponse(c, http.StatusBadRequest, models.ErrNotOwner.Error())
 		} else {
-			newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipeKey.Error())
+			newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteUserKey.Error())
 		}
 		return
 	}

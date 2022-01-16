@@ -148,8 +148,8 @@ func (s *RecipesService) GetRecipeKey(recipeId, userId int) (string, error) {
 		return "", models.ErrNotOwner
 	}
 	url, err := s.recipesRepo.GetRecipeKey(recipeId)
-	if err != nil {
-		return "", err
+	if err != nil || url == "" {
+		return "", models.ErrNoKey
 	}
 	return url, err
 }

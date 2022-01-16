@@ -259,10 +259,10 @@ func (r *RecipesPostgres) SetRecipePreview(recipeId int, url string) error {
 }
 
 func (r *RecipesPostgres) GetRecipeKey(recipeId int) (string, error) {
-	var key string
+	var key sql.NullString
 	query := fmt.Sprintf("SELECT rsa FROM %s WHERE recipe_id=$1", recipesTable)
 	err := r.db.Get(&key, query, recipeId)
-	return key, err
+	return key.String, err
 }
 
 func (r *RecipesPostgres) SetRecipeKey(recipeId int, url string) error {
