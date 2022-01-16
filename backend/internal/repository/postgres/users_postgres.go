@@ -56,7 +56,7 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 
 func (r *AuthPostgres) GetUserById(id int) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
 		"premium, broccoins, is_blocked FROM %s WHERE user_id=$1", usersTable)
 	err := r.db.Get(&user, query, id)
 	return user, err
@@ -64,7 +64,7 @@ func (r *AuthPostgres) GetUserById(id int) (models.User, error) {
 
 func (r *AuthPostgres) GetUserByEmail(email string) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
 		"premium, broccoins, is_blocked FROM %s WHERE email=$1", usersTable)
 	err := r.db.Get(&user, query, email)
 	return user, err
@@ -72,7 +72,7 @@ func (r *AuthPostgres) GetUserByEmail(email string) (models.User, error) {
 
 func (r *AuthPostgres) GetUserByCredentials(email, password string) (models.User, error) {
 	var user models.User
-	query := fmt.Sprintf("SELECT id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
 		"premium, broccoins, is_blocked FROM %s WHERE email=$1 AND password=$2", usersTable)
 	err := r.db.Get(&user, query, email, password)
 	return user, err

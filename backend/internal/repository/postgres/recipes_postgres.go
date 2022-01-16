@@ -21,7 +21,7 @@ func NewRecipesPostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) GetRecipesByUser(userId int) ([]models.Recipe, error) {
 	var recipes []models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.id, %[1]v.name, %[1]v.owner_id, %[1]v.owner_name, %[1]v.owned, " +
+	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.owner_name, %[1]v.owned, " +
 		"%[1]v.description, %[1]v.likes, %[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, " +
 		"%[1]v.cooking, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted, %[1]v.creation_timestamp, " +
 		"%[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS (SELECT 1 FROM %[3]v " +
@@ -126,7 +126,7 @@ func (r *RecipesPostgres) SetRecipeCategories(categoriesIds []int, recipeId, use
 
 func (r *RecipesPostgres) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
 	var recipe models.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.id, %[1]v.name, %[1]v.owner_id, %[1]v.owner_name, %[1]v.owned, " +
+	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.owner_name, %[1]v.owned, " +
 		"%[1]v.description, %[1]v.likes, %[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, " +
 		"%[1]v.preview, %[1]v.visibility, %[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, " +
 		"coalesce(%[2]v.favourite, false), (SELECT EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id " +
