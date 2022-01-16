@@ -72,7 +72,7 @@ services:
       - WAIT_HOSTS=postgres:5432
   frontend:
     container_name: chefbook-frontend
-    image: nginx:1.15.7-alpine
+    image: nginx:1.21.5-alpine
     restart: always
     depends_on:
       - traefik
