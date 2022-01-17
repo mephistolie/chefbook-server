@@ -426,13 +426,7 @@ func (h *Handler) uploadRecipeKey(c *gin.Context) {
 		return
 	}
 	fileType := http.DetectContentType(buffer)
-
 	fileBytes := bytes.NewReader(buffer)
-
-	if _, ex := ImageTypes[fileType]; !ex {
-		newResponse(c, http.StatusBadRequest, models.ErrFileTypeNotSupported.Error())
-		return
-	}
 
 	url, err := h.services.UploadRecipeKey(c.Request.Context(), recipeId, userId, fileBytes, fileHeader.Size, fileType)
 	if err != nil {
