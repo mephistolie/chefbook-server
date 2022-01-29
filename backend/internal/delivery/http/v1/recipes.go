@@ -3,6 +3,7 @@ package v1
 import (
 	"bytes"
 	"github.com/gin-gonic/gin"
+	handler "github.com/mephistolie/chefbook-server/internal/delivery/http"
 	"github.com/mephistolie/chefbook-server/internal/models"
 	"net/http"
 	"strconv"
@@ -313,7 +314,7 @@ func (h *Handler) uploadRecipePicture(c *gin.Context) {
 		return
 	}
 
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, handler.MaxUploadSize)
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())
@@ -413,7 +414,7 @@ func (h *Handler) uploadRecipeKey(c *gin.Context) {
 		return
 	}
 
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, handler.MaxUploadSize)
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())

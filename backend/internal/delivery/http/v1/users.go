@@ -3,6 +3,7 @@ package v1
 import (
 	"bytes"
 	"github.com/gin-gonic/gin"
+	handler "github.com/mephistolie/chefbook-server/internal/delivery/http"
 	"github.com/mephistolie/chefbook-server/internal/models"
 	"net/http"
 	"strconv"
@@ -109,7 +110,7 @@ func (h *Handler) uploadAvatar(c *gin.Context) {
 		return
 	}
 
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, handler.MaxUploadSize)
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())
@@ -134,7 +135,7 @@ func (h *Handler) uploadAvatar(c *gin.Context) {
 
 	fileBytes := bytes.NewReader(buffer)
 
-	if _, ex := ImageTypes[fileType]; !ex {
+	if _, ex := handler.ImageTypes[fileType]; !ex {
 		newResponse(c, http.StatusBadRequest, models.ErrFileTypeNotSupported.Error())
 		return
 	}
@@ -175,7 +176,7 @@ func (h *Handler) uploadUserKey(c *gin.Context) {
 		return
 	}
 
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, handler.MaxUploadSize)
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidFileInput.Error())
