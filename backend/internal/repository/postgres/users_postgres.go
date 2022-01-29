@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
+	"strings"
 	"time"
 )
 
@@ -25,9 +26,10 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 		return -1, err
 	}
 
+	username := user.Email[0:strings.Index(user.Email, "@")]
 	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, username, password, activation_link) values " +
 		"($1, $2, $3, $4) RETURNING user_id", usersTable)
-	row := tx.QueryRow(createUserQuery, user.Email, user.Email, user.Password, activationLink)
+	row := tx.QueryRow(createUserQuery, user.Email, username, user.Password, activationLink)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
@@ -176,7 +178,7 @@ func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
 
 func (r *AuthPostgres) GetUserKey(userId int) (string, error) {
 	var key sql.NullString
-	query := fmt.Sprintf("SELECT rsa FROM %s WHERE user_id=$1", usersTable)
+	query := fmt.Sprintf("SELECT key FROM %s WHERE user_id=$1", usersTable)
 	err := r.db.Get(&key, query, userId)
 	return key.String, err
 }
@@ -184,7 +186,7 @@ func (r *AuthPostgres) GetUserKey(userId int) (string, error) {
 func (r *AuthPostgres) SetUserKey(userId int, url string) error {
 	var key interface{}
 	if url != "" { key = url} else { key = nil}
-	query := fmt.Sprintf("UPDATE %s SET rsa=$1 WHERE user_id=$2", usersTable)
+	query := fmt.Sprintf("UPDATE %s SET key=$1 WHERE user_id=$2", usersTable)
 	_, err := r.db.Exec(query, key, userId)
 	return err
 }

@@ -16,7 +16,7 @@ CREATE TABLE users
     broccoins       INT                NOT NULL DEFAULT 0,
 
     is_blocked      BOOLEAN            NOT NULL DEFAULT false,
-    rsa             VARCHAR(255)                DEFAULT NULL
+    key             VARCHAR(255)                DEFAULT NULL
 );
 
 CREATE TABLE shopping_list
@@ -54,7 +54,7 @@ CREATE TABLE recipes
     preview            VARCHAR(255)                                              DEFAULT NULL,
     visibility         visibility_type                                  NOT NULL DEFAULT 'private',
     encrypted          BOOLEAN                                          NOT NULL DEFAULT false,
-    rsa                VARCHAR(255)                                              DEFAULT NULL,
+    key                VARCHAR(255)                                              DEFAULT NULL,
     creation_timestamp TIMESTAMP                                        NOT NULL DEFAULT now(),
     update_timestamp   TIMESTAMP                                        NOT NULL DEFAULT now()
 );
