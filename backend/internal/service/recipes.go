@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/google/uuid"
+	"github.com/mephistolie/chefbook-server/internal/delivery/http"
 	"github.com/mephistolie/chefbook-server/internal/models"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/internal/repository/s3"
@@ -129,6 +130,11 @@ func (s *RecipesService) SetRecipeLike(input models.RecipeLikeInput) error  {
 
 func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	if !recipe.Encrypted {
+		if _, ex := http.ImageTypes[contentType]; !ex {
+			return "", models.ErrFileTypeNotSupported
+		}
+	}
 	if err != nil {
 		return "", err
 	}

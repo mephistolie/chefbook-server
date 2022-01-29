@@ -204,7 +204,12 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			var ingredients []MarkdownString
 			for _, firebaseIngredient := range firebaseIngredients {
 				mapIngredient := firebaseIngredient.(map[string]interface{})
-				item := mapIngredient["item"].(string)
+				var item string
+				name := mapIngredient["item"]
+				if name == nil {
+					name = mapIngredient["name"]
+				}
+				item = name.(string)
 				selected := mapIngredient["selected"].(bool)
 				stringType := "INGREDIENT"
 				if selected {

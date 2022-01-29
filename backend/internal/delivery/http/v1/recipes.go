@@ -343,11 +343,6 @@ func (h *Handler) uploadRecipePicture(c *gin.Context) {
 
 	fileBytes := bytes.NewReader(buffer)
 
-	if _, ex := ImageTypes[fileType]; !ex {
-		newResponse(c, http.StatusBadRequest, models.ErrFileTypeNotSupported.Error())
-		return
-	}
-
 	url, err := h.services.UploadRecipePicture(c.Request.Context(), recipeId, userId, fileBytes, fileHeader.Size, fileType)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
