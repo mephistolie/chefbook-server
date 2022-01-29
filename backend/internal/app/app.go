@@ -75,12 +75,6 @@ func Run(configPath string) {
 		return
 	}
 
-	firestoreClient, err := app.Firestore(context.Background())
-	if err != nil {
-		logger.Error(err)
-		return
-	}
-
 	repositories := repository.NewRepositories(db, client)
 	services := service.NewServices(service.Dependencies{
 		Repos:           repositories,
@@ -95,7 +89,7 @@ func Run(configPath string) {
 		Environment:     cfg.Environment,
 		Domain:          cfg.HTTP.Host,
 		FirebaseApiKey:  cfg.Firebase.ApiKey,
-		FirestoreClient: *firestoreClient,
+		FirebaseApp:     *app,
 	})
 	handler := delivery.NewHandler(services, tokenManager)
 

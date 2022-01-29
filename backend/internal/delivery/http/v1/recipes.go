@@ -14,7 +14,7 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipes.GET("", h.getRecipes)
 		recipes.POST("", h.createRecipe)
 		recipes.GET("/:recipe_id", h.getRecipe)
-		recipes.POST("/:recipe_id", h.getRecipe)
+		recipes.POST("/:recipe_id", h.addRecipeToRecipeBook)
 		recipes.PUT("/:recipe_id", h.updateRecipe)
 		recipes.DELETE("/:recipe_id", h.deleteRecipe)
 
@@ -31,10 +31,10 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipes.POST("/:recipe_id/encryption", h.uploadRecipeKey)
 		recipes.DELETE("/:recipe_id/encryption", h.deleteRecipeKey)
 
-		recipes.GET("/:recipe_id/encryption/requests", h.uploadRecipePicture)
-		recipes.POST("/:recipe_id/encryption/requests", h.uploadRecipePicture)
-		recipes.PUT("/:recipe_id/encryption/requests", h.uploadRecipePicture)
-		recipes.DELETE("/:recipe_id/encryption/requests", h.uploadRecipePicture)
+		recipes.GET("/:recipe_id/users", h.getRecipeUsers)
+		recipes.POST("/:recipe_id/users", h.setRecipePublicKey)
+		recipes.PUT("/:recipe_id/users", h.setRecipePrivateKey)
+		recipes.DELETE("/:recipe_id/users/:user_id", h.deleteUserAccess)
 	}
 }
 
@@ -65,13 +65,36 @@ func (h *Handler) createRecipe(c *gin.Context) {
 		return
 	}
 	recipe.OwnerId = userId
-	id, err := 	h.services.Recipes.AddRecipe(recipe)
+	id, err := 	h.services.Recipes.CreateRecipe(recipe)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id":      id,
+		"message": models.RespRecipeAdded,
+	})
+}
+
+
+func (h *Handler) addRecipeToRecipeBook(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+	err = h.services.AddRecipeToRecipeBook(recipeId, userId)
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
 		"message": models.RespRecipeAdded,
 	})
 }
@@ -91,10 +114,6 @@ func (h *Handler) getRecipe(c *gin.Context) {
 	recipe, err := h.services.GetRecipeById(recipeId, userId)
 	if err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	if recipe.OwnerId != userId && recipe.Visibility == "private" {
-		newResponse(c, http.StatusForbidden, models.ErrAccessDenied.Error())
 		return
 	}
 	c.JSON(http.StatusOK, recipe)
@@ -463,5 +482,113 @@ func (h *Handler) deleteRecipeKey(c *gin.Context) {
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"message": models.RespKeyDeleted,
+	})
+}
+
+func (h *Handler) setRecipePublicKey(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	var keys models.RecipeKeys
+	if err := c.BindJSON(&keys); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.SetUserPublicKeyForRecipe(recipeId, userId, keys.PublicKey)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespKeySet,
+	})
+}
+
+func (h *Handler) setRecipePrivateKey(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	var keys models.RecipeKeys
+	if err := c.BindJSON(&keys); err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.SetUserPrivateKeyForRecipe(recipeId, userId, keys.PrivateKey)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespKeySet,
+	})
+}
+
+func (h *Handler) getRecipeUsers(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	userList, err := h.services.GetRecipeUserList(recipeId, userId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, userList)
+}
+
+func (h *Handler) deleteUserAccess(c *gin.Context) {
+	requesterId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+	userId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	err = h.services.DeleteUserAccessToRecipe(recipeId, userId, requesterId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": models.RespKeySet,
 	})
 }

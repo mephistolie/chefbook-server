@@ -154,6 +154,18 @@ func (r *AuthPostgres) SetUserName(userId int, username string) error {
 	return err
 }
 
+func (r *AuthPostgres) IncreaseBroccoins(userId, broccoins int) error {
+	query := fmt.Sprintf("UPDATE %s SET broccoins=broccoins+$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, broccoins, userId)
+	return err
+}
+
+func (r *AuthPostgres) ReduceBroccoins(userId, broccoins int) error {
+	query := fmt.Sprintf("UPDATE %s SET broccoins=broccoins-$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, broccoins, userId)
+	return err
+}
+
 func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
 	var avatar interface{}
 	if url != "" { avatar = url} else { avatar = nil}
@@ -180,5 +192,11 @@ func (r *AuthPostgres) SetUserKey(userId int, url string) error {
 func (r *AuthPostgres) SetPremiumDate(userId int, expiresAt time.Time) error {
 	query := fmt.Sprintf("UPDATE %s SET premium=$1 WHERE user_id=$2", usersTable)
 	_, err := r.db.Exec(query, expiresAt, userId)
+	return err
+}
+
+func (r *AuthPostgres) SetProfileCreationDate(userId int, creationTimestamp time.Time) error {
+	query := fmt.Sprintf("UPDATE %s SET registered=$1 WHERE user_id=$2", usersTable)
+	_, err := r.db.Exec(query, creationTimestamp, userId)
 	return err
 }

@@ -45,7 +45,7 @@ func (s *RecipesService) GetRecipesByUser(userId int) ([]models.Recipe, error) {
 	return recipes, err
 }
 
-func (s *RecipesService) AddRecipe(recipe models.Recipe) (int, error) {
+func (s *RecipesService) CreateRecipe(recipe models.Recipe) (int, error) {
 	recipe, err := validateRecipe(recipe)
 	if err != nil {
 		return 0, models.ErrInvalidRecipeInput
@@ -53,10 +53,28 @@ func (s *RecipesService) AddRecipe(recipe models.Recipe) (int, error) {
 	return s.recipesRepo.CreateRecipe(recipe)
 }
 
+func (s *RecipesService) AddRecipeToRecipeBook(recipeId, userId int) error {
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	if err != nil {
+		return models.ErrRecipeNotFound
+	}
+	if strings.ToLower(recipe.Visibility) == "private" && recipe.OwnerId != userId {
+		return models.ErrAccessDenied
+	}
+	err = s.recipesRepo.AddRecipeLink(recipeId, userId)
+	if err != nil {
+		return models.ErrUnableAddRecipe
+	}
+	return nil
+}
+
 func (s *RecipesService) GetRecipeById(recipeId, userId int) (models.Recipe, error) {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipeWithUserFields(recipeId, userId)
 	if err != nil {
 		return models.Recipe{}, models.ErrRecipeNotFound
+	}
+	if strings.ToLower(recipe.Visibility) == "private" && recipe.OwnerId != userId {
+		return models.Recipe{}, models.ErrAccessDenied
 	}
 	recipe.Categories, err = s.categoriesRepo.GetRecipeCategories(recipeId, userId)
 	if err != nil {
@@ -92,7 +110,7 @@ func (s *RecipesService) DeleteRecipe(recipeId, userId int) error {
 		err = s.recipesRepo.DeleteRecipe(recipeId)
 		return err
 	} else {
-		err = s.recipesRepo.DeleteRecipeLink(recipeId, userId)
+		err = s.recipesRepo.DeleteRecipeFromRecipeBook(recipeId, userId)
 		return err
 	}
 }
@@ -110,7 +128,7 @@ func (s *RecipesService) SetRecipeLike(input models.RecipeLikeInput) error  {
 }
 
 func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return "", err
 	}
@@ -131,7 +149,7 @@ func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId, user
 }
 
 func (s *RecipesService) DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error  {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err
 	}
@@ -144,7 +162,7 @@ func (s *RecipesService) DeleteRecipePicture(ctx context.Context, recipeId, user
 }
 
 func (s *RecipesService) GetRecipeKey(recipeId, userId int) (string, error) {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return "", err
 	}
@@ -159,7 +177,7 @@ func (s *RecipesService) GetRecipeKey(recipeId, userId int) (string, error) {
 }
 
 func (s *RecipesService) UploadRecipeKey(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return "", err
 	}
@@ -188,7 +206,7 @@ func (s *RecipesService) UploadRecipeKey(ctx context.Context, recipeId, userId i
 }
 
 func (s *RecipesService) DeleteRecipeKey(ctx context.Context, recipeId, userId int) error  {
-	recipe, err := s.recipesRepo.GetRecipeById(recipeId, userId)
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err
 	}
@@ -233,4 +251,34 @@ func validateRecipe(recipe models.Recipe) (models.Recipe, error) {
 	}
 
 	return recipe, nil
+}
+
+func (s *RecipesService) SetUserPublicKeyForRecipe(recipeId, userId int, userKey string) error {
+	return s.recipesRepo.SetUserPublicKeyForRecipe(recipeId, userId, userKey)
+}
+
+func (s *RecipesService) SetUserPrivateKeyForRecipe(recipeId, userId int, userKey string) error {
+	return s.recipesRepo.SetUserPrivateKeyForRecipe(recipeId, userId, userKey)
+}
+
+func (s *RecipesService) GetRecipeUserList(recipeId, userId int) ([]models.UserInfo, error) {
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	if err != nil {
+		return []models.UserInfo{}, err
+	}
+	if recipe.OwnerId != userId {
+		return []models.UserInfo{}, models.ErrAccessDenied
+	}
+	return s.recipesRepo.GetRecipeUserList(recipeId)
+}
+
+func (s *RecipesService) DeleteUserAccessToRecipe(recipeId, userId, requesterId int) error {
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	if err != nil {
+		return err
+	}
+	if recipe.OwnerId != requesterId {
+		return models.ErrAccessDenied
+	}
+	return s.recipesRepo.DeleteRecipeFromRecipeBook(recipeId, userId)
 }

@@ -9,7 +9,8 @@ var (
 
 	RespUsernameChanged = "username successfully changed"
 	RespAvatarDeleted   = "avatar has been deleted"
-	RespKeyDeleted      = "encrypted rsa key deleted"
+	RespKeySet          = "encrypted key set"
+	RespKeyDeleted      = "encrypted key deleted"
 
 	RespRecipeAdded            = "recipe has been added"
 	RespRecipeUpdated          = "recipe has been updated"
@@ -52,6 +53,7 @@ var (
 	ErrNotOwner                  = errors.New("you aren't owner of this recipe")
 	ErrInvalidRecipeInput        = errors.New("invalid recipe input")
 	ErrRecipeNotFound            = errors.New("recipe not found")
+	ErrUnableAddRecipe           = errors.New("unable to add recipe to recipe book")
 	ErrRecipeNotInRecipeBook     = errors.New("recipe isn't in recipe book")
 	ErrRecipeLikeSetAlready      = errors.New("recipe like status already set")
 	ErrUnableDeleteRecipePicture = errors.New("unable to delete picture")

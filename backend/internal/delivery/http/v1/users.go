@@ -41,13 +41,14 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 
 	if userId == user.Id {
 		c.JSON(http.StatusOK, models.UserDetailedInfo{
-			Id:        user.Id,
-			Username:  user.Username.String,
-			Email:     user.Email,
-			Avatar:    user.Avatar.String,
-			Premium:   user.Premium.Time,
-			Broccoins: user.Broccoins,
-			IsBlocked: user.IsBlocked,
+			Id:                user.Id,
+			Username:          user.Username.String,
+			Email:             user.Email,
+			CreationTimestamp: user.CreationTimestamp,
+			Avatar:            user.Avatar.String,
+			Premium:           user.Premium.Time,
+			Broccoins:         user.Broccoins,
+			IsBlocked:         user.IsBlocked,
 		})
 	} else {
 		c.JSON(http.StatusOK, models.UserInfo{

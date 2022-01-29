@@ -5,6 +5,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/json"
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/auth"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/models"
@@ -18,8 +20,10 @@ import (
 
 const FirebaseSignInEmailEndpoint = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
 
-const FirestoreUsersCollection = "users"
-const FirestoreRecipesCollection = "recipes"
+const firestoreUsersCollection = "users"
+const firestoreRecipesCollection = "recipes"
+
+const oldUserBroccoins = 500
 
 type FirebaseService struct {
 	usersRepo        repository.Users
@@ -28,17 +32,21 @@ type FirebaseService struct {
 	shoppingListRepo repository.ShoppingList
 	apiKey           string
 	firestore        firestore.Client
+	auth             auth.Client
 }
 
 func NewFirebaseService(apiKey string, usersRepo repository.Users, recipesRepo repository.Recipes,
-	categoriesRepo repository.Categories, shoppingListRepo repository.ShoppingList, firestore firestore.Client) *FirebaseService {
+	categoriesRepo repository.Categories, shoppingListRepo repository.ShoppingList, app firebase.App) *FirebaseService {
+	firestoreClient, _ := app.Firestore(context.Background())
+	firebaseAuth, _ := app.Auth(context.Background())
 	return &FirebaseService{
 		usersRepo:        usersRepo,
 		recipesRepo:      recipesRepo,
 		categoriesRepo:   categoriesRepo,
 		shoppingListRepo: shoppingListRepo,
 		apiKey:           apiKey,
-		firestore:        firestore,
+		firestore:        *firestoreClient,
+		auth:             *firebaseAuth,
 	}
 }
 
@@ -68,7 +76,7 @@ type MarkdownString struct {
 }
 
 func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebaseUser models.FirebaseUser) error {
-	userSnapshot, err := s.firestore.Collection(FirestoreUsersCollection).Doc(firebaseUser.LocalId).Get(context.Background())
+	userSnapshot, err := s.firestore.Collection(firestoreUsersCollection).Doc(firebaseUser.LocalId).Get(context.Background())
 	userDoc := userSnapshot.Data()
 
 	activationLink := uuid.New()
@@ -79,6 +87,15 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 	err = s.usersRepo.ActivateUser(activationLink)
 	if err != nil {
 		logger.Warn("migration: error during activating link ", activationLink)
+	}
+	if user, err := s.auth.GetUser(context.Background(), firebaseUser.LocalId); err == nil {
+		if err := s.usersRepo.SetProfileCreationDate(userId, time.UnixMilli(user.UserMetadata.CreationTimestamp)); err != nil {
+			logger.Warn("migration: error during set profile creation date")
+		}
+	}
+	err = s.usersRepo.IncreaseBroccoins(userId, oldUserBroccoins)
+	if err != nil {
+		logger.Warn("migration: error during adding broccoins to old user")
 	}
 
 	username, ok := userDoc["name"].(string)
@@ -126,7 +143,7 @@ func (s *FirebaseService) importFirebaseShoppingList(userId int, userDoc map[str
 }
 
 func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.FirebaseUser) {
-	recipesSnapshot := s.firestore.Collection(FirestoreUsersCollection).Doc(firebaseUser.LocalId).Collection(FirestoreRecipesCollection).Documents(context.Background())
+	recipesSnapshot := s.firestore.Collection(firestoreUsersCollection).Doc(firebaseUser.LocalId).Collection(firestoreRecipesCollection).Documents(context.Background())
 	firebaseRecipes, err := recipesSnapshot.GetAll()
 	if err != nil {
 		logger.Error("migration: error during get recipe list")
@@ -189,9 +206,9 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 				mapIngredient := firebaseIngredient.(map[string]interface{})
 				item := mapIngredient["item"].(string)
 				selected := mapIngredient["selected"].(bool)
-				stringType := "STRING"
+				stringType := "INGREDIENT"
 				if selected {
-					stringType = "HEADER"
+					stringType = "SECTION"
 				}
 				ingredient := MarkdownString{
 					Text: item,
@@ -212,9 +229,9 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 					mapStep := firebaseStep.(map[string]interface{})
 					item := mapStep["item"].(string)
 					selected := mapStep["selected"].(bool)
-					stringType := "STRING"
+					stringType := "STEP"
 					if selected {
-						stringType = "HEADER"
+						stringType = "SECTION"
 					}
 					step := MarkdownString{
 						Text: item,
@@ -262,8 +279,8 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 					}
 					if !isAdded && len(category) > 0 {
 						dbCategory := models.Category{
-							Name: category,
-							Cover: string([]rune(category)[0:1]),
+							Name:   category,
+							Cover:  string([]rune(category)[0:1]),
 							UserId: userId,
 						}
 						categoryId, err := s.categoriesRepo.AddCategory(dbCategory)

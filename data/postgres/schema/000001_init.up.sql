@@ -5,6 +5,7 @@ CREATE TABLE users
     username        VARCHAR(255),
     password        bytea              NOT NULL,
 
+    registered      TIMESTAMP          NOT NULL DEFAULT now(),
     is_activated    BOOLEAN            NOT NULL DEFAULT false,
     activation_link uuid               NOT NULL,
 
@@ -63,6 +64,8 @@ CREATE TABLE users_recipes
     user_id          INT REFERENCES users (user_id) ON DELETE CASCADE     NOT NULL,
     recipe_id        INT REFERENCES recipes (recipe_id) ON DELETE CASCADE NOT NULL,
     favourite        BOOLEAN                                              NOT NULL DEFAULT false,
+    user_key         TEXT                                                          DEFAULT NULL,
+    recipe_key       TEXT                                                          DEFAULT NULL,
     update_timestamp TIMESTAMP                                            NOT NULL DEFAULT now()
 );
 

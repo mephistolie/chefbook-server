@@ -96,7 +96,6 @@ func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId int, inpu
 func (r *AWSFileManager) DeleteFile(ctx context.Context, url string) error {
 	opts := minio.RemoveObjectOptions{ ForceDelete: true }
 	filePath := strings.ReplaceAll(url, fmt.Sprintf("%s/%s/", r.client.EndpointURL().String(), chefBookBucket), "")
-	logger.Error(filePath)
 	err := r.client.RemoveObject(ctx, chefBookBucket, filePath, opts)
 	logger.Error(err)
 	return err

@@ -2,8 +2,8 @@ package service
 
 import (
 	"bytes"
-	"cloud.google.com/go/firestore"
 	"context"
+	firebase "firebase.google.com/go/v4"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/config"
 	"github.com/mephistolie/chefbook-server/internal/models"
@@ -51,7 +51,8 @@ type Mails interface {
 
 type Recipes interface {
 	GetRecipesByUser(userId int) ([]models.Recipe, error)
-	AddRecipe(recipe models.Recipe) (int, error)
+	CreateRecipe(recipe models.Recipe) (int, error)
+	AddRecipeToRecipeBook(recipeId, userId int) error
 	GetRecipeById(recipeId, userId int) (models.Recipe, error)
 	UpdateRecipe(recipe models.Recipe, userId int) error
 	DeleteRecipe(recipeId, userId int) error
@@ -64,6 +65,11 @@ type Recipes interface {
 	GetRecipeKey(recipeId, userId int) (string, error)
 	UploadRecipeKey(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
 	DeleteRecipeKey(ctx context.Context, recipeId, userId int) error
+
+	GetRecipeUserList(recipeId, userId int) ([]models.UserInfo, error)
+	SetUserPublicKeyForRecipe(recipeId int, userId int, userKey string) error
+	SetUserPrivateKeyForRecipe(recipeId int, userId int, userKey string) error
+	DeleteUserAccessToRecipe(recipeId, userId, requesterId int) error
 }
 
 type Categories interface {
@@ -104,13 +110,13 @@ type Dependencies struct {
 	Environment     string
 	Domain          string
 	FirebaseApiKey  string
-	FirestoreClient firestore.Client
+	FirebaseApp     firebase.App
 }
 
 func NewServices(dependencies Dependencies) *Service {
 
 	mailService := NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
-	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Users, dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.ShoppingList, dependencies.FirestoreClient)
+	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Users, dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.ShoppingList, dependencies.FirebaseApp)
 
 	return &Service{
 		Auth: NewAuthService(dependencies.Repos, *firebaseService, dependencies.HashManager, dependencies.TokenManager,

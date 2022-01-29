@@ -26,6 +26,9 @@ type Users interface {
 	SetUserName(userId int, username string) error
 	SetUserAvatar(userId int, url string) error
 	SetPremiumDate(userId int, expiresAt time.Time) error
+	SetProfileCreationDate(userId int, creationTimestamp time.Time) error
+	IncreaseBroccoins(userId, broccoins int) error
+	ReduceBroccoins(userId, broccoins int) error
 
 	GetUserKey(userId int) (string, error)
 	SetUserKey(userId int, url string) error
@@ -35,16 +38,23 @@ type Recipes interface {
 	GetRecipesByUser(userId int) ([]models.Recipe, error)
 	GetRecipeOwnerId(recipeId int) (int, error)
 	CreateRecipe(recipe models.Recipe) (int, error)
-	GetRecipeById(recipeId int, userId int) (models.Recipe, error)
+	AddRecipeLink(recipeId, userId int) error
+	GetRecipe(recipeId int) (models.Recipe, error)
+	GetRecipeWithUserFields(recipeId int, userId int) (models.Recipe, error)
 	UpdateRecipe(recipe models.Recipe, userId int) error
 	DeleteRecipe(recipeId int) error
-	DeleteRecipeLink(recipeId, userId int) error
+	DeleteRecipeFromRecipeBook(recipeId, userId int) error
 	SetRecipeCategories(categoriesIds []int, recipeId, userId int) error
 	MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error
 	SetRecipeLike(recipeId, userId int, isLiked bool) error
 	SetRecipePreview(recipeId int, url string)  error
+
 	GetRecipeKey(recipeId int) (string, error)
     SetRecipeKey(recipeId int, url string) error
+
+	GetRecipeUserList(recipeId int) ([]models.UserInfo, error)
+	SetUserPublicKeyForRecipe(recipeId int, userId int, userKey string) error
+	SetUserPrivateKeyForRecipe(recipeId int, userId int, userKey string) error
 }
 
 type Categories interface {
