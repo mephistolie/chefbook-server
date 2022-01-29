@@ -6,6 +6,12 @@ import (
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 )
 
+const MaxUploadSize = 1 << 20
+var ImageTypes = map[string]interface{} {
+	"image/jpeg": nil,
+	"image/png": nil,
+}
+
 type Handler struct {
 	services     *service.Service
 	tokenManager auth.TokenManager
