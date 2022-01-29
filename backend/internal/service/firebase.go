@@ -234,9 +234,16 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			if firebaseCooking, ok := firebaseRecipe["cooking"].([]interface{}); ok {
 				var cooking []MarkdownString
 				for _, firebaseStep := range firebaseCooking {
-					mapStep := firebaseStep.(map[string]interface{})
-					item := mapStep["item"].(string)
-					selected := mapStep["selected"].(bool)
+					var item string
+					var selected bool
+					mapStep, ok := firebaseStep.(map[string]interface{})
+					if ok {
+						item = mapStep["item"].(string)
+						selected = mapStep["selected"].(bool)
+					} else {
+						item = firebaseStep.(string)
+					}
+
 					stringType := "STEP"
 					if selected {
 						stringType = "SECTION"
@@ -249,25 +256,6 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 				}
 				jsonCooking, err = json.Marshal(cooking)
 				if err != nil {
-					continue
-				}
-			} else {
-				firebaseOldCooking, ok := firebaseRecipe["cooking"].([]string)
-				if !ok {
-					logger.Warn("migration: error during import steps of recipe")
-					continue
-				}
-				var cooking []MarkdownString
-				for _, firebaseStep := range firebaseOldCooking {
-					step := MarkdownString{
-						Text: firebaseStep,
-						Type: "STRING",
-					}
-					cooking = append(cooking, step)
-				}
-				jsonCooking, err = json.Marshal(cooking)
-				if err != nil {
-					logger.Warn("migration: error during import steps of recipe")
 					continue
 				}
 			}
