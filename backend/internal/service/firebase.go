@@ -205,12 +205,15 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			for _, firebaseIngredient := range firebaseIngredients {
 				mapIngredient := firebaseIngredient.(map[string]interface{})
 				var item string
-				name := mapIngredient["item"]
-				if name == nil {
-					name = mapIngredient["name"]
+				var selected bool
+				nullableItem := mapIngredient["item"]
+				nullableSelected := mapIngredient["selected"]
+				if nullableItem == nil {
+					nullableItem = mapIngredient["name"]
+					nullableSelected = mapIngredient["section"]
 				}
-				item = name.(string)
-				selected := mapIngredient["selected"].(bool)
+				item = nullableItem.(string)
+				selected = nullableSelected.(bool)
 				stringType := "INGREDIENT"
 				if selected {
 					stringType = "SECTION"
