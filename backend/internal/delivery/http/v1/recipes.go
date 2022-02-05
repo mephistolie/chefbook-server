@@ -61,24 +61,45 @@ func setRecipesRequestParams(params *models.RecipesRequestParams, c *gin.Context
 	}
 	if minTime, ok := c.GetQuery("min_time"); ok {
 		params.MinTime, _ = strconv.Atoi(minTime)
+		if params.MinTime < 0 {
+			params.MinTime = 0
+		}
 	}
 	if maxTime, ok := c.GetQuery("max_time"); ok {
 		params.MaxTime, _ = strconv.Atoi(maxTime)
+		if params.MaxTime < 0 {
+			params.MaxTime = 0
+		}
 	}
 	if minServings, ok := c.GetQuery("min_servings"); ok {
 		params.MinServings, _ = strconv.Atoi(minServings)
+		if params.MinServings < 0 {
+			params.MinServings = 0
+		}
 	}
 	if maxServings, ok := c.GetQuery("max_servings"); ok {
 		params.MaxServings, _ = strconv.Atoi(maxServings)
+		if params.MaxServings < 0 {
+			params.MaxServings = 0
+		}
 	}
 	if minCalories, ok := c.GetQuery("min_calories"); ok {
 		params.MinCalories, _ = strconv.Atoi(minCalories)
+		if params.MinCalories < 0 {
+			params.MinCalories = 0
+		}
 	}
 	if maxCalories, ok := c.GetQuery("max_calories"); ok {
 		params.MaxCalories, _ = strconv.Atoi(maxCalories)
+		if params.MaxCalories < 0 {
+			params.MaxCalories = 0
+		}
 	}
 	if authorId, ok := c.GetQuery("author_id"); ok {
 		params.AuthorId, _ = strconv.Atoi(authorId)
+		if params.AuthorId < 0 {
+			params.AuthorId = 0
+		}
 	}
 	if sortBy, ok:= c.GetQuery("sort_by"); ok {
 		if sortBy == "likes" || sortBy == "time" || sortBy == "servings" || sortBy == "calories" {
@@ -91,8 +112,11 @@ func setRecipesRequestParams(params *models.RecipesRequestParams, c *gin.Context
 	if search, ok := c.GetQuery("search"); ok {
 		params.Search = search
 	}
-	if recipeId, ok := c.GetQuery("last_recipe_id"); ok {
-		params.Page, _ = strconv.Atoi(recipeId)
+	if page, ok := c.GetQuery("page"); ok {
+		params.Page, _ = strconv.Atoi(page)
+		if params.Page < 1 {
+			params.Page = 1
+		}
 	}
 	if pageSize, ok := c.GetQuery("page_size"); ok {
 		params.PageSize, _ = strconv.Atoi(pageSize)

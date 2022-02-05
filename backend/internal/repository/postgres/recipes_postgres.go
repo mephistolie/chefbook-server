@@ -360,7 +360,7 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 	default:
 		pagingStatement += " DESC"
 	}
-	pagingStatement += fmt.Sprintf(" LIMIT %d OFFSET %d", params.PageSize, params.Page * params.PageSize)
+	pagingStatement += fmt.Sprintf(" LIMIT %d OFFSET %d", params.PageSize, (params.Page-1) * params.PageSize)
 	logger.Error(whereStatement, pagingStatement)
 
 	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.likes, " +
