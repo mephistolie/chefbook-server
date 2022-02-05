@@ -327,7 +327,7 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 	if params.Owned {
 		whereStatement += fmt.Sprintf(" %s.user_id=%d", usersRecipesTable, params.UserId)
 	} else {
-		whereStatement += fmt.Sprintf(" %s.visibility=public", recipesTable)
+		whereStatement += fmt.Sprintf(" %[1]v.visibility='public' AND %[1]v.encrypted=false", recipesTable)
 	}
 
 	if !params.Owned && params.AuthorId != 0 {
