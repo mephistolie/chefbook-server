@@ -72,7 +72,7 @@ func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId int) []
 	picturesPath := fmt.Sprintf("%s/%d/%s", recipesDir, recipeId, imagesDir)
 	var objects []string
 	for object := range r.client.ListObjects(ctx, chefBookBucket, minio.ListObjectsOptions{Prefix: picturesPath, Recursive: true}) {
-		objects = append(objects, fmt.Sprintf("%s/%s", r.client.EndpointURL(), object.Key))
+		objects = append(objects, fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, object.Key))
 	}
 	return objects
 }
