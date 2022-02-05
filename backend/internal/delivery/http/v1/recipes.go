@@ -92,7 +92,7 @@ func setRecipesRequestParams(params *models.RecipesRequestParams, c *gin.Context
 		params.Search = search
 	}
 	if recipeId, ok := c.GetQuery("last_recipe_id"); ok {
-		params.LastRecipeId, _ = strconv.Atoi(recipeId)
+		params.Page, _ = strconv.Atoi(recipeId)
 	}
 	if pageSize, ok := c.GetQuery("page_size"); ok {
 		params.PageSize, _ = strconv.Atoi(pageSize)

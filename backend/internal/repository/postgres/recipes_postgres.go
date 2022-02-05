@@ -342,7 +342,7 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 	}
 
 	if params.Search != "" {
-		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%$1%'"
+		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%' || $1 || '%'"
 	}
 
 	whereStatement += getRecipesRangeFilter("time", params.MinTime, params.MaxTime)
@@ -350,14 +350,17 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 	whereStatement += getRecipesRangeFilter("calories", params.MinCalories, params.MaxCalories)
 
 	pagingStatement := ""
-	if params.LastRecipeId > 0 {
-		pagingStatement += fmt.Sprintf(" AND %s.recipe_id < %d", recipesTable, params.LastRecipeId)
+	if params.Page > 0 {
+		pagingStatement += fmt.Sprintf(" AND %s.recipe_id < %d", recipesTable, params.Page)
 	}
-	pagingStatement += fmt.Sprintf(" ORDER BY %s DESC", params.SortBy)
-	if params.SortBy != "recipe_id" {
-		pagingStatement += ", recipe_id DESC"
+	pagingStatement += fmt.Sprintf(" ORDER BY %s", params.SortBy)
+	switch params.SortBy {
+	case "time", "calories":
+		pagingStatement += " ASC"
+	default:
+		pagingStatement += " DESC"
 	}
-	pagingStatement += fmt.Sprintf(" LIMIT %d", params.PageSize)
+	pagingStatement += fmt.Sprintf(" LIMIT %d OFFSET %d", params.PageSize, params.Page * params.PageSize)
 	logger.Error(whereStatement, pagingStatement)
 
 	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.likes, " +

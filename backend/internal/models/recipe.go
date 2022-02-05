@@ -80,9 +80,9 @@ type RecipesRequestParams struct {
 	UserId       int    `json:"user_id,omitempty"`
 	AuthorId     int    `json:"author_id,omitempty"`
 	Owned        bool   `json:"owned,omitempty"`
-	Search       string `json:"search,omitempty"`
-	LastRecipeId int    `json:"last_recipe_id,omitempty"`
-	PageSize     int    `json:"page_size,omitempty"`
+	Search   string `json:"search,omitempty"`
+	Page     int    `json:"last_recipe_id,omitempty"`
+	PageSize int    `json:"page_size,omitempty"`
 	SortBy       string `json:"sort_by,omitempty"`
 	MinTime      int    `json:"min_time,omitempty"`
 	MaxTime      int    `json:"max_time,omitempty"`
