@@ -39,16 +39,66 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) getRecipes(c *gin.Context) {
+	var params models.RecipesRequestParams
 	userId, err := getUserId(c)
+	params.UserId = userId
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	recipes, err := h.services.GetRecipesByUser(userId)
+	setRecipesRequestParams(&params, c)
+
+	recipes, err := h.services.GetRecipesInfoByRequest(params)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, err.Error())
 	}
 	c.JSON(http.StatusOK, recipes)
+}
+
+func setRecipesRequestParams(params *models.RecipesRequestParams, c *gin.Context) {
+	if owned, ok := c.GetQuery("owned"); ok {
+		params.Owned = owned == "true"
+	}
+	if minTime, ok := c.GetQuery("min_time"); ok {
+		params.MinTime, _ = strconv.Atoi(minTime)
+	}
+	if maxTime, ok := c.GetQuery("max_time"); ok {
+		params.MaxTime, _ = strconv.Atoi(maxTime)
+	}
+	if minServings, ok := c.GetQuery("min_servings"); ok {
+		params.MinServings, _ = strconv.Atoi(minServings)
+	}
+	if maxServings, ok := c.GetQuery("max_servings"); ok {
+		params.MaxServings, _ = strconv.Atoi(maxServings)
+	}
+	if minCalories, ok := c.GetQuery("min_calories"); ok {
+		params.MinCalories, _ = strconv.Atoi(minCalories)
+	}
+	if maxCalories, ok := c.GetQuery("max_calories"); ok {
+		params.MaxCalories, _ = strconv.Atoi(maxCalories)
+	}
+	if authorId, ok := c.GetQuery("author_id"); ok {
+		params.AuthorId, _ = strconv.Atoi(authorId)
+	}
+	if sortBy, ok:= c.GetQuery("sort_by"); ok {
+		if sortBy == "likes" || sortBy == "time" || sortBy == "servings" || sortBy == "calories" {
+			params.SortBy = sortBy
+		} else {
+			params.SortBy = "recipe_id"
+		}
+	}
+	if search, ok := c.GetQuery("search"); ok {
+		params.Search = search
+	}
+	if recipeId, ok := c.GetQuery("last_recipe_id"); ok {
+		params.LastRecipeId, _ = strconv.Atoi(recipeId)
+	}
+	if pageSize, ok := c.GetQuery("page_size"); ok {
+		params.PageSize, _ = strconv.Atoi(pageSize)
+		if params.PageSize > 50 {
+			params.PageSize = 50
+		}
+	}
 }
 
 func (h *Handler) createRecipe(c *gin.Context) {

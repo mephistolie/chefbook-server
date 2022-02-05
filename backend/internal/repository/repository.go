@@ -35,7 +35,7 @@ type Users interface {
 }
 
 type Recipes interface {
-	GetRecipesByUser(userId int) ([]models.Recipe, error)
+	GetRecipesInfoByRequest(params models.RecipesRequestParams) ([]models.RecipeInfo, error)
 	GetRecipeOwnerId(recipeId int) (int, error)
 	CreateRecipe(recipe models.Recipe) (int, error)
 	AddRecipeLink(recipeId, userId int) error

@@ -50,7 +50,7 @@ type Mails interface {
 }
 
 type Recipes interface {
-	GetRecipesByUser(userId int) ([]models.Recipe, error)
+	GetRecipesInfoByRequest(params models.RecipesRequestParams) ([]models.RecipeInfo, error)
 	CreateRecipe(recipe models.Recipe) (int, error)
 	AddRecipeToRecipeBook(recipeId, userId int) error
 	GetRecipeById(recipeId, userId int) (models.Recipe, error)

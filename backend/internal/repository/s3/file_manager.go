@@ -9,12 +9,17 @@ import (
 	"strings"
 )
 
-const chefBookBucket = "chefbook-storage"
-const usersDir = "users"
-const avatarsDir = "avatars"
-const keysDir = "keys"
-const recipesDir = "recipes"
-const imagesDir = "images"
+const (
+	chefBookBucket = "chefbook-storage"
+	usersDir = "users"
+	avatarsDir = "avatars"
+	keysDir = "keys"
+	recipesDir = "recipes"
+	imagesDir = "images"
+
+	xAmzAcl = "x-amz-acl"
+	publicRead = "public-read"
+)
 
 type UploadInput struct {
 	File	*bytes.Reader
@@ -36,7 +41,7 @@ func NewAWSFileManager(client *minio.Client) *AWSFileManager {
 func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input UploadInput) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
-		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
+		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
 	filePath := fmt.Sprintf("%s/%d/%s/%s.jpg", usersDir, userId, avatarsDir, input.Name)
@@ -51,7 +56,7 @@ func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input Upl
 func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId int, input UploadInput) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
-		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
+		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
 	filePath := fmt.Sprintf("%s/%d/%s/%s", usersDir, userId, keysDir, input.Name)
@@ -66,7 +71,7 @@ func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId int, input Up
 func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, input UploadInput) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
-		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
+		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
 	filePath := fmt.Sprintf("%s/%d/%s/%s.jpg", recipesDir, recipeId, imagesDir, input.Name)
@@ -81,7 +86,7 @@ func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, 
 func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId int, input UploadInput) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
-		UserMetadata: map[string]string{"x-amz-acl": "public-read"},
+		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
 	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, keysDir, input.Name)

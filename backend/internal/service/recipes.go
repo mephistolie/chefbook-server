@@ -36,14 +36,14 @@ func NewRecipesService(recipesRepo repository.Recipes, categoriesRepo repository
 	}
 }
 
-func (s *RecipesService) GetRecipesByUser(userId int) ([]models.Recipe, error) {
-	recipes, err := s.recipesRepo.GetRecipesByUser(userId)
+func (s *RecipesService) GetRecipesInfoByRequest(params models.RecipesRequestParams) ([]models.RecipeInfo, error) {
+	recipes, err := s.recipesRepo.GetRecipesInfoByRequest(params)
 	if recipes == nil {
-		recipes = []models.Recipe{}
+		recipes = []models.RecipeInfo{}
 	}
 	for i, _ := range recipes {
-		recipes[i].Categories, _ = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
-		if recipes[i].OwnerId == userId {
+		recipes[i].Categories, _ = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, params.UserId)
+		if recipes[i].OwnerId == params.UserId {
 			recipes[i].Owned = true
 		}
 	}
