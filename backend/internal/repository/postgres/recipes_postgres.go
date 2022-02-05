@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"time"
 )
 
@@ -357,7 +356,6 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 		pagingStatement += " DESC"
 	}
 	pagingStatement += fmt.Sprintf(" LIMIT %d OFFSET %d", params.PageSize, (params.Page-1) * params.PageSize)
-	logger.Error(whereStatement, pagingStatement)
 
 	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.likes, " +
 		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted," +
