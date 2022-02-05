@@ -24,6 +24,7 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipes.PUT("/liked/:recipe_id", h.likeRecipe)
 		recipes.DELETE("/liked/:recipe_id", h.unlikeRecipe)
 
+		recipes.GET("/:recipe_id/pictures", h.getRecipesPictures)
 		recipes.POST("/:recipe_id/pictures", h.uploadRecipePicture)
 		recipes.DELETE("/:recipe_id/pictures", h.deleteRecipePicture)
 
@@ -382,6 +383,28 @@ func (h *Handler) unlikeRecipe(c *gin.Context) {
 		"message": models.RespRecipeLikeSet,
 	})
 }
+
+func (h *Handler) getRecipesPictures(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
+	if err != nil {
+		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		return
+	}
+
+	objects, err := h.services.GetRecipePictures(c.Request.Context(), recipeId, userId)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipePicture.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, objects)
+}
+
 
 func (h *Handler) uploadRecipePicture(c *gin.Context) {
 	userId, err := getUserId(c)

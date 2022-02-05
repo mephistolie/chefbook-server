@@ -132,6 +132,17 @@ func (s *RecipesService) SetRecipeLike(input models.RecipeLikeInput) error  {
 	return s.recipesRepo.SetRecipeLike(input.RecipeId, input.UserId, input.Liked)
 }
 
+func (s *RecipesService) GetRecipePictures(ctx context.Context, recipeId int, userId int) ([]string, error) {
+	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	if err != nil {
+		return []string{}, err
+	}
+	if recipe.OwnerId != userId {
+		return []string{}, models.ErrNotOwner
+	}
+	return s.filesRepo.GetRecipePictures(ctx, recipeId), nil
+}
+
 func (s *RecipesService) UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if !recipe.Encrypted {

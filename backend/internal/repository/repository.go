@@ -74,6 +74,7 @@ type ShoppingList interface {
 type Files interface {
 	UploadAvatar(ctx context.Context, userId int, input s3.UploadInput) (string, error)
 	UploadUserKey(ctx context.Context, userId int, input s3.UploadInput) (string, error)
+	GetRecipePictures(ctx context.Context, recipeId int) []string
 	UploadRecipePicture(ctx context.Context, recipeId int, input s3.UploadInput) (string, error)
 	UploadRecipeKey(ctx context.Context, recipeId int, input s3.UploadInput) (string, error)
 	GetRecipePictureLink(recipeId int, pictureName string) string

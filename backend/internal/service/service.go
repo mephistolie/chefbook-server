@@ -59,6 +59,8 @@ type Recipes interface {
 	SetRecipeCategories(input models.RecipeCategoriesInput) error
 	MarkRecipeFavourite(input models.FavouriteRecipeInput) error
 	SetRecipeLike(input models.RecipeLikeInput) error
+
+	GetRecipePictures(ctx context.Context, recipeId int, userId int) ([]string, error)
 	UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
 	DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error
 
