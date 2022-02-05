@@ -30,7 +30,7 @@ func (r *RecipesPostgres) GetRecipesInfoByRequest(params models.RecipesRequestPa
 	for rows.Next() {
 		var recipe models.RecipeInfo
 		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Likes, &recipe.Servings,
-			&recipe.Time, &recipe.Calories, &recipe.Preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
+			&recipe.Time, &recipe.Calories, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
 			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName)
 		if err != nil {
 			return []models.RecipeInfo{}, err
