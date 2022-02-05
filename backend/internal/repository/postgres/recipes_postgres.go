@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"time"
 )
 
@@ -23,7 +24,13 @@ func (r *RecipesPostgres) GetRecipesInfoByRequest(params models.RecipesRequestPa
 	var recipes []models.RecipeInfo
 	query := getRecipesQuery(params)
 	var preview sql.NullString
-	rows, err := r.db.Query(query)
+	var rows *sql.Rows
+	var err error
+	if params.Search != "" {
+		rows, err = r.db.Query(query, params.Search)
+	} else {
+		rows, err = r.db.Query(query)
+	}
 	if err != nil {
 		return []models.RecipeInfo{}, err
 	}
@@ -335,7 +342,7 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 	}
 
 	if params.Search != "" {
-		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "%" + params.Search + "%"
+		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%$1%'"
 	}
 
 	whereStatement += getRecipesRangeFilter("time", params.MinTime, params.MaxTime)
@@ -351,13 +358,14 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 		pagingStatement += ", recipe_id DESC"
 	}
 	pagingStatement += fmt.Sprintf(" LIMIT %d", params.PageSize)
+	logger.Error(whereStatement, pagingStatement)
 
-	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.likes, "+
-		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted,"+
-		"%[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS "+
-		"(SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v)) as liked, %[4]v.username "+
-		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id"+
-		whereStatement, recipesTable, usersRecipesTable, likesTable, usersTable, params.UserId)
+	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.likes, " +
+		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted," +
+		"%[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS " +
+		"(SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v)) as liked, %[4]v.username " +
+		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id" +
+		whereStatement + pagingStatement, recipesTable, usersRecipesTable, likesTable, usersTable, params.UserId)
 }
 
 func getRecipesRangeFilter(field string, min, max int) string {

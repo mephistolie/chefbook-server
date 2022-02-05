@@ -83,9 +83,10 @@ func setRecipesRequestParams(params *models.RecipesRequestParams, c *gin.Context
 	if sortBy, ok:= c.GetQuery("sort_by"); ok {
 		if sortBy == "likes" || sortBy == "time" || sortBy == "servings" || sortBy == "calories" {
 			params.SortBy = sortBy
-		} else {
-			params.SortBy = "recipe_id"
 		}
+	}
+	if params.SortBy == "" {
+		params.SortBy = "recipe_id"
 	}
 	if search, ok := c.GetQuery("search"); ok {
 		params.Search = search
@@ -98,6 +99,8 @@ func setRecipesRequestParams(params *models.RecipesRequestParams, c *gin.Context
 		if params.PageSize > 50 {
 			params.PageSize = 50
 		}
+	} else {
+		params.PageSize = 20
 	}
 }
 
