@@ -349,11 +349,7 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 	whereStatement += getRecipesRangeFilter("servings", params.MinServings, params.MaxServings)
 	whereStatement += getRecipesRangeFilter("calories", params.MinCalories, params.MaxCalories)
 
-	pagingStatement := ""
-	if params.Page > 0 {
-		pagingStatement += fmt.Sprintf(" AND %s.recipe_id < %d", recipesTable, params.Page)
-	}
-	pagingStatement += fmt.Sprintf(" ORDER BY %s", params.SortBy)
+	pagingStatement := fmt.Sprintf(" ORDER BY %s", params.SortBy)
 	switch params.SortBy {
 	case "time", "calories":
 		pagingStatement += " ASC"
