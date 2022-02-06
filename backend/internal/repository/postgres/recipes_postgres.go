@@ -37,7 +37,7 @@ func (r *RecipesPostgres) GetRecipesInfoByRequest(params models.RecipesRequestPa
 		var recipe models.RecipeInfo
 		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Likes, &recipe.Servings,
 			&recipe.Time, &recipe.Calories, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
-			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName)
+			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName, &recipe.UserTimestamp)
 		if err != nil {
 			return []models.RecipeInfo{}, err
 		}
@@ -124,6 +124,14 @@ func (r *RecipesPostgres) SetRecipeCategories(categoriesIds []int, recipeId, use
 		}
 	}
 
+	updateUserTimestamp := fmt.Sprintf("UPDATE %s SET update_timestamp=$1 WHERE recipe_id=$2 AND user_id=$3", usersRecipesTable)
+	if _, err := tx.Exec(updateUserTimestamp, time.Now(), recipeId, userId); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
+	}
+
 	return tx.Commit()
 }
 
@@ -155,16 +163,18 @@ func (r *RecipesPostgres) GetRecipeWithUserFields(recipeId, userId int) (models.
 	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.description, %[1]v.likes, "+
 		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, %[1]v.preview, %[1]v.visibility, "+
 		"%[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT "+
-		"EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username "+
-		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id LEFT JOIN users ON "+
-		"%[4]v.user_id=%[1]v.owner_id WHERE %[1]v.recipe_id=$2",
-		recipesTable, usersRecipesTable, likesTable, usersTable)
+		"EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username, " +
+		"%[2]v.update_timestamp FROM %[1]v LEFT JOIN %[2]v ON %[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id" +
+		"LEFT JOIN users ON %[4]v.user_id=%[1]v.owner_id WHERE %[1]v.recipe_id=$2", recipesTable, usersRecipesTable,
+		likesTable, usersTable)
 	var ingredients []byte
 	var cooking []byte
 	var preview sql.NullString
 	row := r.db.QueryRow(query, userId, recipeId)
-	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
-		&cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName); err != nil {
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings,
+		&recipe.Time, &recipe.Calories, &ingredients, &cooking, &preview, &recipe.Visibility, &recipe.Encrypted,
+		&recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName,
+		&recipe.UserTimestamp); err != nil {
 		return models.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
@@ -261,8 +271,8 @@ func (r *RecipesPostgres) SetRecipeLike(recipeId, userId int, isLiked bool) erro
 }
 
 func (r *RecipesPostgres) MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error {
-	query := fmt.Sprintf("UPDATE %s SET favourite=$1 WHERE recipe_id=$2 AND user_id=$3", usersRecipesTable)
-	_, err := r.db.Exec(query, isFavourite, recipeId, userId)
+	query := fmt.Sprintf("UPDATE %s SET favourite=$1, update_timestamp=$2 WHERE recipe_id=$3 AND user_id=$4", usersRecipesTable)
+	_, err := r.db.Exec(query, isFavourite, time.Now(), recipeId, userId)
 	return err
 }
 
@@ -361,8 +371,9 @@ func getRecipesQuery(params models.RecipesRequestParams) string {
 		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted," +
 		"%[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS " +
 		"(SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v)) as liked, %[4]v.username " +
-		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON %[4]v.user_id=%[1]v.owner_id" +
-		whereStatement + pagingStatement, recipesTable, usersRecipesTable, likesTable, usersTable, params.UserId)
+		"%[2]v.update_timestamp FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON" +
+		"%[4]v.user_id=%[1]v.owner_id" + whereStatement + pagingStatement, recipesTable, usersRecipesTable, likesTable,
+		usersTable, params.UserId)
 }
 
 func getRecipesRangeFilter(field string, min, max int) string {

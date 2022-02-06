@@ -27,8 +27,10 @@ type Recipe struct {
 	Preview           string    `json:"preview,omitempty"`
 	Visibility        string    `json:"visibility,omitempty"`
 	Encrypted         bool      `json:"encrypted,omitempty"`
+
 	CreationTimestamp time.Time `json:"creation_timestamp,omitempty" db:"creation_timestamp"`
 	UpdateTimestamp   time.Time `json:"update_timestamp,omitempty" db:"update_timestamp"`
+	UserTimestamp     time.Time `json:"user_timestamp,omitempty" db:"update_timestamp"`
 }
 
 type RecipeInfo struct {
@@ -50,8 +52,10 @@ type RecipeInfo struct {
 	Preview           string    `json:"preview,omitempty"`
 	Visibility        string    `json:"visibility,omitempty"`
 	Encrypted         bool      `json:"encrypted,omitempty"`
+
 	CreationTimestamp time.Time `json:"creation_timestamp,omitempty" db:"creation_timestamp"`
 	UpdateTimestamp   time.Time `json:"update_timestamp,omitempty" db:"update_timestamp"`
+	UserTimestamp     time.Time `json:"user_timestamp,omitempty" db:"update_timestamp"`
 }
 
 type RecipeCategoriesInput struct {
