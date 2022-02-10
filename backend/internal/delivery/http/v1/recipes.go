@@ -26,7 +26,7 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 
 		recipes.GET("/:recipe_id/pictures", h.getRecipesPictures)
 		recipes.POST("/:recipe_id/pictures", h.uploadRecipePicture)
-		recipes.DELETE("/:recipe_id/pictures", h.deleteRecipePicture)
+		recipes.DELETE("/:recipe_id/pictures/:picture_name", h.deleteRecipePicture)
 
 		recipes.GET("/:recipe_id/encryption", h.getRecipeKey)
 		recipes.POST("/:recipe_id/encryption", h.uploadRecipeKey)
@@ -465,13 +465,9 @@ func (h *Handler) deleteRecipePicture(c *gin.Context) {
 		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
 		return
 	}
-	var picture models.RecipeDeletePictureInput
-	if err := c.BindJSON(&picture); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
-		return
-	}
+	pictureName := c.Param("picture_name")
 
-	err = h.services.DeleteRecipePicture(c.Request.Context(), recipeId, userId, picture.PictureName)
+	err = h.services.DeleteRecipePicture(c.Request.Context(), recipeId, userId, pictureName)
 	if err != nil {
 		newResponse(c, http.StatusInternalServerError, models.ErrUnableDeleteRecipePicture.Error())
 		return
