@@ -36,7 +36,7 @@ func (h *Handler) Init(api *gin.RouterGroup)  {
 }
 
 func (h *Handler) initAuthRoutes(api *gin.RouterGroup) {
-	authGroup := api.Group("/authGroup")
+	authGroup := api.Group("/auth")
 	{
 		authGroup.POST("/sign-up", h.signUp)
 		authGroup.POST("/sign-in", h.signIn)
@@ -61,7 +61,7 @@ func (h *Handler) initProfileRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
-	recipesGroup := api.Group("/recipesGroup", h.userIdentity)
+	recipesGroup := api.Group("/recipes", h.userIdentity)
 	{
 		recipesGroup.GET("", h.getRecipes)
 		recipesGroup.POST("", h.createRecipe)
@@ -87,12 +87,12 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipesGroup.GET("/:recipe_id/users", h.getRecipeUsers)
 		recipesGroup.POST("/:recipe_id/users", h.setRecipePublicKey)
 		recipesGroup.PUT("/:recipe_id/users", h.setRecipePrivateKey)
-		recipesGroup.DELETE("/:recipe_id/users/:Err", h.deleteUserAccess)
+		recipesGroup.DELETE("/:recipe_id/users/:user_id", h.deleteUserAccess)
 	}
 }
 
 func (h *Handler) initCategoriesRoutes(api *gin.RouterGroup) {
-	categoriesGroup := api.Group("/categoriesGroup", h.userIdentity)
+	categoriesGroup := api.Group("/categories", h.userIdentity)
 	{
 		categoriesGroup.GET("", h.getCategories)
 		categoriesGroup.POST("", h.createCategory)
