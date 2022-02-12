@@ -9,7 +9,6 @@ import (
 	"github.com/mephistolie/chefbook-server/pkg/limiter"
 )
 
-
 type Handler struct {
 	services     *service.Service
 	tokenManager auth.TokenManager

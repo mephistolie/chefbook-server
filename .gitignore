@@ -3,7 +3,5 @@ data/postgres/pgdata
 .DS_Store
 .env
 data/letsencrypt/
-
 backend/configs/firebase-key.json
-
 backend/go.sum
