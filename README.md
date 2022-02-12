@@ -1,5 +1,5 @@
 # ChefBook Server
-**ChefBook Server** is a proprietary REST API server for ChefBook App
+ChefBook Server 💾
 
 ## Architecture
 * Language: Go

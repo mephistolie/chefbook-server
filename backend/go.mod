@@ -16,11 +16,15 @@ require (
 )
 
 require (
+	cloud.google.com/go/firestore v1.6.0
+	firebase.google.com/go/v4 v4.7.0
+	github.com/minio/minio-go/v7 v7.0.18
+	google.golang.org/api v0.56.0
+)
+
+require (
 	cloud.google.com/go v0.93.3 // indirect
-	cloud.google.com/go/firestore v1.6.0 // indirect
 	cloud.google.com/go/storage v1.10.0 // indirect
-	firebase.google.com/go v3.13.0+incompatible // indirect
-	firebase.google.com/go/v4 v4.7.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -39,7 +43,6 @@ require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/minio/md5-simd v1.1.0 // indirect
-	github.com/minio/minio-go/v7 v7.0.18 // indirect
 	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
@@ -59,7 +62,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f // indirect
 	golang.org/x/sys v0.0.0-20211020174200-9d6173849985 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/api v0.56.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71 // indirect
 	google.golang.org/grpc v1.40.0 // indirect

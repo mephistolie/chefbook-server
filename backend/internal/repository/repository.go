@@ -67,7 +67,7 @@ type Encryption interface {
 type Categories interface {
 	GetUserCategories(userId int) ([]model.Category, error)
 	AddCategory(category model.Category) (int, error)
-	GetCategoryById(categoryId) (model.Category, error)
+	GetCategoryById(categoryId int) (model.Category, error)
 	UpdateCategory(category model.Category) error
 	DeleteCategory(categoryId, userId int) error
 	GetRecipeCategories(recipeId, userId int) ([]int, error)
@@ -79,11 +79,11 @@ type ShoppingList interface {
 }
 
 type Files interface {
-	UploadAvatar(ctx context.Context, userId int, input s3.MultipartFileInfo) (string, error)
-	UploadUserKey(ctx context.Context, userId int, input s3.MultipartFileInfo) (string, error)
+	UploadAvatar(ctx context.Context, userId int, input model.MultipartFileInfo) (string, error)
+	UploadUserKey(ctx context.Context, userId int, input model.MultipartFileInfo) (string, error)
 	GetRecipePictures(ctx context.Context, recipeId int) []string
-	UploadRecipePicture(ctx context.Context, recipeId int, input s3.MultipartFileInfo) (string, error)
-	UploadRecipeKey(ctx context.Context, recipeId int, input s3.MultipartFileInfo) (string, error)
+	UploadRecipePicture(ctx context.Context, recipeId int, input model.MultipartFileInfo) (string, error)
+	UploadRecipeKey(ctx context.Context, recipeId int, input model.MultipartFileInfo) (string, error)
 	GetRecipePictureLink(recipeId int, pictureName string) string
 	GetRecipeKeysLink(recipeId int, pictureName string) string
 	DeleteFile(ctx context.Context, url string) error
