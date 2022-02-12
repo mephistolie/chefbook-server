@@ -5,3 +5,5 @@ data/postgres/pgdata
 data/letsencrypt/
 
 backend/configs/firebase-key.json
+
+backend/go.sum
