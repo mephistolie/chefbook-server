@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,16 +16,16 @@ const (
 func (h *Handler) parseAuthHeader(c *gin.Context) (string, error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		return "", models.ErrEmptyAuthHeader
+		return "", model.ErrEmptyAuthHeader
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return "", models.ErrInvalidAuthHeader
+		return "", model.ErrInvalidAuthHeader
 	}
 
 	if len(headerParts[1]) == 0 {
-		return "", models.ErrEmptyToken
+		return "", model.ErrEmptyToken
 	}
 
 	return h.tokenManager.Parse(headerParts[1])
@@ -34,7 +34,7 @@ func (h *Handler) parseAuthHeader(c *gin.Context) (string, error) {
 func (h *Handler) userIdentity(c *gin.Context) {
 	id, err := h.parseAuthHeader(c)
 	if err != nil {
-		newResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 	c.Set(userCtx, id)
 }
@@ -46,12 +46,12 @@ func getUserId(c *gin.Context) (int, error) {
 func getIdByContext(c *gin.Context, context string) (int, error) {
 	idFromCtx, ok := c.Get(context)
 	if !ok {
-		return -1, models.ErrUserIdNotFound
+		return -1, model.ErrUserIdNotFound
 	}
 
 	idStr, ok := idFromCtx.(string)
 	if !ok {
-		return -1, models.ErrInvalidUserId
+		return -1, model.ErrInvalidUserId
 	}
 
 	id, err := strconv.Atoi(idStr)

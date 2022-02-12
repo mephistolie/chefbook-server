@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
@@ -11,7 +11,7 @@ import (
 )
 
 type AuthService struct {
-	repo repository.Users
+	repo repository.Auth
 
 	hashManager     hash.HashManager
 	firebaseService FirebaseService
@@ -24,7 +24,7 @@ type AuthService struct {
 	domain      string
 }
 
-func NewAuthService(repo repository.Users, firebaseService FirebaseService, hashManager hash.HashManager, tokenManager auth.TokenManager,
+func NewAuthService(repo repository.Auth, firebaseService FirebaseService, hashManager hash.HashManager, tokenManager auth.TokenManager,
 	accessTokenTTL time.Duration, refreshTokenTTL time.Duration, mailService Mails, domain string) *AuthService {
 	return &AuthService{
 		repo:            repo,
@@ -38,7 +38,7 @@ func NewAuthService(repo repository.Users, firebaseService FirebaseService, hash
 	}
 }
 
-func (s *AuthService) SignUp(authData models.AuthData) (int, error) {
+func (s *AuthService) SignUp(authData model.AuthData) (int, error) {
 	hashedPassword, err := s.hashManager.Hash(authData.Password)
 	if err != nil {
 		return -1, err
@@ -59,7 +59,7 @@ func (s *AuthService) SignUp(authData models.AuthData) (int, error) {
 		})
 		return candidate.Id, err
 	} else if candidate.Id > 0 {
-		return 0, models.ErrUserAlreadyExists
+		return 0, model.ErrUserAlreadyExists
 	}
 
 	authData.Password = hashedPassword
@@ -83,43 +83,43 @@ func (s *AuthService) ActivateUser(activationLink uuid.UUID) error {
 	return s.repo.ActivateUser(activationLink)
 }
 
-func (s *AuthService) SignIn(authData models.AuthData, ip string) (models.Tokens, error) {
+func (s *AuthService) SignIn(authData model.AuthData, ip string) (model.Tokens, error) {
 	user, err := s.repo.GetUserByEmail(authData.Email)
 	password := authData.Password
 	if err != nil {
-		firebaseUser, err := s.firebaseService.FirebaseSignIn(authData)
+		firebaseUser, err := s.firebaseService.SignIn(authData)
 		if err != nil {
-			return models.Tokens{}, models.ErrUserNotFound
+			return model.Tokens{}, model.ErrUserNotFound
 		}
 		hashedPassword, err := s.hashManager.Hash(authData.Password)
 		if err != nil {
-			return models.Tokens{}, err
+			return model.Tokens{}, err
 		}
 		authData.Password = hashedPassword
 		err = s.firebaseService.migrateFromFirebase(authData, firebaseUser)
 		if err != nil {
-			return models.Tokens{}, err
+			return model.Tokens{}, err
 		}
 		user, err = s.repo.GetUserByEmail(authData.Email)
 		if err != nil {
-			return models.Tokens{}, err
+			return model.Tokens{}, err
 		}
 	}
 	if user.IsActivated == false {
-		return models.Tokens{}, models.ErrProfileNotActivated
+		return model.Tokens{}, model.ErrProfileNotActivated
 	}
 	if user.IsBlocked == true {
-		return models.Tokens{}, models.ErrProfileIsBlocked
+		return model.Tokens{}, model.ErrProfileIsBlocked
 	}
 	if err = s.hashManager.ValidateByHash(password, user.Password); err != nil {
-		return models.Tokens{}, models.ErrAuthentication
+		return model.Tokens{}, model.ErrAuthentication
 	}
 	return s.CreateSession(user.Id, ip)
 }
 
-func (s *AuthService) CreateSession(userId int, ip string) (models.Tokens, error) {
+func (s *AuthService) CreateSession(userId int, ip string) (model.Tokens, error) {
 	var (
-		res models.Tokens
+		res model.Tokens
 		err error
 	)
 
@@ -133,7 +133,7 @@ func (s *AuthService) CreateSession(userId int, ip string) (models.Tokens, error
 		return res, err
 	}
 
-	session := models.Session{
+	session := model.Session{
 		UserId:       userId,
 		RefreshToken: res.RefreshToken,
 		Ip:           ip,
@@ -145,24 +145,24 @@ func (s *AuthService) CreateSession(userId int, ip string) (models.Tokens, error
 
 func (s *AuthService) SignOut(refreshToken string) error {
 	if err := s.repo.DeleteSession(refreshToken); err != nil {
-		return models.ErrSessionNotFound
+		return model.ErrSessionNotFound
 	}
 	return nil
 }
 
-func (s *AuthService) RefreshSession(currentRefreshToken, ip string) (models.Tokens, error) {
+func (s *AuthService) RefreshSession(currentRefreshToken, ip string) (model.Tokens, error) {
 	user, err := s.repo.GetByRefreshToken(currentRefreshToken)
 	if err != nil {
-		return models.Tokens{}, models.ErrSessionNotFound
+		return model.Tokens{}, model.ErrSessionNotFound
 	}
 	if user.IsBlocked == true {
 		if err := s.repo.DeleteSession(currentRefreshToken); err != nil {
-			return models.Tokens{}, err
+			return model.Tokens{}, err
 		}
-		return models.Tokens{}, models.ErrProfileIsBlocked
+		return model.Tokens{}, model.ErrProfileIsBlocked
 	}
 
-	var res models.Tokens
+	var res model.Tokens
 
 	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(user.Id), s.accessTokenTTL)
 	if err != nil {
@@ -174,7 +174,7 @@ func (s *AuthService) RefreshSession(currentRefreshToken, ip string) (models.Tok
 		return res, err
 	}
 
-	session := models.Session{
+	session := model.Session{
 		UserId:       user.Id,
 		RefreshToken: res.RefreshToken,
 		Ip:           ip,

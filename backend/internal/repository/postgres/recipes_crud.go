@@ -5,22 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"time"
 )
 
-type RecipesPostgres struct {
+type RecipesCrudPostgres struct {
 	db *sqlx.DB
 }
 
-func NewRecipesPostgres(db *sqlx.DB) *RecipesPostgres {
-	return &RecipesPostgres{
+func NewRecipesPostgres(db *sqlx.DB) *RecipesCrudPostgres {
+	return &RecipesCrudPostgres{
 		db: db,
 	}
 }
 
-func (r *RecipesPostgres) GetRecipesInfoByRequest(params models.RecipesRequestParams) ([]models.RecipeInfo, error) {
-	var recipes []models.RecipeInfo
+func (r *RecipesCrudPostgres) GetRecipesInfoByRequest(params model.RecipesRequestParams) ([]model.RecipeInfo, error) {
+	var recipes []model.RecipeInfo
 	query := getRecipesQuery(params)
 	var preview sql.NullString
 	var rows *sql.Rows
@@ -31,15 +31,15 @@ func (r *RecipesPostgres) GetRecipesInfoByRequest(params models.RecipesRequestPa
 		rows, err = r.db.Query(query)
 	}
 	if err != nil {
-		return []models.RecipeInfo{}, err
+		return []model.RecipeInfo{}, err
 	}
 	for rows.Next() {
-		var recipe models.RecipeInfo
+		var recipe model.RecipeInfo
 		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Likes, &recipe.Servings,
 			&recipe.Time, &recipe.Calories, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
 			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName, &recipe.UserTimestamp)
 		if err != nil {
-			return []models.RecipeInfo{}, err
+			return []model.RecipeInfo{}, err
 		}
 		recipe.Preview = preview.String
 		recipes = append(recipes, recipe)
@@ -47,7 +47,13 @@ func (r *RecipesPostgres) GetRecipesInfoByRequest(params models.RecipesRequestPa
 	return recipes, nil
 }
 
-func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
+func (r *RecipesCrudPostgres) AddRecipeToRecipeBook(recipeId, userId int) error {
+	query := fmt.Sprintf("INSERT INTO %s (recipe_id, user_id) VALUES ($1, $2)", usersRecipesTable)
+	_, err := r.db.Exec(query, recipeId, userId)
+	return err
+}
+
+func (r *RecipesCrudPostgres) CreateRecipe(recipe model.Recipe) (int, error) {
 	var id int
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -86,57 +92,8 @@ func (r *RecipesPostgres) CreateRecipe(recipe models.Recipe) (int, error) {
 	return id, nil
 }
 
-func (r *RecipesPostgres) AddRecipeLink(recipeId, userId int) error {
-	query := fmt.Sprintf("INSERT INTO %s (recipe_id, user_id) VALUES ($1, $2)", usersRecipesTable)
-	_, err := r.db.Exec(query, recipeId, userId)
-	return err
-}
-
-func (r *RecipesPostgres) SetRecipeCategories(categoriesIds []int, recipeId, userId int) error {
-	tx, err := r.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	clearCategoriesQuery := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesCategoriesTable)
-	if _, err := tx.Exec(clearCategoriesQuery, recipeId, userId); err != nil {
-		if err := tx.Rollback(); err != nil {
-			return err
-		}
-		return err
-	}
-
-	if len(categoriesIds) > 0 {
-		categoriesArrayString := "("
-		for _, categoryId := range categoriesIds {
-			categoriesArrayString += fmt.Sprintf("%d, ", categoryId)
-		}
-		categoriesArrayString = categoriesArrayString[:len(categoriesArrayString)-2] + ")"
-		addCategoriesQuery := fmt.Sprintf("INSERT INTO %[1]v (recipe_id, category_id, user_id) "+
-			"SELECT %[2]v.recipe_id, %[3]v.category_id, %[3]v.user_id FROM %[3]v LEFT JOIN %[2]v ON %[2]v.recipe_id=$1 "+
-			"WHERE category_id IN %[4]v AND user_id=$2",
-			recipesCategoriesTable, recipesTable, categoriesTable, categoriesArrayString)
-		if _, err := tx.Exec(addCategoriesQuery, recipeId, userId); err != nil {
-			if err := tx.Rollback(); err != nil {
-				return err
-			}
-			return err
-		}
-	}
-
-	updateUserTimestamp := fmt.Sprintf("UPDATE %s SET update_timestamp=$1 WHERE recipe_id=$2 AND user_id=$3", usersRecipesTable)
-	if _, err := tx.Exec(updateUserTimestamp, time.Now(), recipeId, userId); err != nil {
-		if err := tx.Rollback(); err != nil {
-			return err
-		}
-		return err
-	}
-
-	return tx.Commit()
-}
-
-func (r *RecipesPostgres) GetRecipe(recipeId int) (models.Recipe, error) {
-	var recipe models.Recipe
+func (r *RecipesCrudPostgres) GetRecipe(recipeId int) (model.Recipe, error) {
+	var recipe model.Recipe
 	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, description, likes, servings, time, calories, "+
 		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE recipe_id=$1",
 		recipesTable)
@@ -146,20 +103,20 @@ func (r *RecipesPostgres) GetRecipe(recipeId int) (models.Recipe, error) {
 	row := r.db.QueryRow(query, recipeId)
 	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
 		&cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
-		return models.Recipe{}, err
+		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
-		return models.Recipe{}, err
+		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(cooking, &recipe.Cooking); err != nil {
-		return models.Recipe{}, err
+		return model.Recipe{}, err
 	}
 	recipe.Preview = preview.String
 	return recipe, nil
 }
 
-func (r *RecipesPostgres) GetRecipeWithUserFields(recipeId, userId int) (models.Recipe, error) {
-	var recipe models.Recipe
+func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (model.Recipe, error) {
+	var recipe model.Recipe
 	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.description, %[1]v.likes, "+
 		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, %[1]v.preview, %[1]v.visibility, "+
 		"%[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT "+
@@ -175,26 +132,26 @@ func (r *RecipesPostgres) GetRecipeWithUserFields(recipeId, userId int) (models.
 		&recipe.Time, &recipe.Calories, &ingredients, &cooking, &preview, &recipe.Visibility, &recipe.Encrypted,
 		&recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName,
 		&recipe.UserTimestamp); err != nil {
-		return models.Recipe{}, err
+		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
-		return models.Recipe{}, err
+		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(cooking, &recipe.Cooking); err != nil {
-		return models.Recipe{}, err
+		return model.Recipe{}, err
 	}
 	recipe.Preview = preview.String
 	return recipe, nil
 }
 
-func (r *RecipesPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
+func (r *RecipesCrudPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
 	var userId int
 	query := fmt.Sprintf("SELECT owner_id FROM %s WHERE recipe_id=$1", recipesTable)
 	err := r.db.Get(&userId, query, recipeId)
 	return userId, err
 }
 
-func (r *RecipesPostgres) UpdateRecipe(recipe models.Recipe, userId int) error {
+func (r *RecipesCrudPostgres) UpdateRecipe(recipe model.Recipe) error {
 
 	var preview interface{}
 	if recipe.Preview != "" {
@@ -204,141 +161,26 @@ func (r *RecipesPostgres) UpdateRecipe(recipe models.Recipe, userId int) error {
 	}
 
 	query := fmt.Sprintf("UPDATE %s SET name=$1, description=$2, servings=$3, time=$4, calories=$5, ingredients=$6, "+
-		"cooking=$7, preview=$8, visibility=$9, encrypted=$10, update_timestamp=$11 WHERE recipe_id=$12 AND owner_id=$13",
+		"cooking=$7, preview=$8, visibility=$9, encrypted=$10, update_timestamp=$11 WHERE recipe_id=$12",
 		recipesTable)
 	_, err := r.db.Exec(query, recipe.Name, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
-		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id, userId)
+		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id)
 	return err
 }
 
-func (r *RecipesPostgres) DeleteRecipe(recipeId int) error {
+func (r *RecipesCrudPostgres) DeleteRecipe(recipeId int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1", recipesTable)
 	_, err := r.db.Exec(query, recipeId)
 	return err
 }
 
-func (r *RecipesPostgres) DeleteRecipeFromRecipeBook(recipeId, userId int) error {
+func (r *RecipesCrudPostgres) DeleteRecipeFromRecipeBook(recipeId, userId int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", usersRecipesTable)
 	_, err := r.db.Exec(query, recipeId, userId)
 	return err
 }
 
-func (r *RecipesPostgres) SetRecipeLike(recipeId, userId int, isLiked bool) error {
-	var exists bool
-	checkLikeQuery := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM %s WHERE recipe_id=$1 AND user_id=$2)", likesTable)
-
-	err := r.db.QueryRow(checkLikeQuery, recipeId, userId).Scan(&exists)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-	if (exists && isLiked) || (!exists && !isLiked) {
-		return models.ErrRecipeLikeSetAlready
-	}
-	tx, err := r.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	var likeCountQuery string
-	if isLiked {
-		likeRecipeQuery := fmt.Sprintf("INSERT INTO %s (recipe_id, user_id) values ($1, $2)", likesTable)
-		if _, err := tx.Exec(likeRecipeQuery, recipeId, userId); err != nil {
-			if err := tx.Rollback(); err != nil {
-				return err
-			}
-			return err
-		}
-		likeCountQuery = fmt.Sprintf("UPDATE %s SET likes=likes+1 WHERE recipe_id=$1", recipesTable)
-	} else {
-		unlikeRecipeQuery := fmt.Sprintf("DELETE FROM %s WHERE recipe_id=$1 AND user_id=$2", likesTable)
-		if _, err := tx.Exec(unlikeRecipeQuery, recipeId, userId); err != nil {
-			if err := tx.Rollback(); err != nil {
-				return err
-			}
-			return err
-		}
-		likeCountQuery = fmt.Sprintf("UPDATE %s SET likes=likes-1 WHERE recipe_id=$1", recipesTable)
-	}
-
-	if _, err := tx.Exec(likeCountQuery, recipeId); err != nil {
-		if err := tx.Rollback(); err != nil {
-			return err
-		}
-		return err
-	}
-
-	return tx.Commit()
-}
-
-func (r *RecipesPostgres) MarkRecipeFavourite(recipeId, userId int, isFavourite bool) error {
-	query := fmt.Sprintf("UPDATE %s SET favourite=$1, update_timestamp=$2 WHERE recipe_id=$3 AND user_id=$4", usersRecipesTable)
-	_, err := r.db.Exec(query, isFavourite, time.Now(), recipeId, userId)
-	return err
-}
-
-func (r *RecipesPostgres) SetRecipePreview(recipeId int, url string) error {
-	var preview interface{}
-	if url != "" {
-		preview = url
-	} else {
-		preview = nil
-	}
-	query := fmt.Sprintf("UPDATE %s SET preview=$1 WHERE recipe_id=$2", recipesTable)
-	_, err := r.db.Exec(query, preview, recipeId)
-	return err
-}
-
-func (r *RecipesPostgres) GetRecipeKey(recipeId int) (string, error) {
-	var key sql.NullString
-	query := fmt.Sprintf("SELECT key FROM %s WHERE recipe_id=$1", recipesTable)
-	err := r.db.Get(&key, query, recipeId)
-	return key.String, err
-}
-
-func (r *RecipesPostgres) SetRecipeKey(recipeId int, url string) error {
-	var key interface{}
-	if url != "" {
-		key = url
-	} else {
-		key = nil
-	}
-	query := fmt.Sprintf("UPDATE %s SET key=$1 WHERE recipe_id=$2", recipesTable)
-	_, err := r.db.Exec(query, key, recipeId)
-	return err
-}
-
-func (r *RecipesPostgres) SetUserPublicKeyForRecipe(recipeId int, userId int, userKey string) error {
-	query := fmt.Sprintf("UPDATE %s SET user_key=$1 WHERE recipe_id=$2 AND user_id=$3", usersRecipesTable)
-	_, err := r.db.Exec(query, userKey, recipeId, userId)
-	return err
-}
-
-func (r *RecipesPostgres) SetUserPrivateKeyForRecipe(recipeId int, userId int, recipeKey string) error {
-	query := fmt.Sprintf("UPDATE %s SET recipe_key=$1 WHERE recipe_id=$2 AND user_id=$3", usersRecipesTable)
-	_, err := r.db.Exec(query, recipeKey, recipeId, userId)
-	return err
-}
-
-func (r *RecipesPostgres) GetRecipeUserList(recipeId int) ([]models.UserInfo, error) {
-	query := fmt.Sprintf("SELECT %[1]v.user_id, %[2]v.username, %[2]v.avatar, %[2]v.premium "+
-		"LEFT JOIN %[2]v ON %[2]v.user_id=%[1]v.user_id WHERE %[1]v.user_id=$1", usersRecipesTable, usersTable)
-	rows, err := r.db.Query(query, recipeId)
-	if err != nil {
-		return []models.UserInfo{}, err
-	}
-	var users []models.UserInfo
-	for rows.Next() {
-		var user models.UserInfo
-		err := rows.Scan(&user.Id, &user.Username, &user.Avatar, &user.Premium)
-		if err != nil {
-			return []models.UserInfo{}, err
-		}
-		users = append(users, user)
-	}
-	return users, nil
-}
-
-func getRecipesQuery(params models.RecipesRequestParams) string {
+func getRecipesQuery(params model.RecipesRequestParams) string {
 	whereStatement := " WHERE"
 	if params.Owned {
 		whereStatement += fmt.Sprintf(" %s.user_id=%d", usersRecipesTable, params.UserId)

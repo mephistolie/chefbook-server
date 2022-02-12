@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"time"
 )
 
@@ -16,19 +16,19 @@ func NewShoppingListPostgres(db *sqlx.DB) *ShoppingList {
 	return &ShoppingList{db: db}
 }
 
-func (r *ShoppingList) GetShoppingList(userId int) (models.ShoppingList, error) {
-	var shoppingList models.ShoppingList
+func (r *ShoppingList) GetShoppingList(userId int) (model.ShoppingList, error) {
+	var shoppingList model.ShoppingList
 	var shoppingListJSON []byte
 	query := fmt.Sprintf("SELECT shopping_list FROM %s WHERE user_id=$1", shoppingListTable)
 	err := r.db.Get(&shoppingListJSON, query, userId)
 	if err != nil {
-		return models.ShoppingList{}, err
+		return model.ShoppingList{}, err
 	}
 	err = json.Unmarshal(shoppingListJSON, &shoppingList)
 	return shoppingList, err
 }
 
-func (r *ShoppingList) SetShoppingList(shoppingList models.ShoppingList, userId int) error {
+func (r *ShoppingList) SetShoppingList(shoppingList model.ShoppingList, userId int) error {
 	shoppingList.Timestamp = time.Now()
 	var shoppingListJSON, err = json.Marshal(shoppingList)
 	if err != nil {

@@ -1,12 +1,11 @@
 package postgres
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"strings"
 	"time"
 )
@@ -19,7 +18,7 @@ func NewUsersPostgres(db *sqlx.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
-func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID) (int, error) {
+func (r *AuthPostgres) CreateUser(user model.AuthData, activationLink uuid.UUID) (int, error) {
 	var id int
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -57,40 +56,40 @@ func (r *AuthPostgres) CreateUser(user models.AuthData, activationLink uuid.UUID
 	return id, nil
 }
 
-func (r *AuthPostgres) GetUserById(id int) (models.User, error) {
-	var user models.User
+func (r *AuthPostgres) GetUserById(id int) (model.User, error) {
+	var user model.User
 	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
 		"premium, broccoins, is_blocked FROM %s WHERE user_id=$1", usersTable)
 	err := r.db.Get(&user, query, id)
 	return user, err
 }
 
-func (r *AuthPostgres) GetUserByEmail(email string) (models.User, error) {
-	var user models.User
+func (r *AuthPostgres) GetUserByEmail(email string) (model.User, error) {
+	var user model.User
 	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
 		"premium, broccoins, is_blocked FROM %s WHERE email=$1", usersTable)
 	err := r.db.Get(&user, query, email)
 	return user, err
 }
 
-func (r *AuthPostgres) GetUserByCredentials(email, password string) (models.User, error) {
-	var user models.User
+func (r *AuthPostgres) GetUserByCredentials(email, password string) (model.User, error) {
+	var user model.User
 	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
 		"premium, broccoins, is_blocked FROM %s WHERE email=$1 AND password=$2", usersTable)
 	err := r.db.Get(&user, query, email, password)
 	return user, err
 }
 
-func (r *AuthPostgres) GetByRefreshToken(refreshToken string) (models.User, error) {
+func (r *AuthPostgres) GetByRefreshToken(refreshToken string) (model.User, error) {
 	var userId int
-	var session models.Session
+	var session model.Session
 	query := fmt.Sprintf("SELECT user_id, expires_at FROM %s WHERE refresh_token=$1", sessionsTable)
 	row := r.db.QueryRow(query, refreshToken)
 	if err := row.Scan(&userId, &session.ExpiresAt); err != nil || session.ExpiresAt.Before(time.Now()) {
 		if err := r.DeleteSession(refreshToken); err != nil {
-			return models.User{}, err
+			return model.User{}, err
 		}
-		return models.User{}, models.ErrSessionExpired
+		return model.User{}, model.ErrSessionExpired
 	}
 	return r.GetUserById(userId)
 }
@@ -108,7 +107,7 @@ func (r *AuthPostgres) ActivateUser(activationLink uuid.UUID) error {
 	return nil
 }
 
-func (r *AuthPostgres) CreateSession(session models.Session) error {
+func (r *AuthPostgres) CreateSession(session model.Session) error {
 	query := fmt.Sprintf("INSERT INTO %s (user_id, refresh_token, ip, expires_at) values ($1, $2, $3, $4)", sessionsTable)
 	if _, err := r.db.Exec(query, session.UserId, session.RefreshToken, session.Ip, session.ExpiresAt); err != nil {
 		return err
@@ -116,7 +115,7 @@ func (r *AuthPostgres) CreateSession(session models.Session) error {
 	return nil
 }
 
-func (r *AuthPostgres) UpdateSession(session models.Session, oldRefreshToken string) error  {
+func (r *AuthPostgres) UpdateSession(session model.Session, oldRefreshToken string) error  {
 	query := fmt.Sprintf("UPDATE %s SET refresh_token=$1, ip=$2, expires_at=$3 WHERE refresh_token=$4", sessionsTable)
 	_, err := r.db.Exec(query, session.RefreshToken, session.Ip, session.ExpiresAt, oldRefreshToken)
 	return err
@@ -129,7 +128,7 @@ func (r *AuthPostgres) DeleteSession(refreshToken string) error {
 	return row.Scan(&id)
 }
 
-func (r *AuthPostgres) checkRefreshToken(userId int, session models.Session, ip string) error {
+func (r *AuthPostgres) checkRefreshToken(userId int, session model.Session, ip string) error {
 	query := fmt.Sprintf("INSERT INTO %s (user_id, refresh_token, ip, expires_at) values ($1, $2, $3, $4)", sessionsTable)
 	if _, err := r.db.Exec(query, userId, session.RefreshToken, ip, session.ExpiresAt); err != nil {
 		return err
@@ -137,7 +136,7 @@ func (r *AuthPostgres) checkRefreshToken(userId int, session models.Session, ip 
 	return nil
 }
 
-func (r *AuthPostgres) ChangePassword(authData models.AuthData) error {
+func (r *AuthPostgres) ChangePassword(authData model.AuthData) error {
 	var id = -1
 	query := fmt.Sprintf("UPDATE %s SET password=$1 WHERE email=$2 RETURNING user_id", usersTable)
 	row := r.db.QueryRow(query, authData.Password, authData.Email)
@@ -148,57 +147,4 @@ func (r *AuthPostgres) ChangePassword(authData models.AuthData) error {
 		return errors.New("user not found")
 	}
 	return nil
-}
-
-func (r *AuthPostgres) SetUserName(userId int, username string) error {
-	query := fmt.Sprintf("UPDATE %s SET username=$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, username, userId)
-	return err
-}
-
-func (r *AuthPostgres) IncreaseBroccoins(userId, broccoins int) error {
-	query := fmt.Sprintf("UPDATE %s SET broccoins=broccoins+$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, broccoins, userId)
-	return err
-}
-
-func (r *AuthPostgres) ReduceBroccoins(userId, broccoins int) error {
-	query := fmt.Sprintf("UPDATE %s SET broccoins=broccoins-$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, broccoins, userId)
-	return err
-}
-
-func (r *AuthPostgres) SetUserAvatar(userId int, url string) error {
-	var avatar interface{}
-	if url != "" { avatar = url} else { avatar = nil}
-	query := fmt.Sprintf("UPDATE %s SET avatar=$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, avatar, userId)
-	return err
-}
-
-func (r *AuthPostgres) GetUserKey(userId int) (string, error) {
-	var key sql.NullString
-	query := fmt.Sprintf("SELECT key FROM %s WHERE user_id=$1", usersTable)
-	err := r.db.Get(&key, query, userId)
-	return key.String, err
-}
-
-func (r *AuthPostgres) SetUserKey(userId int, url string) error {
-	var key interface{}
-	if url != "" { key = url} else { key = nil}
-	query := fmt.Sprintf("UPDATE %s SET key=$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, key, userId)
-	return err
-}
-
-func (r *AuthPostgres) SetPremiumDate(userId int, expiresAt time.Time) error {
-	query := fmt.Sprintf("UPDATE %s SET premium=$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, expiresAt, userId)
-	return err
-}
-
-func (r *AuthPostgres) SetProfileCreationDate(userId int, creationTimestamp time.Time) error {
-	query := fmt.Sprintf("UPDATE %s SET registered=$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, creationTimestamp, userId)
-	return err
 }

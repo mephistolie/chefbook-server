@@ -4,71 +4,56 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"net/http"
 )
 
-func (h *Handler) initAuthRoutes(api *gin.RouterGroup) {
-	auth := api.Group("/auth")
-	{
-		auth.POST("/sign-up", h.signUp)
-		auth.POST("/sign-in", h.signIn)
-		auth.POST("/sign-out", h.signOut)
-		auth.GET("/activate/:link", h.activate)
-		auth.POST("/refresh", h.refreshSession)
-	}
-}
-
 func (h *Handler) signUp(c *gin.Context) {
-	var input models.AuthData
+	var input model.AuthData
 
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
 		return
 	}
 
 	id, err := h.services.Auth.SignUp(input)
 	if err != nil {
-		newResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id":      id,
-		"message": models.RespActivationLink,
-	})
+	newIdResponse(c, id, RespActivationLink)
 }
 
 func (h *Handler) activate(c *gin.Context) {
 	activationLink, err := uuid.Parse(c.Param("link"))
 	if err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
 		return
 	}
 
 	if err := h.services.Auth.ActivateUser(activationLink); err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespProfileActivated,
-	})
+
+	newMessageResponse(c, RespProfileActivated)
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var input models.AuthData
+	var input model.AuthData
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
 		return
 	}
 
-	res, err := h.services.SignIn(input, c.Request.RemoteAddr)
+	res, err := h.services.Auth.SignIn(input, c.Request.RemoteAddr)
 	if err != nil {
-		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
-			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
+		if errors.Is(err, model.ErrUserNotFound) || errors.Is(err, model.ErrAuthentication) {
+			newErrorResponse(c, http.StatusBadRequest, model.ErrAuthentication.Error())
 			return
 		}
-		newResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -76,36 +61,34 @@ func (h *Handler) signIn(c *gin.Context) {
 }
 
 func (h *Handler) signOut(c *gin.Context) {
-	var input models.RefreshInput
+	var input model.RefreshInput
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
 		return
 	}
 
-	if err := h.services.SignOut(input.RefreshToken); err != nil {
-		newResponse(c, http.StatusBadRequest, err.Error())
+	if err := h.services.Auth.SignOut(input.RefreshToken); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": models.RespSignOutSuccessfully,
-	})
+	newMessageResponse(c, RespSignOutSuccessfully)
 }
 
 func (h *Handler) refreshSession(c *gin.Context) {
-	var input models.RefreshInput
+	var input model.RefreshInput
 	if err := c.BindJSON(&input); err != nil {
-		newResponse(c, http.StatusBadRequest, models.ErrInvalidInput.Error())
+		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
 		return
 	}
 
-	res, err := h.services.RefreshSession(input.RefreshToken, c.Request.RemoteAddr)
+	res, err := h.services.Auth.RefreshSession(input.RefreshToken, c.Request.RemoteAddr)
 	if err != nil {
-		if errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrAuthentication) {
-			newResponse(c, http.StatusBadRequest, models.ErrAuthentication.Error())
+		if errors.Is(err, model.ErrUserNotFound) || errors.Is(err, model.ErrAuthentication) {
+			newErrorResponse(c, http.StatusBadRequest, model.ErrAuthentication.Error())
 			return
 		}
-		newResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 

@@ -9,10 +9,11 @@ import (
 	"firebase.google.com/go/v4/auth"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -26,46 +27,51 @@ const firestoreRecipesCollection = "recipes"
 const oldUserBroccoins = 500
 
 type FirebaseService struct {
-	usersRepo        repository.Users
-	recipesRepo      repository.Recipes
-	categoriesRepo   repository.Categories
-	shoppingListRepo repository.ShoppingList
-	apiKey           string
-	firestore        firestore.Client
-	auth             auth.Client
+	usersRepo             repository.Auth
+	profileRepo           repository.Profile
+	recipesRepo           repository.RecipeCrud
+	recipeInteractionRepo repository.RecipeInteraction
+	categoriesRepo        repository.Categories
+	shoppingListRepo      repository.ShoppingList
+	apiKey                string
+	firestore             firestore.Client
+	auth                  auth.Client
 }
 
-func NewFirebaseService(apiKey string, usersRepo repository.Users, recipesRepo repository.Recipes,
-	categoriesRepo repository.Categories, shoppingListRepo repository.ShoppingList, app firebase.App) *FirebaseService {
+func NewFirebaseService(apiKey string, usersRepo repository.Auth, profileRepo repository.Profile, recipesRepo repository.RecipeCrud,
+	recipeInteractionRepo repository.RecipeInteraction, categoriesRepo repository.Categories, shoppingListRepo repository.ShoppingList,
+	app firebase.App) *FirebaseService {
 	firestoreClient, _ := app.Firestore(context.Background())
 	firebaseAuth, _ := app.Auth(context.Background())
 	return &FirebaseService{
-		usersRepo:        usersRepo,
-		recipesRepo:      recipesRepo,
-		categoriesRepo:   categoriesRepo,
-		shoppingListRepo: shoppingListRepo,
-		apiKey:           apiKey,
-		firestore:        *firestoreClient,
-		auth:             *firebaseAuth,
+		usersRepo:             usersRepo,
+		profileRepo:           profileRepo,
+		recipesRepo:           recipesRepo,
+		recipeInteractionRepo: recipeInteractionRepo,
+		categoriesRepo:        categoriesRepo,
+		shoppingListRepo:      shoppingListRepo,
+		apiKey:                apiKey,
+		firestore:             *firestoreClient,
+		auth:                  *firebaseAuth,
 	}
 }
 
-func (s *FirebaseService) FirebaseSignIn(authData models.AuthData) (models.FirebaseUser, error) {
+func (s *FirebaseService) SignIn(authData model.AuthData) (model.FirebaseUser, error) {
 	route := fmt.Sprintf("%s?key=%s", FirebaseSignInEmailEndpoint, s.apiKey)
 
 	jsonInput, err := json.Marshal(authData)
 	if err != nil {
-		return models.FirebaseUser{}, err
+		return model.FirebaseUser{}, err
 	}
 
 	resp, err := http.Post(route, "application/json", bytes.NewBuffer(jsonInput))
 	if err != nil {
-		return models.FirebaseUser{}, err
+		return model.FirebaseUser{}, err
 	}
-	var firebaseUser models.FirebaseUser
+	var firebaseUser model.FirebaseUser
 	err = json.NewDecoder(resp.Body).Decode(&firebaseUser)
 	if err != nil {
-		return models.FirebaseUser{}, err
+		return model.FirebaseUser{}, err
 	}
 	return firebaseUser, nil
 }
@@ -75,7 +81,7 @@ type MarkdownString struct {
 	Type string `json:"type"`
 }
 
-func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebaseUser models.FirebaseUser) error {
+func (s *FirebaseService) migrateFromFirebase(authData model.AuthData, firebaseUser model.FirebaseUser) error {
 	userSnapshot, err := s.firestore.Collection(firestoreUsersCollection).Doc(firebaseUser.LocalId).Get(context.Background())
 	userDoc := userSnapshot.Data()
 
@@ -89,18 +95,18 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 		logger.Warn("migration: error during activating link ", activationLink)
 	}
 	if user, err := s.auth.GetUser(context.Background(), firebaseUser.LocalId); err == nil {
-		if err := s.usersRepo.SetProfileCreationDate(userId, time.UnixMilli(user.UserMetadata.CreationTimestamp)); err != nil {
+		if err := s.profileRepo.SetProfileCreationDate(userId, time.UnixMilli(user.UserMetadata.CreationTimestamp)); err != nil {
 			logger.Warn("migration: error during set profile creation date")
 		}
 	}
-	err = s.usersRepo.IncreaseBroccoins(userId, oldUserBroccoins)
+	err = s.profileRepo.IncreaseBroccoins(userId, oldUserBroccoins)
 	if err != nil {
 		logger.Warn("migration: error during adding broccoins to old user")
 	}
 
 	username, ok := userDoc["name"].(string)
 	if ok && len(username) > 0 {
-		err = s.usersRepo.SetUserName(userId, username)
+		err = s.profileRepo.SetUsername(userId, username)
 		if err != nil {
 			logger.Warn("migration: error during setting name ", username)
 		}
@@ -108,7 +114,7 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 	premium, ok := userDoc["isPremium"].(bool)
 	if ok && premium {
 		lifetimePremium := time.Date(3000, 1, 1, 00, 00, 00, 00, time.UTC)
-		err := s.usersRepo.SetPremiumDate(userId, lifetimePremium)
+		err := s.profileRepo.SetPremiumDate(userId, lifetimePremium)
 		if err != nil {
 			logger.Warn("migration: error during activating premium")
 		}
@@ -120,14 +126,14 @@ func (s *FirebaseService) migrateFromFirebase(authData models.AuthData, firebase
 }
 
 func (s *FirebaseService) importFirebaseShoppingList(userId int, userDoc map[string]interface{}) {
-	shoppingList := models.ShoppingList{
+	shoppingList := model.ShoppingList{
 		Timestamp: time.Now(),
 	}
 
 	firebaseShoppingList, ok := userDoc["shoppingList"].([]interface{})
 	if ok {
 		for _, firebasePurchase := range firebaseShoppingList {
-			purchase := models.Purchase{
+			purchase := model.Purchase{
 				Id:          uuid.NewString(),
 				Item:        firebasePurchase.(string),
 				Multiplier:  1,
@@ -142,7 +148,7 @@ func (s *FirebaseService) importFirebaseShoppingList(userId int, userDoc map[str
 	}
 }
 
-func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.FirebaseUser) {
+func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser model.FirebaseUser) {
 	recipesSnapshot := s.firestore.Collection(firestoreUsersCollection).Doc(firebaseUser.LocalId).Collection(firestoreRecipesCollection).Documents(context.Background())
 	firebaseRecipes, err := recipesSnapshot.GetAll()
 	if err != nil {
@@ -174,90 +180,17 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			recipeTime := 60
 			firebaseTime, ok := firebaseRecipe["time"].(string)
 			if ok {
-				numberFilter := regexp.MustCompile("[0-9]+")
-				timeSlice := numberFilter.FindAllString(firebaseTime, -1)
-				timeSliceLength := len(timeSlice)
-				if timeSliceLength > 0 {
-					multiplier := 1
-					if timeSliceLength == 1 && len(timeSlice[timeSliceLength-1]) == 1 {
-						multiplier = 60
-					}
-					number, err := strconv.Atoi(timeSlice[timeSliceLength-1])
-					if err == nil {
-						recipeTime = recipeTime + number*multiplier
-					}
-				}
-				if timeSliceLength > 1 {
-					hours, err := strconv.Atoi(timeSlice[timeSliceLength-2])
-					if err == nil {
-						recipeTime = recipeTime + hours*60
-					}
-				}
+				recipeTime = parseTime(firebaseTime)
 			}
 
-			var firebaseIngredients []interface{}
-			firebaseIngredients, ok = firebaseRecipe["ingredients"].([]interface{})
-			if !ok {
-				logger.Warn("migration: error during import ingredients of recipe")
-				continue
-			}
-			var ingredients []MarkdownString
-			for _, firebaseIngredient := range firebaseIngredients {
-				mapIngredient := firebaseIngredient.(map[string]interface{})
-				var item string
-				var selected bool
-				nullableItem := mapIngredient["item"]
-				nullableSelected := mapIngredient["selected"]
-				if nullableItem == nil {
-					nullableItem = mapIngredient["name"]
-					nullableSelected = mapIngredient["section"]
-				}
-				item = nullableItem.(string)
-				selected = nullableSelected.(bool)
-				stringType := "INGREDIENT"
-				if selected {
-					stringType = "SECTION"
-				}
-				ingredient := MarkdownString{
-					Text: item,
-					Type: stringType,
-				}
-				ingredients = append(ingredients, ingredient)
-			}
-			jsonIngredients, err := json.Marshal(ingredients)
+			jsonIngredients, err := parseIngredients(firebaseRecipe)
 			if err != nil {
-				logger.Warn("migration: error during import ingredients of recipe")
 				continue
 			}
 
-			var jsonCooking []byte
-			if firebaseCooking, ok := firebaseRecipe["cooking"].([]interface{}); ok {
-				var cooking []MarkdownString
-				for _, firebaseStep := range firebaseCooking {
-					var item string
-					var selected bool
-					mapStep, ok := firebaseStep.(map[string]interface{})
-					if ok {
-						item = mapStep["item"].(string)
-						selected = mapStep["selected"].(bool)
-					} else {
-						item = firebaseStep.(string)
-					}
-
-					stringType := "STEP"
-					if selected {
-						stringType = "SECTION"
-					}
-					step := MarkdownString{
-						Text: item,
-						Type: stringType,
-					}
-					cooking = append(cooking, step)
-				}
-				jsonCooking, err = json.Marshal(cooking)
-				if err != nil {
-					continue
-				}
+			jsonCooking, err := parseCooking(firebaseRecipe)
+			if err != nil {
+				continue
 			}
 
 			var recipeCategoriesIds []int
@@ -274,7 +207,7 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 						}
 					}
 					if !isAdded && len(category) > 0 {
-						dbCategory := models.Category{
+						dbCategory := model.Category{
 							Name:   category,
 							Cover:  string([]rune(category)[0:1]),
 							UserId: userId,
@@ -289,7 +222,7 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 				}
 			}
 
-			recipe := models.Recipe{
+			recipe := model.Recipe{
 				Name:        name,
 				OwnerId:     userId,
 				Servings:    int16(servings),
@@ -303,12 +236,109 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser models.
 			if err != nil {
 				continue
 			}
-			if err = s.recipesRepo.SetRecipeCategories(recipeCategoriesIds, recipeId, userId); err != nil {
+			if err = s.recipeInteractionRepo.SetRecipeCategories(recipeCategoriesIds, recipeId, userId); err != nil {
 				continue
 			}
-			if err = s.recipesRepo.MarkRecipeFavourite(recipeId, userId, favourite); err != nil {
+			if err = s.recipeInteractionRepo.SetRecipeFavourite(recipeId, userId, favourite); err != nil {
 				continue
 			}
 		}
 	}
+}
+
+func parseTime(timeString string) int {
+	minutes := 0
+	numberFilter := regexp.MustCompile("[0-9]+")
+	timeSlice := numberFilter.FindAllString(timeString, -1)
+	timeSliceLength := len(timeSlice)
+	if timeSliceLength > 0 {
+		multiplier := 1
+		if timeSliceLength == 1 && len(timeSlice[timeSliceLength-1]) == 1 {
+			multiplier = 60
+		}
+		number, err := strconv.Atoi(timeSlice[timeSliceLength-1])
+		if err == nil {
+			minutes = minutes + number*multiplier
+		}
+	}
+	if timeSliceLength > 1 {
+		hours, err := strconv.Atoi(timeSlice[timeSliceLength-2])
+		if err == nil {
+			minutes = minutes + hours*60
+		}
+	}
+	return minutes
+}
+
+func parseIngredients(firebaseRecipe map[string]interface{}) ([]byte, error) {
+	var firebaseIngredients []interface{}
+	firebaseIngredients, ok := firebaseRecipe["ingredients"].([]interface{})
+	if !ok {
+		logger.Warn("migration: error during import ingredients of recipe")
+		return []byte{}, os.ErrInvalid
+	}
+	var ingredients []MarkdownString
+	for _, firebaseIngredient := range firebaseIngredients {
+		mapIngredient := firebaseIngredient.(map[string]interface{})
+		var item string
+		var selected bool
+		nullableItem := mapIngredient["item"]
+		nullableSelected := mapIngredient["selected"]
+		if nullableItem == nil {
+			nullableItem = mapIngredient["name"]
+			nullableSelected = mapIngredient["section"]
+		}
+		item = nullableItem.(string)
+		selected = nullableSelected.(bool)
+		stringType := "INGREDIENT"
+		if selected {
+			stringType = "SECTION"
+		}
+		ingredient := MarkdownString{
+			Text: item,
+			Type: stringType,
+		}
+		ingredients = append(ingredients, ingredient)
+	}
+	jsonIngredients, err := json.Marshal(ingredients)
+	if err != nil {
+		logger.Warn("migration: error during import ingredients of recipe")
+		return []byte{}, os.ErrInvalid
+	}
+	return jsonIngredients, nil
+}
+
+func parseCooking(firebaseRecipe map[string]interface{}) ([]byte, error)  {
+	var err error
+	var jsonCooking []byte
+	if firebaseCooking, ok := firebaseRecipe["cooking"].([]interface{}); ok {
+		var cooking []MarkdownString
+		for _, firebaseStep := range firebaseCooking {
+			var item string
+			var selected bool
+			mapStep, ok := firebaseStep.(map[string]interface{})
+			if ok {
+				item = mapStep["item"].(string)
+				selected = mapStep["selected"].(bool)
+			} else {
+				item = firebaseStep.(string)
+			}
+
+			stringType := "STEP"
+			if selected {
+				stringType = "SECTION"
+			}
+			step := MarkdownString{
+				Text: item,
+				Type: stringType,
+			}
+			cooking = append(cooking, step)
+		}
+		jsonCooking, err = json.Marshal(cooking)
+		if err != nil {
+			return []byte{}, os.ErrInvalid
+		}
+	}
+
+	return jsonCooking, nil
 }

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 )
 
@@ -15,15 +15,15 @@ func NewShoppingListService(repo repository.ShoppingList) *ShoppingListService {
 	}
 }
 
-func (s *ShoppingListService) GetShoppingList(userId int) (models.ShoppingList, error)  {
+func (s *ShoppingListService) GetShoppingList(userId int) (model.ShoppingList, error) {
 	return s.repo.GetShoppingList(userId)
 }
 
-func (s *ShoppingListService) SetShoppingList(shoppingList models.ShoppingList, userId int) error  {
+func (s *ShoppingListService) SetShoppingList(shoppingList model.ShoppingList, userId int) error {
 	return s.repo.SetShoppingList(shoppingList, userId)
 }
 
-func (s *ShoppingListService) AddToShoppingList(newPurchases []models.Purchase, userId int) error {
+func (s *ShoppingListService) AddToShoppingList(newPurchases []model.Purchase, userId int) error {
 	shoppingList, err := s.repo.GetShoppingList(userId)
 	if err != nil {
 		return err

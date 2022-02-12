@@ -1,12 +1,11 @@
 package service
 
 import (
-	"bytes"
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/config"
-	"github.com/mephistolie/chefbook-server/internal/models"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"github.com/mephistolie/chefbook-server/internal/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/cache"
@@ -16,26 +15,22 @@ import (
 )
 
 type Auth interface {
-	SignUp(authInput models.AuthData) (int, error)
+	SignUp(authInput model.AuthData) (int, error)
 	ActivateUser(activationLink uuid.UUID) error
-	SignIn(authInput models.AuthData, ip string) (models.Tokens, error)
+	SignIn(authInput model.AuthData, ip string) (model.Tokens, error)
 	SignOut(refreshToken string) error
-	RefreshSession(refreshToken, ip string) (models.Tokens, error)
+	RefreshSession(refreshToken, ip string) (model.Tokens, error)
 }
 
 type Firebase interface {
-	FirebaseSignIn(authData models.AuthData) (models.FirebaseUser, error)
+	SignIn(authData model.AuthData) (model.FirebaseUser, error)
 }
 
-type Users interface {
-	GetUserInfo(userId int) (models.User, error)
-	SetUserName(userId int, username string) error
-	UploadAvatar(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
+type Profile interface {
+	GetUserInfo(userId int) (model.User, error)
+	SetUsername(userId int, username string) error
+	UploadAvatar(ctx context.Context, userId int, file model.MultipartFileInfo) (string, error)
 	DeleteAvatar(ctx context.Context, userId int) error
-
-	GetUserKey(userId int) (string, error)
-	UploadUserKey(ctx context.Context, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
-	DeleteUserKey(ctx context.Context, userId int) error
 }
 
 type VerificationEmailInput struct {
@@ -49,52 +44,68 @@ type Mails interface {
 	SendVerificationEmail(input VerificationEmailInput) error
 }
 
-type Recipes interface {
-	GetRecipesInfoByRequest(params models.RecipesRequestParams) ([]models.RecipeInfo, error)
-	CreateRecipe(recipe models.Recipe) (int, error)
+type RecipesCrud interface {
+	GetRecipesInfoByRequest(params model.RecipesRequestParams) ([]model.RecipeInfo, error)
+	CreateRecipe(recipe model.Recipe) (int, error)
 	AddRecipeToRecipeBook(recipeId, userId int) error
-	GetRecipeById(recipeId, userId int) (models.Recipe, error)
-	UpdateRecipe(recipe models.Recipe, userId int) error
+	GetRecipeById(recipeId, userId int) (model.Recipe, error)
+	UpdateRecipe(recipe model.Recipe) error
 	DeleteRecipe(recipeId, userId int) error
-	SetRecipeCategories(input models.RecipeCategoriesInput) error
-	MarkRecipeFavourite(input models.FavouriteRecipeInput) error
-	SetRecipeLike(input models.RecipeLikeInput) error
+}
 
-	GetRecipePictures(ctx context.Context, recipeId int, userId int) ([]string, error)
-	UploadRecipePicture(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
-	DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error
+type RecipeInteraction interface {
+	SetRecipeCategories(input model.RecipeCategoriesInput) error
+	SetRecipeFavourite(input model.FavouriteRecipeInput) error
+	SetRecipeLiked(input model.RecipeLikeInput) error
+}
 
-	GetRecipeKey(recipeId, userId int) (string, error)
-	UploadRecipeKey(ctx context.Context, recipeId, userId int, file *bytes.Reader, size int64, contentType string) (string, error)
-	DeleteRecipeKey(ctx context.Context, recipeId, userId int) error
-
-	GetRecipeUserList(recipeId, userId int) ([]models.UserInfo, error)
+type RecipeSharing interface {
+	GetRecipeUserList(recipeId, userId int) ([]model.UserInfo, error)
 	SetUserPublicKeyForRecipe(recipeId int, userId int, userKey string) error
 	SetUserPrivateKeyForRecipe(recipeId int, userId int, userKey string) error
 	DeleteUserAccessToRecipe(recipeId, userId, requesterId int) error
 }
 
+type RecipePictures interface {
+	GetRecipePictures(ctx context.Context, recipeId int, userId int) ([]string, error)
+	UploadRecipePicture(ctx context.Context, recipeId, userId int, file model.MultipartFileInfo) (string, error)
+	DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error
+}
+
+type Encryption interface {
+	GetUserKeyLink(userId int) (string, error)
+	UploadUserKey(ctx context.Context, userId int, file model.MultipartFileInfo) (string, error)
+	DeleteUserKey(ctx context.Context, userId int) error
+	GetRecipeKey(recipeId, userId int) (string, error)
+	UploadRecipeKey(ctx context.Context, recipeId, userId int, file model.MultipartFileInfo) (string, error)
+	DeleteRecipeKey(ctx context.Context, recipeId, userId int) error
+}
+
 type Categories interface {
-	GetCategoriesByUser(userId int) ([]models.Category, error)
-	AddCategory(category models.Category) (int, error)
-	GetCategoryById(categoryId, userId int) (models.Category, error)
-	UpdateCategory(category models.Category) error
-	DeleteCategory(categoryId, userId int) error
+	GetUserCategories(userId int) ([]model.Category, error)
 	GetRecipeCategories(recipeId, userId int) ([]int, error)
+	AddCategory(category model.Category) (int, error)
+	GetCategoryById(categoryId, userId int) (model.Category, error)
+	UpdateCategory(category model.Category) error
+	DeleteCategory(categoryId, userId int) error
 }
 
 type ShoppingList interface {
-	GetShoppingList(userId int) (models.ShoppingList, error)
-	SetShoppingList(shoppingList models.ShoppingList, userId int) error
-	AddToShoppingList(newPurchases []models.Purchase, userId int) error
+	GetShoppingList(userId int) (model.ShoppingList, error)
+	SetShoppingList(shoppingList model.ShoppingList, userId int) error
+	AddToShoppingList(newPurchases []model.Purchase, userId int) error
 }
 
 type Service struct {
 	Auth
 	Firebase
-	Users
+	Profile
 	Mails
-	Recipes
+	RecipesCrud
+	RecipeInteraction
+	RecipeSharing
+	RecipePictures
+	Encryption
 	Categories
 	ShoppingList
 }
@@ -118,16 +129,22 @@ type Dependencies struct {
 func NewServices(dependencies Dependencies) *Service {
 
 	mailService := NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
-	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Users, dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.ShoppingList, dependencies.FirebaseApp)
+	firebaseService := NewFirebaseService(dependencies.FirebaseApiKey, dependencies.Repos.Auth, dependencies.Repos.Profile,
+		dependencies.Repos.RecipeCrud, dependencies.Repos.RecipeInteraction, dependencies.Repos.Categories, dependencies.Repos.ShoppingList,
+		dependencies.FirebaseApp)
 
 	return &Service{
 		Auth: NewAuthService(dependencies.Repos, *firebaseService, dependencies.HashManager, dependencies.TokenManager,
 			dependencies.AccessTokenTTL, dependencies.RefreshTokenTTL, mailService, dependencies.Domain),
-		Firebase:     firebaseService,
-		Users:        NewUsersService(dependencies.Repos.Users, dependencies.Repos.Files),
-		Mails:        mailService,
-		Recipes:      NewRecipesService(dependencies.Repos.Recipes, dependencies.Repos.Categories, dependencies.Repos.Files),
-		Categories:   NewCategoriesService(dependencies.Repos),
-		ShoppingList: NewShoppingListService(dependencies.Repos),
+		Firebase:          firebaseService,
+		Profile:           NewUsersService(dependencies.Repos.Auth, dependencies.Repos.Profile, dependencies.Repos.Files),
+		Mails:             mailService,
+		RecipesCrud:       NewRecipesService(dependencies.Repos.RecipeCrud, dependencies.Repos.Categories),
+		RecipeInteraction: NewRecipeInteractionService(dependencies.Repos.RecipeInteraction),
+		RecipeSharing:     NewRecipeSharingService(dependencies.Repos.RecipeCrud, dependencies.Repos.RecipeSharing),
+		RecipePictures:    NewRecipePicturesService(dependencies.Repos.RecipeCrud, dependencies.Repos.Files),
+		Encryption:        NewEncryptionService(dependencies.Repos.Encryption, dependencies.Repos.RecipeCrud, dependencies.Repos.Files),
+		Categories:        NewCategoriesService(dependencies.Repos),
+		ShoppingList:      NewShoppingListService(dependencies.Repos),
 	}
 }

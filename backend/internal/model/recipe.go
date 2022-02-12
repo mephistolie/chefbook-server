@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"time"
@@ -74,10 +74,6 @@ type RecipeLikeInput struct {
 	RecipeId int  `json:"recipe_id,omitempty" db:"recipe_id"`
 	UserId   int  `json:"user_id,omitempty" db:"user_id"`
 	Liked    bool `json:"liked,omitempty"`
-}
-
-type RecipeDeletePictureInput struct {
-	PictureName string `json:"picture_name,omitempty"`
 }
 
 type RecipesRequestParams struct {

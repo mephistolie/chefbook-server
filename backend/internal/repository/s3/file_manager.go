@@ -1,9 +1,9 @@
 package s3
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"github.com/minio/minio-go/v7"
 	"strings"
@@ -21,13 +21,6 @@ const (
 	publicRead = "public-read"
 )
 
-type UploadInput struct {
-	File	*bytes.Reader
-	Name	string
-	Size	int64
-	ContentType string
-}
-
 type AWSFileManager struct {
 	client *minio.Client
 }
@@ -38,7 +31,7 @@ func NewAWSFileManager(client *minio.Client) *AWSFileManager {
 	}
 }
 
-func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input UploadInput) (string, error) {
+func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input model.MultipartFileInfo) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -53,7 +46,7 @@ func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input Upl
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath), nil
 }
 
-func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId int, input UploadInput) (string, error) {
+func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId int, input model.MultipartFileInfo) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -77,7 +70,7 @@ func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId int) []
 	return objects
 }
 
-func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, input UploadInput) (string, error) {
+func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, input model.MultipartFileInfo) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -92,7 +85,7 @@ func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, 
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath), nil
 }
 
-func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId int, input UploadInput) (string, error) {
+func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId int, input model.MultipartFileInfo) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType: input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
