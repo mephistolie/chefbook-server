@@ -108,7 +108,7 @@ CREATE TABLE roles
     role_id SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
     name    role                                             NOT NULL DEFAULT 'user',
     user_id INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL
-)
+);
 
 CREATE TABLE news
 (
