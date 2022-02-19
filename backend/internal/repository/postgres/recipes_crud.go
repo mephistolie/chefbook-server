@@ -156,13 +156,7 @@ func (r *RecipesCrudPostgres) GetRandomPublicRecipe(languages []string) (model.R
 	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, language, description, likes, servings, time, calories, "+
 		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE visibility='public'",
 		recipesTable)
-	if len(languages) > 0 {
-		query += " AND language IN ("
-		for _, language := range languages {
-			query += fmt.Sprintf("%s, ", language)
-		}
-		query = query[0:len(query)-2] + ")"
-	}
+	query += getLanguagesFilter(languages)
 	query += " ORDER BY RANDOM() LIMIT 1"
 	var ingredients []byte
 	var cooking []byte
@@ -223,13 +217,7 @@ func getRecipesQuery(params model.RecipesRequestParams) string {
 		whereStatement += fmt.Sprintf(" AND %s.owner_id=%d", recipesTable, params.AuthorId)
 	}
 
-	if len(params.Languages) > 0 {
-		whereStatement += fmt.Sprintf(" AND %s.language IN (", recipesTable)
-		for _, language := range params.Languages {
-			whereStatement += fmt.Sprintf("%s, ", language)
-		}
-		whereStatement = whereStatement[0:len(whereStatement)-2] + ")"
-	}
+	whereStatement += getLanguagesFilter(params.Languages)
 
 	if params.Search != "" {
 		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%' || $1 || '%'"
@@ -264,6 +252,18 @@ func getRecipesRangeFilter(field string, min, max int) string {
 	}
 	if max > 0 {
 		filter += fmt.Sprintf(" AND %s.%s<=%d", recipesTable, field, max)
+	}
+	return filter
+}
+
+func getLanguagesFilter(languages []string) string {
+	filter := ""
+	if len(languages) > 0 {
+		filter += " AND language IN ("
+		for _, language := range languages {
+			filter += fmt.Sprintf("'%s', ", language)
+		}
+		filter = filter[0:len(filter)-2] + ")"
 	}
 	return filter
 }

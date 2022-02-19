@@ -107,6 +107,7 @@ func (h *Handler) getRandomPublicRecipe(c *gin.Context) {
 	recipe, err := h.services.RecipesCrud.GetRandomPublicRecipe(languages)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, model.ErrUnableGetRandomRecipe.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, recipe)
