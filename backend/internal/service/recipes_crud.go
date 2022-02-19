@@ -126,6 +126,12 @@ func validateRecipe(recipe model.Recipe) (model.Recipe, error) {
 		recipe.Visibility = PRIVATE
 	}
 
+	if len(recipe.Language) > 2 {
+		recipe.Language = recipe.Language[0:2]
+	} else if recipe.Language == "" {
+		recipe.Language = "en"
+	}
+
 	if recipe.Servings < 1 {
 		recipe.Servings = 1
 	}

@@ -192,6 +192,14 @@ func getRecipesQuery(params model.RecipesRequestParams) string {
 		whereStatement += fmt.Sprintf(" AND %s.owner_id=%d", recipesTable, params.AuthorId)
 	}
 
+	if len(params.Languages) > 0 {
+		whereStatement += fmt.Sprintf(" AND %s.language IN (", recipesTable)
+		for _, language := range params.Languages {
+			whereStatement += fmt.Sprintf("%s, ", language)
+		}
+		whereStatement = whereStatement[0:len(whereStatement)-2] + ")"
+	}
+
 	if params.Search != "" {
 		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%' || $1 || '%'"
 	}

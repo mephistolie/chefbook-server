@@ -41,6 +41,7 @@ CREATE TABLE recipes
     name               VARCHAR(255)                                     NOT NULL,
     owner_id           INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
 
+    language           VARCHAR(2)                                       NOT NULL DEFAULT 'en',
     description        TEXT                                                      DEFAULT NULL,
     likes              INT                                              NOT NULL DEFAULT 0,
 
@@ -108,3 +109,11 @@ CREATE TABLE roles
     name    role                                             NOT NULL DEFAULT 'user',
     user_id INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL
 )
+
+CREATE TABLE news
+(
+    id    SERIAL PRIMARY KEY NOT NULL UNIQUE,
+    name  VARCHAR(255)       NOT NULL,
+    text  TEXT               NOT NULL,
+    cover VARCHAR(255) DEFAULT NULL,
+);
