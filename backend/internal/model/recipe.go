@@ -40,6 +40,7 @@ type RecipeInfo struct {
 	OwnerId   int    `json:"owner_id,omitempty" db:"owner_id"`
 	OwnerName string `json:"owner_name,omitempty"`
 	Owned     bool   `json:"owned,omitempty"`
+	Language  string `json:"language,omitempty" db:"language"`
 	Likes     int16  `json:"likes,omitempty" db:"likes"`
 
 	Categories []int `json:"categories,omitempty"`

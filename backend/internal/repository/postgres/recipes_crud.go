@@ -35,7 +35,7 @@ func (r *RecipesCrudPostgres) GetRecipesInfoByRequest(params model.RecipesReques
 	}
 	for rows.Next() {
 		var recipe model.RecipeInfo
-		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Likes, &recipe.Servings,
+		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Likes, &recipe.Servings,
 			&recipe.Time, &recipe.Calories, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
 			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName, &recipe.UserTimestamp)
 		if err != nil {
@@ -67,11 +67,11 @@ func (r *RecipesCrudPostgres) CreateRecipe(recipe model.Recipe) (int, error) {
 		preview = nil
 	}
 
-	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, description, servings, time, calories,"+
+	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, language, description, servings, time, calories,"+
 		"ingredients, cooking, preview, visibility, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"+
 		"RETURNING recipe_id",
 		recipesTable)
-	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
+	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Language, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
 		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
@@ -94,14 +94,14 @@ func (r *RecipesCrudPostgres) CreateRecipe(recipe model.Recipe) (int, error) {
 
 func (r *RecipesCrudPostgres) GetRecipe(recipeId int) (model.Recipe, error) {
 	var recipe model.Recipe
-	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, description, likes, servings, time, calories, "+
+	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, language, description, likes, servings, time, calories, "+
 		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE recipe_id=$1",
 		recipesTable)
 	var ingredients []byte
 	var cooking []byte
 	var preview sql.NullString
 	row := r.db.QueryRow(query, recipeId)
-	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
 		&cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
 		return model.Recipe{}, err
 	}
@@ -117,7 +117,7 @@ func (r *RecipesCrudPostgres) GetRecipe(recipeId int) (model.Recipe, error) {
 
 func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (model.Recipe, error) {
 	var recipe model.Recipe
-	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.description, %[1]v.likes, "+
+	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.language, %[1]v.description, %[1]v.likes, "+
 		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, %[1]v.preview, %[1]v.visibility, "+
 		"%[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT "+
 		"EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username, " +
@@ -128,7 +128,7 @@ func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (mod
 	var cooking []byte
 	var preview sql.NullString
 	row := r.db.QueryRow(query, userId, recipeId)
-	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Description, &recipe.Likes, &recipe.Servings,
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings,
 		&recipe.Time, &recipe.Calories, &ingredients, &cooking, &preview, &recipe.Visibility, &recipe.Encrypted,
 		&recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName,
 		&recipe.UserTimestamp); err != nil {
@@ -160,10 +160,10 @@ func (r *RecipesCrudPostgres) UpdateRecipe(recipe model.Recipe) error {
 		preview = nil
 	}
 
-	query := fmt.Sprintf("UPDATE %s SET name=$1, description=$2, servings=$3, time=$4, calories=$5, ingredients=$6, "+
-		"cooking=$7, preview=$8, visibility=$9, encrypted=$10, update_timestamp=$11 WHERE recipe_id=$12",
+	query := fmt.Sprintf("UPDATE %s SET name=$1, language=$2, description=$3, servings=$4, time=$5, calories=$6, ingredients=$7, "+
+		"cooking=$8, preview=$9, visibility=$10, encrypted=$11, update_timestamp=$12 WHERE recipe_id=$13",
 		recipesTable)
-	_, err := r.db.Exec(query, recipe.Name, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
+	_, err := r.db.Exec(query, recipe.Name, recipe.Language, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
 		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id)
 	return err
 }
@@ -217,8 +217,8 @@ func getRecipesQuery(params model.RecipesRequestParams) string {
 	}
 	pagingStatement += fmt.Sprintf(" LIMIT %d OFFSET %d", params.PageSize, (params.Page-1) * params.PageSize)
 
-	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.likes, " +
-		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted," +
+	return fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.language, %[1]v.likes, " +
+		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted, " +
 		"%[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS " +
 		"(SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v)) as liked, %[4]v.username, " +
 		"%[2]v.update_timestamp FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON " +
