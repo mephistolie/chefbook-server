@@ -154,7 +154,7 @@ func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (mod
 func (r *RecipesCrudPostgres) GetRandomPublicRecipe(languages []string) (model.Recipe, error) {
 	var recipe model.Recipe
 	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, language, description, likes, servings, time, calories, "+
-		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE visibility=public",
+		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE visibility='public'",
 		recipesTable)
 	if len(languages) > 0 {
 		query += " AND language IN ("

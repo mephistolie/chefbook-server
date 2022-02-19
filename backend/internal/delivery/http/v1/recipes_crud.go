@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mephistolie/chefbook-server/internal/model"
 	"net/http"
 )
 
@@ -105,7 +106,7 @@ func (h *Handler) getRandomPublicRecipe(c *gin.Context) {
 
 	recipe, err := h.services.RecipesCrud.GetRandomPublicRecipe(languages)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, model.ErrUnableGetRandomRecipe.Error())
 	}
 
 	c.JSON(http.StatusOK, recipe)

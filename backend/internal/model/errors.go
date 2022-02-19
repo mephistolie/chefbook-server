@@ -35,6 +35,7 @@ var(
 	ErrRecipeLikeSetAlready      = errors.New("recipe like status already set")
 	ErrUnableDeleteRecipePicture = errors.New("unable to delete picture")
 	ErrUnableDeleteRecipeKey     = errors.New("unable to delete recipe key")
+	ErrUnableGetRandomRecipe     = errors.New("unable to found random recipe with request parameters")
 
 	ErrCategoryNotFound = errors.New("category not found")
 )
