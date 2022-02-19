@@ -68,7 +68,7 @@ func (r *RecipesCrudPostgres) CreateRecipe(recipe model.Recipe) (int, error) {
 	}
 
 	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, language, description, servings, time, calories,"+
-		"ingredients, cooking, preview, visibility, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"+
+		"ingredients, cooking, preview, visibility, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) "+
 		"RETURNING recipe_id",
 		recipesTable)
 	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Language, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
