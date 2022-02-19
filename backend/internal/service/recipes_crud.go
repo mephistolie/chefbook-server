@@ -80,6 +80,10 @@ func (s *RecipesService) GetRecipeById(recipeId, userId int) (model.Recipe, erro
 	return recipe, err
 }
 
+func (s *RecipesService) GetRandomPublicRecipe(languages []string) (model.Recipe, error) {
+	return s.recipesRepo.GetRandomPublicRecipe(languages)
+}
+
 func (s *RecipesService) UpdateRecipe(recipe model.Recipe) error {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipe.Id)
 	if err != nil {

@@ -40,6 +40,7 @@ type RecipeCrud interface {
 	AddRecipeToRecipeBook(recipeId, userId int) error
 	GetRecipe(recipeId int) (model.Recipe, error)
 	GetRecipeWithUserFields(recipeId int, userId int) (model.Recipe, error)
+	GetRandomPublicRecipe(languages []string) (model.Recipe, error)
 	UpdateRecipe(recipe model.Recipe) error
 	DeleteRecipe(recipeId int) error
 	DeleteRecipeFromRecipeBook(recipeId, userId int) error

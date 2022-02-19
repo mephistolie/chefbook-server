@@ -70,6 +70,8 @@ func (h *Handler) initRecipesRoutes(api *gin.RouterGroup) {
 		recipesGroup.PUT("/:recipe_id", h.updateRecipe)
 		recipesGroup.DELETE("/:recipe_id", h.deleteRecipe)
 
+		recipesGroup.GET("/random", h.getRandomPublicRecipe)
+
 		recipesGroup.PUT("/:recipe_id/categories", h.setRecipeCategories)
 		recipesGroup.PUT("/favourites/:recipe_id", h.markRecipeFavourite)
 		recipesGroup.DELETE("/favourites/:recipe_id", h.unmarkRecipeFavourite)

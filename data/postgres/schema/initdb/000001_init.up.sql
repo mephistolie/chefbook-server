@@ -115,5 +115,5 @@ CREATE TABLE news
     id    SERIAL PRIMARY KEY NOT NULL UNIQUE,
     name  VARCHAR(255)       NOT NULL,
     text  TEXT               NOT NULL,
-    cover VARCHAR(255) DEFAULT NULL,
+    cover VARCHAR(255) DEFAULT NULL
 );

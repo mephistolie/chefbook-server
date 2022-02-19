@@ -83,6 +83,9 @@ func getRecipesRequestParamsByCtx(c *gin.Context) *model.RecipesRequestParams {
 	} else {
 		params.PageSize = 20
 	}
+	if languages, ok := c.GetQueryArray("language"); ok {
+		params.Languages = languages
+	}
 	return &params
 }
 

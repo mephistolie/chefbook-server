@@ -47,6 +47,13 @@ func (r *RecipesCrudPostgres) GetRecipesInfoByRequest(params model.RecipesReques
 	return recipes, nil
 }
 
+func (r *RecipesCrudPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
+	var userId int
+	query := fmt.Sprintf("SELECT owner_id FROM %s WHERE recipe_id=$1", recipesTable)
+	err := r.db.Get(&userId, query, recipeId)
+	return userId, err
+}
+
 func (r *RecipesCrudPostgres) AddRecipeToRecipeBook(recipeId, userId int) error {
 	query := fmt.Sprintf("INSERT INTO %s (recipe_id, user_id) VALUES ($1, $2)", usersRecipesTable)
 	_, err := r.db.Exec(query, recipeId, userId)
@@ -144,11 +151,35 @@ func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (mod
 	return recipe, nil
 }
 
-func (r *RecipesCrudPostgres) GetRecipeOwnerId(recipeId int) (int, error) {
-	var userId int
-	query := fmt.Sprintf("SELECT owner_id FROM %s WHERE recipe_id=$1", recipesTable)
-	err := r.db.Get(&userId, query, recipeId)
-	return userId, err
+func (r *RecipesCrudPostgres) GetRandomPublicRecipe(languages []string) (model.Recipe, error) {
+	var recipe model.Recipe
+	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, language, description, likes, servings, time, calories, "+
+		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE visibility=public",
+		recipesTable)
+	if len(languages) > 0 {
+		query += " AND language IN ("
+		for _, language := range languages {
+			query += fmt.Sprintf("%s, ", language)
+		}
+		query = query[0:len(query)-2] + ")"
+	}
+	query += " ORDER BY RANDOM() LIMIT 1"
+	var ingredients []byte
+	var cooking []byte
+	var preview sql.NullString
+	row := r.db.QueryRow(query)
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
+		&cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
+		return model.Recipe{}, err
+	}
+	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
+		return model.Recipe{}, err
+	}
+	if err := json.Unmarshal(cooking, &recipe.Cooking); err != nil {
+		return model.Recipe{}, err
+	}
+	recipe.Preview = preview.String
+	return recipe, nil
 }
 
 func (r *RecipesCrudPostgres) UpdateRecipe(recipe model.Recipe) error {

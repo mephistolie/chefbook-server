@@ -96,3 +96,17 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 
 	newMessageResponse(c, RespRecipeDeleted)
 }
+
+func (h *Handler) getRandomPublicRecipe(c *gin.Context) {
+	languages, ok := c.GetQueryArray("language")
+	if !ok {
+		languages = []string{}
+	}
+
+	recipe, err := h.services.RecipesCrud.GetRandomPublicRecipe(languages)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, recipe)
+}
