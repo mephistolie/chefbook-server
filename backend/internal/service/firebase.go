@@ -225,6 +225,7 @@ func (s *FirebaseService) importFirebaseRecipes(userId int, firebaseUser model.F
 			recipe := model.Recipe{
 				Name:        name,
 				OwnerId:     userId,
+				Language:    "en",
 				Servings:    int16(servings),
 				Time:        int16(recipeTime),
 				Calories:    int16(calories),
@@ -308,7 +309,7 @@ func parseIngredients(firebaseRecipe map[string]interface{}) ([]byte, error) {
 	return jsonIngredients, nil
 }
 
-func parseCooking(firebaseRecipe map[string]interface{}) ([]byte, error)  {
+func parseCooking(firebaseRecipe map[string]interface{}) ([]byte, error) {
 	var err error
 	var jsonCooking []byte
 	if firebaseCooking, ok := firebaseRecipe["cooking"].([]interface{}); ok {
