@@ -15,7 +15,7 @@ func (h *Handler) getRecipeUsers(c *gin.Context) {
 
 	userList, err := h.services.RecipeSharing.GetRecipeUserList(recipeId, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -30,13 +30,13 @@ func (h *Handler) setRecipePublicKey(c *gin.Context) {
 
 	var keys model.RecipeKeys
 	if err := c.BindJSON(&keys); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 
 	err = h.services.RecipeSharing.SetUserPublicKeyForRecipe(recipeId, userId, keys.PublicKey)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -51,13 +51,13 @@ func (h *Handler) setRecipePrivateKey(c *gin.Context) {
 
 	var keys model.RecipeKeys
 	if err := c.BindJSON(&keys); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 
 	err = h.services.RecipeSharing.SetUserPrivateKeyForRecipe(recipeId, userId, keys.PrivateKey)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -72,13 +72,13 @@ func (h *Handler) deleteUserAccess(c *gin.Context) {
 
 	userId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 
 	err = h.services.RecipeSharing.DeleteUserAccessToRecipe(recipeId, userId, requesterId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 

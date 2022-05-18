@@ -8,13 +8,13 @@ import (
 func (h *Handler) getCategories(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	categories, err := h.services.Categories.GetUserCategories(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 	}
 
 	c.JSON(http.StatusOK, categories)
@@ -28,7 +28,7 @@ func (h *Handler) createCategory(c *gin.Context) {
 
 	id, err := 	h.services.Categories.AddCategory(category)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h *Handler) getCategory(c *gin.Context) {
 
 	category, err := h.services.Categories.GetCategoryById(categoryId, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (h *Handler) updateCategory(c *gin.Context) {
 	}
 
 	if err := h.services.Categories.UpdateCategory(category); err != nil {
-		newErrorResponse(c, http.StatusForbidden, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 	}
 
 	if err := h.services.Categories.DeleteCategory(categoryId, userId); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 

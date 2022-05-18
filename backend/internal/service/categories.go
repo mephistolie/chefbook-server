@@ -46,6 +46,6 @@ func (s *CategoriesService) UpdateCategory(category model.Category) error {
 	return s.repo.UpdateCategory(category)
 }
 
-func (s *CategoriesService) DeleteCategory(recipeId, userId int) error {
-	return s.repo.DeleteCategory(recipeId, userId)
+func (s *CategoriesService) DeleteCategory(categoryId, userId int) error {
+	return s.repo.DeleteCategory(categoryId, userId)
 }

@@ -42,7 +42,7 @@ func (s *RecipesService) GetRecipesInfoByRequest(params model.RecipesRequestPara
 func (s *RecipesService) CreateRecipe(recipe model.Recipe) (int, error) {
 	recipe, err := validateRecipe(recipe)
 	if err != nil {
-		return 0, model.ErrInvalidRecipeInput
+		return 0, model.ErrInvalidInput
 	}
 	return s.recipesRepo.CreateRecipe(recipe)
 }
@@ -87,14 +87,14 @@ func (s *RecipesService) GetRandomPublicRecipe(languages []string) (model.Recipe
 func (s *RecipesService) UpdateRecipe(recipe model.Recipe) error {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipe.Id)
 	if err != nil {
-		return err
+		return model.ErrRecipeNotFound
 	}
 	if ownerId != recipe.OwnerId {
 		return model.ErrNotOwner
 	}
 	recipe, err = validateRecipe(recipe)
 	if err != nil {
-		return model.ErrInvalidRecipeInput
+		return model.ErrInvalidInput
 	}
 	return s.recipesRepo.UpdateRecipe(recipe)
 }

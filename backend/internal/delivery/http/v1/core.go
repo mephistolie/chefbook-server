@@ -92,13 +92,13 @@ func getRecipesRequestParamsByCtx(c *gin.Context) *model.RecipesRequestParams {
 func getUserAndRecipeIdByCtx(c *gin.Context) (int, int, error) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return 0, 0, os.ErrInvalid
 	}
 
 	recipeId, err := strconv.Atoi(c.Param("recipe_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return userId, 0, os.ErrInvalid
 	}
 	return userId, recipeId, nil
@@ -107,19 +107,19 @@ func getUserAndRecipeIdByCtx(c *gin.Context) (int, int, error) {
 func getRecipeByCtx(c *gin.Context) (model.Recipe, error) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return model.Recipe{}, os.ErrInvalid
 	}
 	recipeId, _ := strconv.Atoi(c.Param("recipe_id"))
 
 	if userId < 1 {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return model.Recipe{}, os.ErrInvalid
 	}
 
 	var recipe model.Recipe
 	if err := c.BindJSON(&recipe); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return model.Recipe{}, os.ErrInvalid
 	}
 	recipe.Id = recipeId
@@ -131,13 +131,13 @@ func getRecipeByCtx(c *gin.Context) (model.Recipe, error) {
 func getUserAndCategoryIdByCtx(c *gin.Context) (int, int, error) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return 0, 0, os.ErrInvalid
 	}
 
 	categoryId, err := strconv.Atoi(c.Param("category_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return 0, 0, os.ErrInvalid
 	}
 	return userId, categoryId, nil
@@ -146,14 +146,14 @@ func getUserAndCategoryIdByCtx(c *gin.Context) (int, int, error) {
 func getCategoryByCtx(c *gin.Context) (model.Category, error) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return model.Category{}, os.ErrInvalid
 	}
 	categoryId, _ := strconv.Atoi(c.Param("category_id"))
 
 	var category model.Category
 	if err := c.BindJSON(&category); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return model.Category{}, os.ErrInvalid
 	}
 	category.Id = categoryId
@@ -166,7 +166,7 @@ func getFileByCtx(c *gin.Context) (model.MultipartFileInfo, error) {
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxUploadSize)
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidFileInput.Error())
+		newErrorResponse(c, model.ErrBigFile)
 		return model.MultipartFileInfo{}, os.ErrInvalid
 	}
 
@@ -175,7 +175,7 @@ func getFileByCtx(c *gin.Context) (model.MultipartFileInfo, error) {
 	buffer := make([]byte, header.Size)
 	_, err = file.Read(buffer)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return model.MultipartFileInfo{}, os.ErrInvalid
 	}
 	return model.MultipartFileInfo{
@@ -189,14 +189,14 @@ func getFileByCtx(c *gin.Context) (model.MultipartFileInfo, error) {
 func closeMultipartFile(c *gin.Context, file multipart.File) {
 	err := file.Close()
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 	}
 }
 
 func processKeyError(c *gin.Context, err error)  {
 	if err == model.ErrNotOwner {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrNotOwner.Error())
+		newErrorResponse(c, model.ErrNotOwner)
 	} else {
-		newErrorResponse(c, http.StatusInternalServerError, model.ErrUnableDeleteUserKey.Error())
+		newErrorResponse(c, model.ErrUnableDeleteUserKey)
 	}
 }

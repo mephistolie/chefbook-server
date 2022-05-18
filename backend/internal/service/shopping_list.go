@@ -26,7 +26,7 @@ func (s *ShoppingListService) SetShoppingList(shoppingList model.ShoppingList, u
 func (s *ShoppingListService) AddToShoppingList(newPurchases []model.Purchase, userId int) error {
 	shoppingList, err := s.repo.GetShoppingList(userId)
 	if err != nil {
-		return err
+		return model.ErrShoppingListNotFound
 	}
 	shoppingList.Purchases = append(shoppingList.Purchases, newPurchases...)
 	return s.repo.SetShoppingList(shoppingList, userId)

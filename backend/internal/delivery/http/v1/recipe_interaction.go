@@ -3,14 +3,13 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mephistolie/chefbook-server/internal/model"
-	"net/http"
 )
 
 func (h *Handler) setRecipeCategories(c *gin.Context) {
 	var input model.RecipeCategoriesInput
 	var err error
 	if err = c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 	input.UserId, input.RecipeId, err = getUserAndRecipeIdByCtx(c)
@@ -20,7 +19,7 @@ func (h *Handler) setRecipeCategories(c *gin.Context) {
 
 	err = h.services.RecipeInteraction.SetRecipeCategories(input)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrRecipeNotInRecipeBook.Error())
+		newErrorResponse(c, model.ErrRecipeNotInRecipeBook)
 		return
 	}
 
@@ -47,7 +46,7 @@ func (h *Handler) setRecipeFavourite(c *gin.Context, favourite bool) {
 
 	err = h.services.RecipeInteraction.SetRecipeFavourite(input)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -74,7 +73,7 @@ func (h *Handler) setRecipeLiked(c *gin.Context, liked bool) {
 
 	err = h.services.RecipeInteraction.SetRecipeLiked(input)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 

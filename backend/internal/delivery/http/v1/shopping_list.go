@@ -8,13 +8,13 @@ import (
 func (h *Handler) getShoppingList(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	shoppingList, err := h.services.ShoppingList.GetShoppingList(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 	}
 
 	c.JSON(http.StatusOK, shoppingList)
@@ -23,18 +23,18 @@ func (h *Handler) getShoppingList(c *gin.Context) {
 func (h *Handler) addToShoppingList(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	var purchases []model.Purchase
 	if err := c.BindJSON(&purchases); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 
 	if err := 	h.services.ShoppingList.AddToShoppingList(purchases, userId); err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -44,18 +44,18 @@ func (h *Handler) addToShoppingList(c *gin.Context) {
 func (h *Handler) setShoppingList(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	var shoppingList model.ShoppingList
 	if err := c.BindJSON(&shoppingList); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 
 	if err := 	h.services.ShoppingList.SetShoppingList(shoppingList, userId); err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 

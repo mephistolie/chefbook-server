@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/model"
 	"time"
 )
 
@@ -76,7 +75,7 @@ func (r *RecipeInteractionPostgres) SetRecipeLiked(recipeId, userId int, isLiked
 		return err
 	}
 	if (exists && isLiked) || (!exists && !isLiked) {
-		return model.ErrRecipeLikeSetAlready
+		return nil
 	}
 	tx, err := r.db.Begin()
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 func (h *Handler) getUserInfo(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 	userProfileId, err := strconv.Atoi(c.Request.URL.Query().Get("user_id"))
@@ -20,7 +20,7 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 
 	user, err := h.services.GetUserInfo(userProfileId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -48,19 +48,19 @@ func (h *Handler) getUserInfo(c *gin.Context) {
 func (h *Handler) setUserName(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	var username model.UserNameInput
 	if err := c.BindJSON(&username); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrInvalidInput.Error())
+		newErrorResponse(c, model.ErrInvalidInput)
 		return
 	}
 
 	err = h.services.Profile.SetUsername(userId, username.Username)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -70,13 +70,13 @@ func (h *Handler) setUserName(c *gin.Context) {
 func (h *Handler) getUserKey(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	url, err := h.services.Encryption.GetUserKeyLink(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -86,7 +86,7 @@ func (h *Handler) getUserKey(c *gin.Context) {
 func (h *Handler) uploadAvatar(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -96,13 +96,13 @@ func (h *Handler) uploadAvatar(c *gin.Context) {
 	}
 
 	if _, ex := ImageTypes[file.ContentType]; !ex {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrFileTypeNotSupported.Error())
+		newErrorResponse(c, model.ErrFileTypeNotSupported)
 		return
 	}
 
 	url, err := h.services.Profile.UploadAvatar(c.Request.Context(), userId, file)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -112,13 +112,13 @@ func (h *Handler) uploadAvatar(c *gin.Context) {
 func (h *Handler) deleteAvatar(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
 	err = h.services.Profile.DeleteAvatar(c.Request.Context(), userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, model.ErrUnableDeleteAvatar.Error())
+		newErrorResponse(c, model.ErrUnableDeleteAvatar)
 		return
 	}
 

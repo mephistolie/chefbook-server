@@ -13,7 +13,7 @@ func (h *Handler) getRecipesPictures(c *gin.Context) {
 
 	objects, err := h.services.RecipePictures.GetRecipePictures(c.Request.Context(), recipeId, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (h *Handler) uploadRecipePicture(c *gin.Context) {
 
 	url, err := h.services.RecipePictures.UploadRecipePicture(c.Request.Context(), recipeId, userId, file)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -50,7 +50,7 @@ func (h *Handler) deleteRecipePicture(c *gin.Context) {
 
 	err = h.services.RecipePictures.DeleteRecipePicture(c.Request.Context(), recipeId, userId, pictureName)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 

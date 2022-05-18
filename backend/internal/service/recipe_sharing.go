@@ -20,7 +20,7 @@ func NewRecipeSharingService(recipesRepo repository.RecipeCrud, recipesSharingRe
 func (s *RecipeSharingService) GetRecipeUserList(recipeId, userId int) ([]model.UserInfo, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return []model.UserInfo{}, err
+		return []model.UserInfo{}, model.ErrRecipeNotFound
 	}
 	if recipe.OwnerId != userId {
 		return []model.UserInfo{}, model.ErrAccessDenied
@@ -39,7 +39,7 @@ func (s *RecipeSharingService) SetUserPrivateKeyForRecipe(recipeId, userId int, 
 func (s *RecipeSharingService) DeleteUserAccessToRecipe(recipeId, userId, requesterId int) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return err
+		return model.ErrRecipeNotFound
 	}
 	if recipe.OwnerId != requesterId {
 		return model.ErrAccessDenied

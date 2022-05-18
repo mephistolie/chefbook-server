@@ -9,7 +9,7 @@ import (
 func (h *Handler) getRecipes(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -18,7 +18,7 @@ func (h *Handler) getRecipes(c *gin.Context) {
 
 	recipes, err := h.services.RecipesCrud.GetRecipesInfoByRequest(*params)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 	}
 
 	c.JSON(http.StatusOK, recipes)
@@ -32,7 +32,7 @@ func (h *Handler) createRecipe(c *gin.Context) {
 
 	id, err := 	h.services.RecipesCrud.CreateRecipe(recipe)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func (h *Handler) addRecipeToRecipeBook(c *gin.Context) {
 
 	err = h.services.RecipesCrud.AddRecipeToRecipeBook(recipeId, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *Handler) getRecipe(c *gin.Context) {
 
 	recipe, err := h.services.RecipesCrud.GetRecipeById(recipeId, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func (h *Handler) updateRecipe(c *gin.Context) {
 	}
 
 	if err := h.services.RecipesCrud.UpdateRecipe(recipe); err != nil {
-		newErrorResponse(c, http.StatusForbidden, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (h *Handler) deleteRecipe(c *gin.Context) {
 	}
 
 	if err := h.services.RecipesCrud.DeleteRecipe(recipeId, userId); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, err)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (h *Handler) getRandomPublicRecipe(c *gin.Context) {
 
 	recipe, err := h.services.RecipesCrud.GetRandomPublicRecipe(languages)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, model.ErrUnableGetRandomRecipe.Error())
+		newErrorResponse(c, model.ErrUnableGetRandomRecipe)
 		return
 	}
 

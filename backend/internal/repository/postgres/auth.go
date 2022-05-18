@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -102,7 +101,7 @@ func (r *AuthPostgres) ActivateUser(activationLink uuid.UUID) error {
 		return err
 	}
 	if id == -1 {
-		return errors.New("user not found")
+		return model.ErrInvalidActivationLink
 	}
 	return nil
 }
@@ -144,7 +143,7 @@ func (r *AuthPostgres) ChangePassword(authData model.AuthData) error {
 		return err
 	}
 	if id == -1 {
-		return errors.New("user not found")
+		return model.ErrUserIdNotFound
 	}
 	return nil
 }

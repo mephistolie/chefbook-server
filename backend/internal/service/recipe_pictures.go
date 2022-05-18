@@ -40,13 +40,13 @@ func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId 
 
 func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeId, userId int, file model.MultipartFileInfo) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	if err != nil {
+		return "", model.ErrRecipeNotFound
+	}
 	if !recipe.Encrypted {
 		if _, ex := imageTypes[file.ContentType]; !ex {
 			return "", model.ErrFileTypeNotSupported
 		}
-	}
-	if err != nil {
-		return "", err
 	}
 	if recipe.OwnerId != userId {
 		return "", model.ErrNotOwner
@@ -54,7 +54,7 @@ func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeI
 	url, err := s.filesRepo.UploadRecipePicture(ctx, recipeId, file)
 	if err != nil {
 		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", err
+		return "", model.ErrUnableUploadFile
 	}
 	return url, err
 }
@@ -62,7 +62,7 @@ func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeI
 func (s *RecipePicturesService) DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return err
+		return model.ErrRecipeNotFound
 	}
 	if recipe.OwnerId != userId {
 		return model.ErrNotOwner

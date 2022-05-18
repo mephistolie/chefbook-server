@@ -41,7 +41,7 @@ func NewAuthService(repo repository.Auth, firebaseService FirebaseService, hashM
 func (s *AuthService) SignUp(authData model.AuthData) (int, error) {
 	hashedPassword, err := s.hashManager.Hash(authData.Password)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	if candidate, _ := s.repo.GetUserByEmail(authData.Email); candidate.Id > 0 && candidate.IsActivated == false {
@@ -49,15 +49,10 @@ func (s *AuthService) SignUp(authData model.AuthData) (int, error) {
 			authData.Password = hashedPassword
 			err := s.repo.ChangePassword(authData)
 			if err != nil {
-				return -1, err
+				return 0, err
 			}
 		}
-		err := s.mailService.SendVerificationEmail(VerificationEmailInput{
-			Email:            authData.Email,
-			Domain:           s.domain,
-			VerificationCode: candidate.ActivationLink,
-		})
-		return candidate.Id, err
+		return candidate.Id, s.sendActivationLink(authData.Email, candidate.ActivationLink)
 	} else if candidate.Id > 0 {
 		return 0, model.ErrUserAlreadyExists
 	}
@@ -68,15 +63,7 @@ func (s *AuthService) SignUp(authData model.AuthData) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	err = s.mailService.SendVerificationEmail(VerificationEmailInput{
-		Email:            authData.Email,
-		Domain:           s.domain,
-		VerificationCode: activationLink,
-	})
-	if err != nil {
-		return 0, err
-	}
-	return userId, err
+	return userId, s.sendActivationLink(authData.Email, activationLink)
 }
 
 func (s *AuthService) ActivateUser(activationLink uuid.UUID) error {
@@ -89,7 +76,7 @@ func (s *AuthService) SignIn(authData model.AuthData, ip string) (model.Tokens, 
 	if err != nil {
 		firebaseUser, err := s.firebaseService.SignIn(authData)
 		if err != nil {
-			return model.Tokens{}, model.ErrUserNotFound
+			return model.Tokens{}, model.ErrInvalidAuthData
 		}
 		authData.Password, err = s.hashManager.Hash(authData.Password)
 		if err != nil {
@@ -97,11 +84,11 @@ func (s *AuthService) SignIn(authData model.AuthData, ip string) (model.Tokens, 
 		}
 		err = s.firebaseService.migrateFromFirebase(authData, firebaseUser)
 		if err != nil {
-			return model.Tokens{}, err
+			return model.Tokens{}, model.ErrFirebaseImport
 		}
 		user, err = s.repo.GetUserByEmail(authData.Email)
 		if err != nil {
-			return model.Tokens{}, err
+			return model.Tokens{}, model.ErrInvalidAuthData
 		}
 	}
 	if user.IsActivated == false {
@@ -111,35 +98,17 @@ func (s *AuthService) SignIn(authData model.AuthData, ip string) (model.Tokens, 
 		return model.Tokens{}, model.ErrProfileIsBlocked
 	}
 	if err = s.hashManager.ValidateByHash(password, user.Password); err != nil {
-		return model.Tokens{}, model.ErrAuthentication
+		return model.Tokens{}, model.ErrInvalidAuthData
 	}
 	return s.CreateSession(user.Id, ip)
 }
 
 func (s *AuthService) CreateSession(userId int, ip string) (model.Tokens, error) {
-	var (
-		res model.Tokens
-		err error
-	)
-
-	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(userId), s.accessTokenTTL)
+	tokens, session, err := s.createSessionModel(userId, ip)
 	if err != nil {
-		return res, err
+		return model.Tokens{}, err
 	}
-
-	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
-	if err != nil {
-		return res, err
-	}
-
-	session := model.Session{
-		UserId:       userId,
-		RefreshToken: res.RefreshToken,
-		Ip:           ip,
-		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
-	}
-
-	return res, s.repo.CreateSession(session)
+	return tokens, s.repo.CreateSession(session)
 }
 
 func (s *AuthService) SignOut(refreshToken string) error {
@@ -161,24 +130,41 @@ func (s *AuthService) RefreshSession(currentRefreshToken, ip string) (model.Toke
 		return model.Tokens{}, model.ErrProfileIsBlocked
 	}
 
-	var res model.Tokens
-
-	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(user.Id), s.accessTokenTTL)
+	tokens, session, err := s.createSessionModel(user.Id, ip)
 	if err != nil {
-		return res, err
+		return model.Tokens{}, err
+	}
+
+	return tokens, s.repo.UpdateSession(session, currentRefreshToken)
+}
+
+func (s *AuthService) sendActivationLink(email string, activationLink uuid.UUID) error {
+	return s.mailService.SendVerificationEmail(VerificationEmailInput{
+		Email:            email,
+		Domain:           s.domain,
+		VerificationCode: activationLink,
+	})
+}
+
+func (s *AuthService) createSessionModel(userId int, ip string) (model.Tokens, model.Session, error) {
+	var (
+		res model.Tokens
+		err error
+	)
+	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(userId), s.accessTokenTTL)
+	if err != nil {
+		return model.Tokens{}, model.Session{}, err
 	}
 
 	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
 	if err != nil {
-		return res, err
+		return model.Tokens{}, model.Session{}, err
 	}
 
-	session := model.Session{
-		UserId:       user.Id,
+	return res, model.Session{
+		UserId:       userId,
 		RefreshToken: res.RefreshToken,
 		Ip:           ip,
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
-	}
-
-	return res, s.repo.UpdateSession(session, currentRefreshToken)
+	}, nil
 }

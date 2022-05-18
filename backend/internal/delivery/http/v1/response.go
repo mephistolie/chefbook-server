@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var (
+const (
 	RespActivationLink      = "profile activation link has been sent to email"
 	RespProfileActivated    = "profile is activated"
 	RespSignOutSuccessfully = "signed out successfully"
@@ -31,6 +31,8 @@ var (
 	RespShoppingListUpdated = "shopping list has been updated"
 )
 
+const errorHttpStatusCode = 400
+
 type idResponse struct {
 	Id      int    `json:"id"`
 	Message string `json:"message"`
@@ -44,8 +46,13 @@ type linkResponse struct {
 	Link string `json:"link"`
 }
 
+type ErrorResponse struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
 func newIdResponse(c *gin.Context, id int, msg string) {
-	c.JSON(http.StatusOK,idResponse{id, msg})
+	c.JSON(http.StatusOK, idResponse{id, msg})
 }
 
 func newMessageResponse(c *gin.Context, message string) {
@@ -56,7 +63,8 @@ func newLinkResponse(c *gin.Context, link string) {
 	c.JSON(http.StatusOK, linkResponse{link})
 }
 
-func newErrorResponse(c *gin.Context, statusCode int, errorMessage string) {
-	logger.Errorf(errorMessage)
-	c.AbortWithStatusJSON(statusCode, messageResponse{errorMessage})
+func newErrorResponse(c *gin.Context, err error) {
+	response := getErrorResponseBody(err)
+	logger.Errorf("%s: %s", response.Error, response.Message)
+	c.AbortWithStatusJSON(errorHttpStatusCode, response)
 }

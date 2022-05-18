@@ -3,7 +3,6 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mephistolie/chefbook-server/internal/model"
-	"net/http"
 	"strconv"
 	"strings"
 )
@@ -28,13 +27,17 @@ func (h *Handler) parseAuthHeader(c *gin.Context) (string, error) {
 		return "", model.ErrEmptyToken
 	}
 
-	return h.tokenManager.Parse(headerParts[1])
+	token, err := h.tokenManager.Parse(headerParts[1])
+	if err != nil {
+		return "", model.ErrInvalidToken
+	}
+	return token, err
 }
 
 func (h *Handler) userIdentity(c *gin.Context) {
 	id, err := h.parseAuthHeader(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(c, err)
 	}
 	c.Set(userCtx, id)
 }

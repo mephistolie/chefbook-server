@@ -35,16 +35,16 @@ func (s *ProfileService) SetUsername(userId int, username string) error {
 func (s *ProfileService) UploadAvatar(ctx context.Context, userId int, file model.MultipartFileInfo) (string, error) {
 	user, err := s.usersRepo.GetUserById(userId)
 	if err != nil {
-		return "", err
+		return "", model.ErrUserIdNotFound
 	}
 	url, err := s.filesRepo.UploadAvatar(ctx, userId, file)
 	if err != nil {
-		return "", err
+		return "", model.ErrUnableUploadFile
 	}
 	err = s.profileRepo.SetAvatar(userId, url)
 	if err != nil {
 		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", err
+		return "", model.ErrUnableSetAvatar
 	}
 	if user.Avatar.String != "" {
 		_ = s.filesRepo.DeleteFile(ctx, user.Avatar.String)
@@ -55,15 +55,15 @@ func (s *ProfileService) UploadAvatar(ctx context.Context, userId int, file mode
 func (s *ProfileService) DeleteAvatar(ctx context.Context, userId int) error {
 	user, err := s.usersRepo.GetUserById(userId)
 	if err != nil {
-		return err
+		return model.ErrUserIdNotFound
 	}
 	err = s.filesRepo.DeleteFile(ctx, user.Avatar.String)
 	if err != nil {
-		return err
+		return model.ErrUnableDeleteAvatar
 	}
 	err = s.profileRepo.SetAvatar(userId, "")
 	if err != nil {
-		return err
+		return model.ErrUnableDeleteAvatar
 	}
 	return nil
 }

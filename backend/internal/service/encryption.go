@@ -31,13 +31,16 @@ func (s *EncryptionService) GetUserKeyLink(userId int) (string, error) {
 func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file model.MultipartFileInfo) (string, error) {
 	key, err := s.encryptionRepo.GetUserKey(userId)
 	if err != nil {
-		return "", err
+		return "", model.ErrNoKey
 	}
 	url, err := s.filesRepo.UploadUserKey(ctx, userId, file)
+	if err != nil {
+		return "", model.ErrUnableUploadFile
+	}
 	err = s.encryptionRepo.SetUserKey(userId, url)
 	if err != nil {
 		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", err
+		return "", model.ErrUnableSetUserKey
 	}
 	if key != "" {
 		_ = s.filesRepo.DeleteFile(ctx, key)
@@ -48,12 +51,12 @@ func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file 
 func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId int) error {
 	url, err := s.encryptionRepo.GetUserKey(userId)
 	if err != nil {
-		return err
+		return model.ErrNoKey
 	}
 	err = s.filesRepo.DeleteFile(ctx, url)
 	err = s.encryptionRepo.SetUserKey(userId, "")
 	if err != nil {
-		return err
+		return model.ErrUnableSetUserKey
 	}
 	return err
 }
@@ -61,7 +64,7 @@ func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId int) error
 func (s *EncryptionService) GetRecipeKey(recipeId, userId int) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return "", err
+		return "", model.ErrRecipeNotFound
 	}
 	if recipe.OwnerId != userId {
 		return "", model.ErrNotOwner
@@ -76,20 +79,23 @@ func (s *EncryptionService) GetRecipeKey(recipeId, userId int) (string, error) {
 func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId int, file model.MultipartFileInfo) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return "", err
+		return "", model.ErrRecipeNotFound
 	}
 	if recipe.OwnerId != userId {
 		return "", model.ErrNotOwner
 	}
 	oldKey, err := s.encryptionRepo.GetRecipeKey(recipeId)
 	if err != nil {
-		return "", err
+		return "", model.ErrNoKey
 	}
 	url, err := s.filesRepo.UploadRecipeKey(ctx, recipeId, file)
+	if err != nil {
+		return "", model.ErrUnableUploadFile
+	}
 	err = s.encryptionRepo.SetRecipeKey(recipeId, url)
 	if err != nil {
 		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", err
+		return "", model.ErrUnableDeleteRecipeKey
 	}
 	if oldKey != "" {
 		_ = s.filesRepo.DeleteFile(ctx, oldKey)
@@ -100,18 +106,18 @@ func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userI
 func (s *EncryptionService) DeleteRecipeKey(ctx context.Context, recipeId, userId int) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return err
+		return model.ErrRecipeNotFound
 	}
 	if recipe.OwnerId != userId {
 		return model.ErrNotOwner
 	}
 	url, err := s.encryptionRepo.GetRecipeKey(recipeId)
 	if err != nil {
-		return err
+		return model.ErrNoKey
 	}
 	err = s.filesRepo.DeleteFile(ctx, url)
 	if err != nil {
-		return err
+		return model.ErrUnableDeleteRecipeKey
 	}
 	err = s.encryptionRepo.SetRecipeKey(recipeId, "")
 	if err != nil {
