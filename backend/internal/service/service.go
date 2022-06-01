@@ -84,7 +84,7 @@ type Encryption interface {
 
 type Categories interface {
 	GetUserCategories(userId int) ([]model.Category, error)
-	GetRecipeCategories(recipeId, userId int) ([]int, error)
+	GetRecipeCategories(recipeId, userId int) ([]model.Category, error)
 	AddCategory(category model.Category) (int, error)
 	GetCategoryById(categoryId, userId int) (model.Category, error)
 	UpdateCategory(category model.Category) error

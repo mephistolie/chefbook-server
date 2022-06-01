@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -13,9 +12,7 @@ type User struct {
 	CreationTimestamp time.Time      `json:"creation_timestamp,omitempty" db:"registered"`
 	Password          string         `json:"password,omitempty" binding:"required,min=8,max=64"`
 	IsActivated       bool           `json:"is_activated,omitempty" db:"is_activated"`
-	ActivationLink    uuid.UUID      `json:"activation_link,omitempty" db:"activation_link"`
 	Avatar            sql.NullString `json:"avatar,omitempty"`
-	VkId              sql.NullString `json:"vk_id,omitempty" db:"vk_id"`
 	Premium           sql.NullTime   `json:"premium,omitempty"`
 	Broccoins         int            `json:"broccoins,omitempty" db:"broccoins"`
 	IsBlocked         bool           `json:"is_blocked,omitempty" db:"is_blocked"`

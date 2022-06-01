@@ -23,7 +23,7 @@ func (s *CategoriesService) GetUserCategories(userId int) ([]model.Category, err
 	return categories, err
 }
 
-func (s *CategoriesService) GetRecipeCategories(recipeId, userId int) ([]int, error) {
+func (s *CategoriesService) GetRecipeCategories(recipeId, userId int) ([]model.Category, error) {
 	return s.repo.GetRecipeCategories(recipeId, userId)
 }
 

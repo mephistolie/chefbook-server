@@ -76,11 +76,6 @@ func (s *FirebaseService) SignIn(authData model.AuthData) (model.FirebaseUser, e
 	return firebaseUser, nil
 }
 
-type MarkdownString struct {
-	Text string `json:"text"`
-	Type string `json:"type"`
-}
-
 func (s *FirebaseService) migrateFromFirebase(authData model.AuthData, firebaseUser model.FirebaseUser) error {
 	userSnapshot, err := s.firestore.Collection(firestoreUsersCollection).Doc(firebaseUser.LocalId).Get(context.Background())
 	userDoc := userSnapshot.Data()
@@ -278,7 +273,7 @@ func parseIngredients(firebaseRecipe map[string]interface{}) ([]byte, error) {
 		logger.Warn("migration: error during import ingredients of recipe")
 		return []byte{}, os.ErrInvalid
 	}
-	var ingredients []MarkdownString
+	var ingredients []model.IngredientsItem
 	for _, firebaseIngredient := range firebaseIngredients {
 		mapIngredient := firebaseIngredient.(map[string]interface{})
 		var item string
@@ -291,11 +286,11 @@ func parseIngredients(firebaseRecipe map[string]interface{}) ([]byte, error) {
 		}
 		item = nullableItem.(string)
 		selected = nullableSelected.(bool)
-		stringType := "INGREDIENT"
+		stringType := "ingredient"
 		if selected {
-			stringType = "SECTION"
+			stringType = "section"
 		}
-		ingredient := MarkdownString{
+		ingredient := model.IngredientsItem{
 			Text: item,
 			Type: stringType,
 		}
@@ -313,7 +308,7 @@ func parseCooking(firebaseRecipe map[string]interface{}) ([]byte, error) {
 	var err error
 	var jsonCooking []byte
 	if firebaseCooking, ok := firebaseRecipe["cooking"].([]interface{}); ok {
-		var cooking []MarkdownString
+		var cooking []model.CookingItem
 		for _, firebaseStep := range firebaseCooking {
 			var item string
 			var selected bool
@@ -325,11 +320,11 @@ func parseCooking(firebaseRecipe map[string]interface{}) ([]byte, error) {
 				item = firebaseStep.(string)
 			}
 
-			stringType := "STEP"
+			stringType := "step"
 			if selected {
-				stringType = "SECTION"
+				stringType = "section"
 			}
-			step := MarkdownString{
+			step := model.CookingItem{
 				Text: item,
 				Type: stringType,
 			}

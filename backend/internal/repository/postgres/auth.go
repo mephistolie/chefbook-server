@@ -25,10 +25,19 @@ func (r *AuthPostgres) CreateUser(user model.AuthData, activationLink uuid.UUID)
 	}
 
 	username := user.Email[0:strings.Index(user.Email, "@")]
-	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, username, password, activation_link) values " +
+	createUserQuery := fmt.Sprintf("INSERT INTO %s (email, username, password) values " +
 		"($1, $2, $3, $4) RETURNING user_id", usersTable)
-	row := tx.QueryRow(createUserQuery, user.Email, username, user.Password, activationLink)
+	row := tx.QueryRow(createUserQuery, user.Email, username, user.Password)
 	if err := row.Scan(&id); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return -1, err
+		}
+		return -1, err
+	}
+
+	createActivationLinkQuery := fmt.Sprintf("INSERT INTO %s (activation_link, user_id) values " +
+		"($1, $2, $3, $4) RETURNING user_id", activationLinksTable)
+	if _, err := tx.Exec(createActivationLinkQuery, activationLink, id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
 		}
@@ -57,7 +66,7 @@ func (r *AuthPostgres) CreateUser(user model.AuthData, activationLink uuid.UUID)
 
 func (r *AuthPostgres) GetUserById(id int) (model.User, error) {
 	var user model.User
-	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, avatar, " +
 		"premium, broccoins, is_blocked FROM %s WHERE user_id=$1", usersTable)
 	err := r.db.Get(&user, query, id)
 	return user, err
@@ -65,7 +74,7 @@ func (r *AuthPostgres) GetUserById(id int) (model.User, error) {
 
 func (r *AuthPostgres) GetUserByEmail(email string) (model.User, error) {
 	var user model.User
-	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, avatar, " +
 		"premium, broccoins, is_blocked FROM %s WHERE email=$1", usersTable)
 	err := r.db.Get(&user, query, email)
 	return user, err
@@ -73,7 +82,7 @@ func (r *AuthPostgres) GetUserByEmail(email string) (model.User, error) {
 
 func (r *AuthPostgres) GetUserByCredentials(email, password string) (model.User, error) {
 	var user model.User
-	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, activation_link, avatar, vk_id, " +
+	query := fmt.Sprintf("SELECT user_id, email, username, password, is_activated, avatar, " +
 		"premium, broccoins, is_blocked FROM %s WHERE email=$1 AND password=$2", usersTable)
 	err := r.db.Get(&user, query, email, password)
 	return user, err
@@ -93,9 +102,16 @@ func (r *AuthPostgres) GetByRefreshToken(refreshToken string) (model.User, error
 	return r.GetUserById(userId)
 }
 
+func (r *AuthPostgres) GetUserActivationLink(id int) (uuid.UUID, error)  {
+	var activationLink uuid.UUID
+	query := fmt.Sprintf("SELECT activation_link FROM %s WHERE user_id=$1", activationLinksTable)
+	err := r.db.Get(&activationLink, query, id)
+	return activationLink, err
+}
+
 func (r *AuthPostgres) ActivateUser(activationLink uuid.UUID) error {
 	var id = -1
-	query := fmt.Sprintf("UPDATE %s SET is_activated=true WHERE activation_link=$1 RETURNING user_id", usersTable)
+	query := fmt.Sprintf("UPDATE %s SET is_activated=true WHERE user_id=(SELECT user_id from %s WHERE activation_link=$1)", usersTable, activationLinksTable)
 	row := r.db.QueryRow(query, activationLink)
 	if err := row.Scan(&id); err == nil {
 		return err

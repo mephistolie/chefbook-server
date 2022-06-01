@@ -16,6 +16,7 @@ type Auth interface {
 	GetUserById(id int) (model.User, error)
 	GetUserByEmail(email string) (model.User, error)
 	GetUserByCredentials(email, password string) (model.User, error)
+	GetUserActivationLink(id int) (uuid.UUID, error)
 	GetByRefreshToken(refreshToken string) (model.User, error)
 	ActivateUser(activationLink uuid.UUID) error
 	CreateSession(session model.Session) error
@@ -71,7 +72,7 @@ type Categories interface {
 	GetCategoryById(categoryId int) (model.Category, error)
 	UpdateCategory(category model.Category) error
 	DeleteCategory(categoryId, userId int) error
-	GetRecipeCategories(recipeId, userId int) ([]int, error)
+	GetRecipeCategories(recipeId, userId int) ([]model.Category, error)
 }
 
 type ShoppingList interface {

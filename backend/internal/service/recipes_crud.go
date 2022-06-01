@@ -30,7 +30,7 @@ func (s *RecipesService) GetRecipesInfoByRequest(params model.RecipesRequestPara
 	if recipes == nil {
 		recipes = []model.RecipeInfo{}
 	}
-	for i, _ := range recipes {
+	for i := range recipes {
 		recipes[i].Categories, _ = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, params.UserId)
 		if recipes[i].OwnerId == params.UserId {
 			recipes[i].Owned = true
@@ -115,6 +115,7 @@ func (s *RecipesService) DeleteRecipe(recipeId, userId int) error {
 
 func validateRecipe(recipe model.Recipe) (model.Recipe, error) {
 	var err error
+
 	recipe.Ingredients, err = json.Marshal(recipe.Ingredients)
 	if err != nil {
 		return model.Recipe{}, err
@@ -136,12 +137,27 @@ func validateRecipe(recipe model.Recipe) (model.Recipe, error) {
 		recipe.Language = "en"
 	}
 
-	if recipe.Servings < 1 {
-		recipe.Servings = 1
+	if recipe.Servings < 0 {
+		recipe.Servings = 0
 	}
 
 	if recipe.Time < 1 {
-		recipe.Time = 15
+		recipe.Time = 0
+	}
+
+	if recipe.Calories < 0 {
+		recipe.Calories = 0
+	}
+
+	if recipe.Macronutrients.Protein < 0 {
+		recipe.Macronutrients.Protein = 0
+	}
+
+	if recipe.Macronutrients.Fats < 0 {
+		recipe.Macronutrients.Fats = 0
+	}
+	if recipe.Macronutrients.Carbohydrates < 0 {
+		recipe.Macronutrients.Carbohydrates = 0
 	}
 
 	return recipe, nil

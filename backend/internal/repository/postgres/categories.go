@@ -62,20 +62,20 @@ func (r *CategoriesPostgres) DeleteCategory(categoryId, userId int) error {
 	return err
 }
 
-func (r *CategoriesPostgres) GetRecipeCategories(recipeId, userId int) ([]int, error) {
-	var categories []int
-	query := fmt.Sprintf("SELECT category_id FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesCategoriesTable)
+func (r *CategoriesPostgres) GetRecipeCategories(recipeId, userId int) ([]model.Category, error) {
+	var categories []model.Category
+	query := fmt.Sprintf("SELECT category_id, name, cover FROM %s WHERE recipe_id=$1 AND user_id=$2", recipesCategoriesTable)
 	rows, err := r.db.Query(query, recipeId, userId)
 	if err != nil {
-		return []int{}, err
+		return []model.Category{}, err
 	}
 	for rows.Next() {
-		var categoryId int
-		err := rows.Scan(&categoryId)
+		var category model.Category
+		err := rows.Scan(&category.UserId, &category.Name, &category.Cover)
 		if err != nil {
-			return []int{}, err
+			return []model.Category{}, err
 		}
-		categories = append(categories, categoryId)
+		categories = append(categories, category)
 	}
 	return categories, nil
 }

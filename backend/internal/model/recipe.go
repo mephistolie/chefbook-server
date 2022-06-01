@@ -14,13 +14,14 @@ type Recipe struct {
 	Description string `json:"description,omitempty" db:"description"`
 	Likes       int16  `json:"likes,omitempty" db:"likes"`
 
-	Categories []int `json:"categories,omitempty"`
-	Favourite  bool  `json:"favourite,omitempty"`
-	Liked      bool  `json:"liked,omitempty"`
+	Categories []Category `json:"categories,omitempty"`
+	Favourite  bool       `json:"favourite,omitempty"`
+	Liked      bool       `json:"liked,omitempty"`
 
-	Servings int16 `json:"servings,omitempty"`
-	Time     int16 `json:"time,omitempty"`
-	Calories int16 `json:"calories,omitempty"`
+	Servings       int16              `json:"servings,omitempty"`
+	Time           int16              `json:"time,omitempty"`
+	Calories       int16              `json:"calories,omitempty"`
+	Macronutrients MacronutrientsInfo `json:"macronutrients,omitempty"`
 
 	Ingredients interface{} `json:"ingredients"`
 	Cooking     interface{} `json:"cooking"`
@@ -31,7 +32,6 @@ type Recipe struct {
 
 	CreationTimestamp time.Time `json:"creation_timestamp,omitempty" db:"creation_timestamp"`
 	UpdateTimestamp   time.Time `json:"update_timestamp,omitempty" db:"update_timestamp"`
-	UserTimestamp     time.Time `json:"user_timestamp,omitempty" db:"update_timestamp"`
 }
 
 type RecipeInfo struct {
@@ -43,12 +43,13 @@ type RecipeInfo struct {
 	Language  string `json:"language,omitempty" db:"language"`
 	Likes     int16  `json:"likes,omitempty" db:"likes"`
 
-	Categories []int `json:"categories,omitempty"`
-	Favourite  bool  `json:"favourite,omitempty"`
-	Liked      bool  `json:"liked,omitempty"`
+	Categories []Category `json:"categories,omitempty"`
+	Favourite  bool       `json:"favourite,omitempty"`
+	Liked      bool       `json:"liked,omitempty"`
 
 	Servings int16 `json:"servings,omitempty"`
 	Time     int16 `json:"time,omitempty"`
+
 	Calories int16 `json:"calories,omitempty"`
 
 	Preview    string `json:"preview,omitempty"`
@@ -57,7 +58,6 @@ type RecipeInfo struct {
 
 	CreationTimestamp time.Time `json:"creation_timestamp,omitempty" db:"creation_timestamp"`
 	UpdateTimestamp   time.Time `json:"update_timestamp,omitempty" db:"update_timestamp"`
-	UserTimestamp     time.Time `json:"user_timestamp,omitempty" db:"update_timestamp"`
 }
 
 type RecipeCategoriesInput struct {

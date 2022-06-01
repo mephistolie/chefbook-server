@@ -52,7 +52,11 @@ func (s *AuthService) SignUp(authData model.AuthData) (int, error) {
 				return 0, err
 			}
 		}
-		return candidate.Id, s.sendActivationLink(authData.Email, candidate.ActivationLink)
+		activationLink, err := s.repo.GetUserActivationLink(candidate.Id)
+		if err != nil {
+			return 0, nil
+		}
+		return candidate.Id, s.sendActivationLink(authData.Email, activationLink)
 	} else if candidate.Id > 0 {
 		return 0, model.ErrUserAlreadyExists
 	}

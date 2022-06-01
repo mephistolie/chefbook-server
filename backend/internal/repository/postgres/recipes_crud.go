@@ -37,7 +37,7 @@ func (r *RecipesCrudPostgres) GetRecipesInfoByRequest(params model.RecipesReques
 		var recipe model.RecipeInfo
 		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Likes, &recipe.Servings,
 			&recipe.Time, &recipe.Calories, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp,
-			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName, &recipe.UserTimestamp)
+			&recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName)
 		if err != nil {
 			return []model.RecipeInfo{}, err
 		}
@@ -75,11 +75,12 @@ func (r *RecipesCrudPostgres) CreateRecipe(recipe model.Recipe) (int, error) {
 	}
 
 	createRecipeQuery := fmt.Sprintf("INSERT INTO %s (name, owner_id, language, description, servings, time, calories,"+
-		"ingredients, cooking, preview, visibility, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) "+
+		"protein, fats, carbohydrates, ingredients, cooking, preview, visibility, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) "+
 		"RETURNING recipe_id",
 		recipesTable)
-	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Language, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
-		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted)
+	row := tx.QueryRow(createRecipeQuery, recipe.Name, recipe.OwnerId, recipe.Language, recipe.Description, getNullInt16(recipe.Servings),
+		getNullInt16(recipe.Time), getNullInt16(recipe.Calories), getNullInt16(recipe.Macronutrients.Protein), getNullInt16(recipe.Macronutrients.Fats),
+		getNullInt16(recipe.Macronutrients.Carbohydrates), recipe.Ingredients, recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted)
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			return -1, err
@@ -102,14 +103,16 @@ func (r *RecipesCrudPostgres) CreateRecipe(recipe model.Recipe) (int, error) {
 func (r *RecipesCrudPostgres) GetRecipe(recipeId int) (model.Recipe, error) {
 	var recipe model.Recipe
 	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, language, description, likes, servings, time, calories, "+
-		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE recipe_id=$1",
+		"protein, fats, carbohydrates, ingredients, cooking, preview, visibility, encrypted, creation_timestamp, " +
+		"update_timestamp FROM %s WHERE recipe_id=$1",
 		recipesTable)
 	var ingredients []byte
 	var cooking []byte
 	var preview sql.NullString
 	row := r.db.QueryRow(query, recipeId)
-	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
-		&cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes,
+		&recipe.Servings, &recipe.Time, &recipe.Calories, &recipe.Macronutrients.Protein, &recipe.Macronutrients.Fats, &recipe.Macronutrients.Carbohydrates,
+		&ingredients, &cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
 		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
@@ -125,10 +128,10 @@ func (r *RecipesCrudPostgres) GetRecipe(recipeId int) (model.Recipe, error) {
 func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (model.Recipe, error) {
 	var recipe model.Recipe
 	query := fmt.Sprintf("SELECT %[1]v.recipe_id, %[1]v.name, %[1]v.owner_id, %[1]v.language, %[1]v.description, %[1]v.likes, "+
-		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.ingredients, %[1]v.cooking, %[1]v.preview, %[1]v.visibility, "+
-		"%[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT "+
-		"EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) as liked, %[4]v.username, " +
-		"coalesce(%[2]v.update_timestamp, now()) FROM %[1]v LEFT JOIN %[2]v ON %[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id " +
+		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.protein, %[1]v.fats, %[1]v.carbohydrates, %[1]v.ingredients, %[1]v.cooking, " +
+		"%[1]v.preview, %[1]v.visibility, %[1]v.encrypted, %[1]v.creation_timestamp, %[1]v.update_timestamp, " +
+		"coalesce(%[2]v.favourite, false), (SELECT EXISTS (SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1)) " +
+		"as liked, %[4]v.username FROM %[1]v LEFT JOIN %[2]v ON %[2]v.user_id=$1 AND %[1]v.recipe_id=%[2]v.recipe_id " +
 		"LEFT JOIN users ON %[4]v.user_id=%[1]v.owner_id WHERE %[1]v.recipe_id=$2", recipesTable, usersRecipesTable,
 		likesTable, usersTable)
 	var ingredients []byte
@@ -136,9 +139,9 @@ func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (mod
 	var preview sql.NullString
 	row := r.db.QueryRow(query, userId, recipeId)
 	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings,
-		&recipe.Time, &recipe.Calories, &ingredients, &cooking, &preview, &recipe.Visibility, &recipe.Encrypted,
-		&recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.Favourite, &recipe.Liked, &recipe.OwnerName,
-		&recipe.UserTimestamp); err != nil {
+		&recipe.Time, &recipe.Calories, &recipe.Macronutrients.Protein, &recipe.Macronutrients.Fats, &recipe.Macronutrients.Carbohydrates,
+		&ingredients, &cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp,
+		&recipe.Favourite, &recipe.Liked, &recipe.OwnerName); err != nil {
 		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
@@ -154,7 +157,8 @@ func (r *RecipesCrudPostgres) GetRecipeWithUserFields(recipeId, userId int) (mod
 func (r *RecipesCrudPostgres) GetRandomPublicRecipe(languages []string) (model.Recipe, error) {
 	var recipe model.Recipe
 	query := fmt.Sprintf("SELECT recipe_id, name, owner_id, language, description, likes, servings, time, calories, "+
-		"ingredients, cooking, preview, visibility, encrypted, creation_timestamp, update_timestamp FROM %s WHERE visibility='public'",
+		"protein, fats, carbohydrates, ingredients, cooking, preview, visibility, encrypted, creation_timestamp, " +
+		"update_timestamp FROM %s WHERE visibility='public'",
 		recipesTable)
 	query += getLanguagesFilter(languages)
 	query += " ORDER BY RANDOM() LIMIT 1"
@@ -162,8 +166,9 @@ func (r *RecipesCrudPostgres) GetRandomPublicRecipe(languages []string) (model.R
 	var cooking []byte
 	var preview sql.NullString
 	row := r.db.QueryRow(query)
-	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients,
-		&cooking, &preview, &recipe.Visibility, &recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
+	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes,
+		&recipe.Servings, &recipe.Time, &recipe.Calories, &ingredients, &cooking, &preview, &recipe.Visibility,
+		&recipe.Encrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp); err != nil {
 		return model.Recipe{}, err
 	}
 	if err := json.Unmarshal(ingredients, &recipe.Ingredients); err != nil {
@@ -185,10 +190,13 @@ func (r *RecipesCrudPostgres) UpdateRecipe(recipe model.Recipe) error {
 		preview = nil
 	}
 
-	query := fmt.Sprintf("UPDATE %s SET name=$1, language=$2, description=$3, servings=$4, time=$5, calories=$6, ingredients=$7, "+
-		"cooking=$8, preview=$9, visibility=$10, encrypted=$11, update_timestamp=$12 WHERE recipe_id=$13",
+	query := fmt.Sprintf("UPDATE %s SET name=$1, language=$2, description=$3, servings=$4, time=$5, calories=$6, " +
+		"protein=$7, fats=$8, carbohydrates=$9 $ ingredients=$10, cooking=$11, preview=$12, visibility=$13, encrypted=$14, " +
+		"update_timestamp=$15 WHERE recipe_id=$16",
 		recipesTable)
-	_, err := r.db.Exec(query, recipe.Name, recipe.Language, recipe.Description, recipe.Servings, recipe.Time, recipe.Calories, recipe.Ingredients,
+	_, err := r.db.Exec(query, recipe.Name, recipe.Language, recipe.Description, getNullInt16(recipe.Servings),
+		getNullInt16(recipe.Time), getNullInt16(recipe.Calories), getNullInt16(recipe.Macronutrients.Protein),
+		getNullInt16(recipe.Macronutrients.Fats), getNullInt16(recipe.Macronutrients.Carbohydrates), recipe.Ingredients,
 		recipe.Cooking, preview, recipe.Visibility, recipe.Encrypted, time.Now(), recipe.Id)
 	return err
 }
@@ -240,7 +248,7 @@ func getRecipesQuery(params model.RecipesRequestParams) string {
 		"%[1]v.servings, %[1]v.time, %[1]v.calories, %[1]v.preview, %[1]v.visibility, %[1]v.encrypted, " +
 		"%[1]v.creation_timestamp, %[1]v.update_timestamp, coalesce(%[2]v.favourite, false), (SELECT EXISTS " +
 		"(SELECT 1 FROM %[3]v WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v)) as liked, %[4]v.username, " +
-		"%[2]v.update_timestamp FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON " +
+		"FROM %[1]v LEFT JOIN %[2]v ON %[2]v.recipe_id=%[1]v.recipe_id LEFT JOIN %[4]v ON " +
 		"%[4]v.user_id=%[1]v.owner_id" + whereStatement + pagingStatement, recipesTable, usersRecipesTable, likesTable,
 		usersTable, params.UserId)
 }
@@ -266,4 +274,14 @@ func getLanguagesFilter(languages []string) string {
 		filter = filter[0:len(filter)-2] + ")"
 	}
 	return filter
+}
+
+func getNullInt16(number int16) sql.NullInt16 {
+	if number == 0 {
+		return sql.NullInt16{}
+	}
+	return sql.NullInt16{
+		Int16: number,
+		Valid: true,
+	}
 }
