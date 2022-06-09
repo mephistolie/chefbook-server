@@ -7,6 +7,7 @@ import (
 
 const (
 	usersTable             = "users"
+	activationLinksTable   = "activation_links"
 	rolesTable             = "roles"
 	sessionsTable          = "sessions"
 	recipesTable           = "recipes"

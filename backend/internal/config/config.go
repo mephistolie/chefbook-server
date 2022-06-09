@@ -51,6 +51,7 @@ type (
 	}
 
 	FirebaseConfig struct {
+		Enabled            bool
 		ApiKey             string
 		ProjectId          string
 		PrivateKeyFileName string
@@ -138,6 +139,10 @@ func unmarshal(cfg *Config) error {
 	}
 
 	if err := viper.UnmarshalKey("auth", &cfg.Auth.JWT); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("firebaseProfileImport", &cfg.Firebase); err != nil {
 		return err
 	}
 

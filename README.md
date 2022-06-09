@@ -1,22 +1,27 @@
 # ChefBook Server
+
 ChefBook Server 💾
 
-**NOTE:** This repo isn't fully ready for self-hosted server due old ChefBook versions migrations (Firestore-PostgreSQL).
-It's public for opportunity to check server side haven't any unethical things.
-Still, for self-hosted you can modify it to cut off Firebase.
-
 Common information can be found at [main repository](https://github.com/mephistolie/chefbook)
-## Architecture
+
+## About
+
 * Language: Go
+* Architecture Style: REST API
+* Architecture: Simplified Clean (Delivery (Presenter) / Repository -> Service (UseCases) -> Entity)
 * DB: PostgreSQL
+* Data Storage: Any S3 storage
 * Proxy-Server: Traefik
 
 ## Requirements
+
 * Docker & Docker Compose
 
 ## Installation & Configuration
+
 1. Clone the repo
 2. Create and configure `.env` file in root directory:
+
 ```
 # APP CONFIGURATION
 APP_ENV=debug
@@ -25,11 +30,6 @@ APP_ENV=debug
 HTTP_HOST=
 HTTP_PORT=80
 HTTPS_PORT=443
-
-# FIREBASE CONFIGURATION
-FIREBASE_API_KEY=
-FIREBASE_PROJECT_ID=
-FIREBASE_KEY_FILE_NAME=
 
 # DB CONFIGURATION
 DB_NAME=
@@ -50,6 +50,5 @@ S3_SECRET_KEY=
 SMTP_EMAIL=
 SMTP_PASSWORD=
 ```
-3. Paste App SHA-256 certificate fingerprints to `frontend/.well-known/assetlinks.json`
-4. Put Firebase Service Key to `backend/configs` directory
-5. Use `sudo docker-compose up` command to run server
+
+3. Use `sudo docker-compose up` command to run server

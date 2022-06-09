@@ -1,48 +1,85 @@
 package service
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/model"
-	"github.com/mephistolie/chefbook-server/internal/repository"
+	"github.com/mephistolie/chefbook-server/internal/entity"
+	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
 )
 
 type RecipeSharingService struct {
-	recipesRepo           repository.RecipeCrud
-	recipesSharingRepo    repository.RecipeSharing
+	recipesRepo        repository.Recipe
+	recipesSharingRepo repository.RecipeSharing
 }
 
-func NewRecipeSharingService(recipesRepo repository.RecipeCrud, recipesSharingRepo repository.RecipeSharing) *RecipeSharingService {
+func NewRecipeSharingService(recipesRepo repository.Recipe, recipesSharingRepo repository.RecipeSharing) *RecipeSharingService {
 	return &RecipeSharingService{
-		recipesRepo:           recipesRepo,
-		recipesSharingRepo:    recipesSharingRepo,
+		recipesRepo:        recipesRepo,
+		recipesSharingRepo: recipesSharingRepo,
 	}
 }
 
-func (s *RecipeSharingService) GetRecipeUserList(recipeId, userId int) ([]model.UserInfo, error) {
-	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+func (s *RecipeSharingService) GetUsersList(recipeId, userId int) ([]entity.ProfileInfo, error) {
+	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
-		return []model.UserInfo{}, err
+		return []entity.ProfileInfo{}, err
 	}
-	if recipe.OwnerId != userId {
-		return []model.UserInfo{}, model.ErrAccessDenied
+
+	if ownerId != userId {
+		return []entity.ProfileInfo{}, failure.NotOwner
 	}
+
 	return s.recipesSharingRepo.GetRecipeUserList(recipeId)
 }
 
-func (s *RecipeSharingService) SetUserPublicKeyForRecipe(recipeId, userId int, userKey string) error {
-	return s.recipesSharingRepo.SetUserPublicKeyForRecipe(recipeId, userId, userKey)
+func (s *RecipeSharingService) GetUserPublicKey(recipeId, userId, requesterId int) (string, error) {
+	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
+	if err != nil {
+		return "", err
+	}
+
+	if ownerId != requesterId {
+		return "", failure.NotOwner
+	}
+
+	return s.recipesSharingRepo.GetUserRecipeKey(recipeId, userId)
 }
 
-func (s *RecipeSharingService) SetUserPrivateKeyForRecipe(recipeId, userId int, userKey string) error {
-	return s.recipesSharingRepo.SetUserPrivateKeyForRecipe(recipeId, userId, userKey)
+func (s *RecipeSharingService) SetUserPublicKey(recipeId, userId int, userKey *string) error {
+	err := s.recipesSharingRepo.SetUserPublicKeyLink(recipeId, userId, userKey)
+	if err != nil {
+		return err
+	}
+
+	if userKey == nil {
+		_ = s.recipesSharingRepo.SetOwnerPrivateKeyLinkForUser(recipeId, userId, nil)
+	}
+
+	return nil
 }
 
-func (s *RecipeSharingService) DeleteUserAccessToRecipe(recipeId, userId, requesterId int) error {
+func (s *RecipeSharingService) GetOwnerPrivateKeyForUser(recipeId, userId int) (string, error) {
+	return s.recipesSharingRepo.GetUserRecipeKey(recipeId, userId)
+}
+
+func (s *RecipeSharingService) SetOwnerPrivateKeyForUser(recipeId int, userId int, requesterId int, ownerKey *string) error {
+	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
+	if err != nil {
+		return err
+	}
+	if ownerId != requesterId {
+		return failure.NotOwner
+	}
+
+	return s.recipesSharingRepo.SetOwnerPrivateKeyLinkForUser(recipeId, userId, ownerKey)
+}
+
+func (s *RecipeSharingService) DeleteUserAccess(recipeId, userId, requesterId int) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err
 	}
 	if recipe.OwnerId != requesterId {
-		return model.ErrAccessDenied
+		return failure.NotOwner
 	}
-	return s.recipesRepo.DeleteRecipeFromRecipeBook(recipeId, userId)
+	return s.recipesRepo.RemoveRecipeFromRecipeBook(recipeId, userId)
 }

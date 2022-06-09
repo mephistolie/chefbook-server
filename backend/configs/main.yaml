@@ -14,6 +14,10 @@ auth:
   accessTokenTTL: 30m
   refreshTokenTTL: 720h #30 days
 
+# Do not use for self-hosted
+firebaseProfileImport:
+  enabled: false
+
 s3:
   host: "storage.yandexcloud.net"
 
@@ -26,3 +30,8 @@ mail:
     emailVerification: "./templates/email_verification.html"
   subjects:
     emailVerification: "ChefBook Account Activation"
+
+limiter:
+  rps: 15
+  burst: 20
+  ttl: 10m

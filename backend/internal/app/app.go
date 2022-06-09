@@ -6,12 +6,12 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/mephistolie/chefbook-server/internal/app/dependencies/repository"
+	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
 	"github.com/mephistolie/chefbook-server/internal/config"
-	delivery "github.com/mephistolie/chefbook-server/internal/delivery/http"
-	"github.com/mephistolie/chefbook-server/internal/repository"
+	"github.com/mephistolie/chefbook-server/internal/delivery/http/router"
 	"github.com/mephistolie/chefbook-server/internal/repository/postgres"
 	"github.com/mephistolie/chefbook-server/internal/server"
-	"github.com/mephistolie/chefbook-server/internal/service"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/cache"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
@@ -67,31 +67,33 @@ func Run(configPath string) {
 		Secure: true,
 	})
 
-	firebaseKeyPath := fmt.Sprintf("%s/%s", configPath, cfg.Firebase.PrivateKeyFileName)
-	opt := option.WithCredentialsFile(firebaseKeyPath)
-	app, err := firebase.NewApp(context.Background(), nil, opt)
-	if err != nil {
-		logger.Error(err)
-		return
+	var firebaseApp *firebase.App = nil
+	if cfg.Firebase.Enabled {
+		firebaseKeyPath := fmt.Sprintf("%s/%s", configPath, cfg.Firebase.PrivateKeyFileName)
+		opt := option.WithCredentialsFile(firebaseKeyPath)
+		firebaseApp, err = firebase.NewApp(context.Background(), nil, opt)
+		if err != nil {
+			logger.Error(err)
+			return
+		}
 	}
 
-	repositories := repository.NewRepositories(db, client)
-	services := service.NewServices(service.Dependencies{
-		Repos:           repositories,
-		Cache:           memCache,
-		HashManager:     hashManager,
-		TokenManager:    tokenManager,
-		MailSender:      emailSender,
-		MailConfig:      cfg.Mail,
-		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
-		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
-		CacheTTL:        int64(cfg.CacheTTL.Seconds()),
-		Environment:     cfg.Environment,
-		Domain:          cfg.HTTP.Host,
-		FirebaseApiKey:  cfg.Firebase.ApiKey,
-		FirebaseApp:     *app,
+	repositories := repository.NewRepository(db, client, firebaseApp, cfg.Firebase.ApiKey)
+	services := service.NewService(service.Dependencies{
+		Repo:                  repositories,
+		Cache:                 memCache,
+		HashManager:           hashManager,
+		TokenManager:          tokenManager,
+		MailSender:            emailSender,
+		MailConfig:            cfg.Mail,
+		AccessTokenTTL:        cfg.Auth.JWT.AccessTokenTTL,
+		RefreshTokenTTL:       cfg.Auth.JWT.RefreshTokenTTL,
+		CacheTTL:              int64(cfg.CacheTTL.Seconds()),
+		Environment:           cfg.Environment,
+		Domain:                cfg.HTTP.Host,
+		FirebaseImportEnabled: cfg.Firebase.Enabled,
 	})
-	handler := delivery.NewHandler(services, tokenManager)
+	handler := router.NewRouter(services, tokenManager)
 
 	srv := server.NewServer(cfg, handler.Init(cfg))
 
