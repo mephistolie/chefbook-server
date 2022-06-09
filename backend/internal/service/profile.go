@@ -2,68 +2,92 @@ package service
 
 import (
 	"context"
-	"github.com/mephistolie/chefbook-server/internal/model"
-	"github.com/mephistolie/chefbook-server/internal/repository"
+	"github.com/mephistolie/chefbook-server/internal/entity"
+	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
+	"github.com/mephistolie/chefbook-server/pkg/hash"
 )
 
 type ProfileService struct {
-	usersRepo   repository.Auth
+	authRepo    repository.Auth
 	profileRepo repository.Profile
-	filesRepo   repository.Files
+	filesRepo   repository.File
+
+	hashManager hash.HashManager
 }
 
-func NewUsersService(usersRepo repository.Auth, profileRepo repository.Profile, filesRepo repository.Files) *ProfileService {
+func NewProfileService(usersRepo repository.Auth, profileRepo repository.Profile, filesRepo repository.File, hashManager hash.HashManager) *ProfileService {
 	return &ProfileService{
-		usersRepo:   usersRepo,
+		authRepo:    usersRepo,
 		profileRepo: profileRepo,
 		filesRepo:   filesRepo,
+		hashManager: hashManager,
 	}
 }
 
-func (s *ProfileService) GetUserInfo(userId int) (model.User, error) {
-	user, err := s.usersRepo.GetUserById(userId)
+func (s *ProfileService) GetProfile(userId int) (entity.Profile, error) {
+	return s.authRepo.GetUserById(userId)
+}
+
+func (s *ProfileService) ChangePassword(userId int, oldPassword string, newPassword string) error {
+	profile, err := s.authRepo.GetUserById(userId)
 	if err != nil {
-		return model.User{}, model.ErrUserNotFound
+		return err
 	}
-	return user, nil
+
+	if err = s.hashManager.ValidateByHash(oldPassword, profile.Password); err != nil {
+		return failure.InvalidCredentials
+	}
+
+	newHashedPassword, err := s.hashManager.Hash(newPassword)
+	if err != nil {
+		return failure.Unknown
+	}
+
+	return s.authRepo.ChangePassword(userId, newHashedPassword)
 }
 
-func (s *ProfileService) SetUsername(userId int, username string) error {
+func (s *ProfileService) SetUsername(userId int, username *string) error {
 	return s.profileRepo.SetUsername(userId, username)
 }
 
-func (s *ProfileService) UploadAvatar(ctx context.Context, userId int, file model.MultipartFileInfo) (string, error) {
-	user, err := s.usersRepo.GetUserById(userId)
+func (s *ProfileService) UploadAvatar(ctx context.Context, userId int, file entity.MultipartFile) (string, error) {
+	user, err := s.authRepo.GetUserById(userId)
 	if err != nil {
-		return "", model.ErrUserIdNotFound
+		return "", err
 	}
+
 	url, err := s.filesRepo.UploadAvatar(ctx, userId, file)
 	if err != nil {
-		return "", model.ErrUnableUploadFile
+		return "", failure.UnableUploadFile
 	}
-	err = s.profileRepo.SetAvatar(userId, url)
+	err = s.profileRepo.SetAvatarLink(userId, &url)
 	if err != nil {
 		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", model.ErrUnableSetAvatar
+		return "", failure.UnableSetAvatar
 	}
-	if user.Avatar.String != "" {
-		_ = s.filesRepo.DeleteFile(ctx, user.Avatar.String)
+
+	if user.Avatar != nil {
+		_ = s.filesRepo.DeleteFile(ctx, *user.Avatar)
 	}
+
 	return url, nil
 }
 
 func (s *ProfileService) DeleteAvatar(ctx context.Context, userId int) error {
-	user, err := s.usersRepo.GetUserById(userId)
+	user, err := s.authRepo.GetUserById(userId)
 	if err != nil {
-		return model.ErrUserIdNotFound
+		return err
 	}
-	err = s.filesRepo.DeleteFile(ctx, user.Avatar.String)
+
+	err = s.filesRepo.DeleteFile(ctx, *user.Avatar)
 	if err != nil {
-		return model.ErrUnableDeleteAvatar
+		return err
 	}
-	err = s.profileRepo.SetAvatar(userId, "")
+	err = s.profileRepo.SetAvatarLink(userId, nil)
 	if err != nil {
-		return model.ErrUnableDeleteAvatar
+		return err
 	}
+
 	return nil
 }

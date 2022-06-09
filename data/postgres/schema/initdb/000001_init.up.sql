@@ -21,7 +21,7 @@ CREATE TABLE activation_links
 (
     id              SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
     activation_link uuid                                             NOT NULL,
-    user_id         INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL,
+    user_id         INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE TABLE shopping_list
@@ -108,12 +108,12 @@ CREATE TABLE sessions
     created_at    TIMESTAMP WITH TIME ZONE                         NOT NULL DEFAULT timezone('utc', now())
 );
 
-CREATE TYPE role as ENUM ('user', 'admin');
+CREATE TYPE role as ENUM ('credentials', 'admin');
 
 CREATE TABLE roles
 (
     role_id SERIAL PRIMARY KEY                               NOT NULL UNIQUE,
-    name    role                                             NOT NULL DEFAULT 'user',
+    name    role                                             NOT NULL DEFAULT 'credentials',
     user_id INT REFERENCES users (user_id) ON DELETE CASCADE NOT NULL
 );
 

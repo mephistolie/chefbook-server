@@ -2,126 +2,153 @@ package service
 
 import (
 	"context"
-	"github.com/mephistolie/chefbook-server/internal/model"
-	"github.com/mephistolie/chefbook-server/internal/repository"
+	"github.com/mephistolie/chefbook-server/internal/entity"
+	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
 )
 
 type EncryptionService struct {
 	encryptionRepo repository.Encryption
-	recipesRepo    repository.RecipeCrud
-	filesRepo      repository.Files
+	sharingRepo    repository.RecipeSharing
+	recipesRepo    repository.Recipe
+	filesRepo      repository.File
 }
 
-func NewEncryptionService(encryptionRepo repository.Encryption, recipesRepo repository.RecipeCrud, filesRepo repository.Files) *EncryptionService {
+func NewEncryptionService(encryptionRepo repository.Encryption, sharingRepo repository.RecipeSharing, recipesRepo repository.Recipe, filesRepo repository.File) *EncryptionService {
 	return &EncryptionService{
 		encryptionRepo: encryptionRepo,
+		sharingRepo:    sharingRepo,
 		recipesRepo:    recipesRepo,
 		filesRepo:      filesRepo,
 	}
 }
 
 func (s *EncryptionService) GetUserKeyLink(userId int) (string, error) {
-	key, err := s.encryptionRepo.GetUserKey(userId)
-	if err != nil || key == "" {
-		return "", model.ErrNoKey
+	link, err := s.encryptionRepo.GetUserKeyLink(userId)
+	if err != nil {
+		return "", err
 	}
-	return key, err
+
+	if link == nil {
+		return "", failure.NoKey
+	}
+
+	return *link, nil
 }
 
-func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file model.MultipartFileInfo) (string, error) {
-	key, err := s.encryptionRepo.GetUserKey(userId)
+func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file entity.MultipartFile) (string, error) {
+	previousUrl, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil {
-		return "", model.ErrNoKey
+		return "", err
 	}
-	url, err := s.filesRepo.UploadUserKey(ctx, userId, file)
+
+	link, err := s.filesRepo.UploadUserKey(ctx, userId, file)
 	if err != nil {
-		return "", model.ErrUnableUploadFile
+		return "", err
 	}
-	err = s.encryptionRepo.SetUserKey(userId, url)
+	err = s.encryptionRepo.SetUserKeyLink(userId, &link)
 	if err != nil {
-		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", model.ErrUnableSetUserKey
+		_ = s.filesRepo.DeleteFile(ctx, link)
+		return "", err
 	}
-	if key != "" {
-		_ = s.filesRepo.DeleteFile(ctx, key)
+
+	if previousUrl != nil {
+		_ = s.filesRepo.DeleteFile(ctx, *previousUrl)
 	}
-	return url, err
+
+	return link, err
 }
 
 func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId int) error {
-	url, err := s.encryptionRepo.GetUserKey(userId)
+	link, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil {
-		return model.ErrNoKey
+		return err
 	}
-	err = s.filesRepo.DeleteFile(ctx, url)
-	err = s.encryptionRepo.SetUserKey(userId, "")
-	if err != nil {
-		return model.ErrUnableSetUserKey
+
+	if link != nil {
+		_ = s.filesRepo.DeleteFile(ctx, *link)
 	}
+
+	err = s.encryptionRepo.SetUserKeyLink(userId, nil)
 	return err
 }
 
 func (s *EncryptionService) GetRecipeKey(recipeId, userId int) (string, error) {
-	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
-		return "", model.ErrRecipeNotFound
+		return "", err
 	}
-	if recipe.OwnerId != userId {
-		return "", model.ErrNotOwner
+	if ownerId != userId {
+		return "", failure.NotOwner
 	}
-	url, err := s.encryptionRepo.GetRecipeKey(recipeId)
-	if err != nil || url == "" {
-		return "", model.ErrNoKey
+
+	link, err := s.encryptionRepo.GetRecipeKeyLink(recipeId)
+	if err != nil {
+		return "", err
 	}
-	return url, err
+
+	if link == nil {
+		return "", failure.NoKey
+	}
+
+	return *link, err
 }
 
-func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId int, file model.MultipartFileInfo) (string, error) {
-	recipe, err := s.recipesRepo.GetRecipe(recipeId)
+func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId int, file entity.MultipartFile) (string, error) {
+	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
-		return "", model.ErrRecipeNotFound
+		return "", err
 	}
-	if recipe.OwnerId != userId {
-		return "", model.ErrNotOwner
+	if ownerId != userId {
+		return "", failure.NotOwner
 	}
-	oldKey, err := s.encryptionRepo.GetRecipeKey(recipeId)
+
+	previousLink, err := s.encryptionRepo.GetRecipeKeyLink(recipeId)
 	if err != nil {
-		return "", model.ErrNoKey
+		return "", err
 	}
+
 	url, err := s.filesRepo.UploadRecipeKey(ctx, recipeId, file)
 	if err != nil {
-		return "", model.ErrUnableUploadFile
+		return "", err
 	}
-	err = s.encryptionRepo.SetRecipeKey(recipeId, url)
+	err = s.encryptionRepo.SetRecipeKeyLink(recipeId, &url)
 	if err != nil {
 		_ = s.filesRepo.DeleteFile(ctx, url)
-		return "", model.ErrUnableDeleteRecipeKey
+		return "", err
 	}
-	if oldKey != "" {
-		_ = s.filesRepo.DeleteFile(ctx, oldKey)
+
+	if previousLink != nil {
+		_ = s.filesRepo.DeleteFile(ctx, *previousLink)
 	}
+
 	return url, err
 }
 
 func (s *EncryptionService) DeleteRecipeKey(ctx context.Context, recipeId, userId int) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
-		return model.ErrRecipeNotFound
+		return err
 	}
 	if recipe.OwnerId != userId {
-		return model.ErrNotOwner
+		return failure.NotOwner
 	}
-	url, err := s.encryptionRepo.GetRecipeKey(recipeId)
+
+	link, err := s.encryptionRepo.GetRecipeKeyLink(recipeId)
 	if err != nil {
-		return model.ErrNoKey
+		return err
 	}
-	err = s.filesRepo.DeleteFile(ctx, url)
-	if err != nil {
-		return model.ErrUnableDeleteRecipeKey
+
+	if link != nil {
+		err = s.filesRepo.DeleteFile(ctx, *link)
+		if err != nil {
+			return err
+		}
 	}
-	err = s.encryptionRepo.SetRecipeKey(recipeId, "")
+
+	err = s.encryptionRepo.SetRecipeKeyLink(recipeId, nil)
 	if err != nil {
-		return model.ErrUnableDeleteRecipeKey
+		return err
 	}
 
 	return nil

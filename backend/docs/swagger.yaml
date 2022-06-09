@@ -1,0 +1,1723 @@
+basePath: /
+definitions:
+  common_body.CookingItem:
+    properties:
+      link:
+        type: string
+      pictures:
+        items:
+          type: string
+        type: array
+      text:
+        type: string
+      time:
+        type: integer
+      type:
+        type: string
+    type: object
+  common_body.IngredientItem:
+    properties:
+      amount:
+        type: integer
+      link:
+        type: string
+      text:
+        minLength: 1
+        type: string
+      type:
+        type: string
+      unit:
+        type: string
+    required:
+    - text
+    - type
+    type: object
+  common_body.Macronutrients:
+    properties:
+      carbohydrates:
+        type: integer
+      fats:
+        type: integer
+      protein:
+        type: integer
+    type: object
+  common_body.Purchase:
+    properties:
+      is_purchased:
+        type: boolean
+      multiplier:
+        type: integer
+      name:
+        type: string
+      purchase_id:
+        type: string
+    required:
+    - name
+    - purchase_id
+    type: object
+  common_body.RecipeOwnerPrivateKey:
+    properties:
+      encrypted_private_key:
+        minLength: 10
+        type: string
+    required:
+    - encrypted_private_key
+    type: object
+  common_body.RecipeUserPublicKey:
+    properties:
+      encrypted_public_key:
+        minLength: 10
+        type: string
+    required:
+    - encrypted_public_key
+    type: object
+  request_body.CategoryInput:
+    properties:
+      cover:
+        maxLength: 20
+        type: string
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  request_body.Credentials:
+    properties:
+      email:
+        maxLength: 64
+        type: string
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request_body.PasswordChanging:
+    properties:
+      new_password:
+        maxLength: 64
+        minLength: 8
+        type: string
+      old_password:
+        maxLength: 64
+        type: string
+    required:
+    - new_password
+    type: object
+  request_body.RecipeInput:
+    properties:
+      calories:
+        type: integer
+      cooking:
+        items:
+          $ref: '#/definitions/common_body.CookingItem'
+        type: array
+      description:
+        type: string
+      encrypted:
+        type: boolean
+      ingredients:
+        items:
+          $ref: '#/definitions/common_body.IngredientItem'
+        type: array
+      language:
+        type: string
+      macronutrients:
+        $ref: '#/definitions/common_body.Macronutrients'
+      name:
+        type: string
+      preview:
+        type: string
+      servings:
+        type: integer
+      time:
+        type: integer
+      visibility:
+        type: string
+    type: object
+  request_body.RefreshToken:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  request_body.Username:
+    properties:
+      username:
+        maxLength: 40
+        type: string
+    type: object
+  response_body.Category:
+    properties:
+      cover:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  response_body.DetailedProfileInfo:
+    properties:
+      avatar:
+        type: string
+      broccoins:
+        type: integer
+      creation_timestamp:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_blocked:
+        type: boolean
+      premium:
+        type: boolean
+      username:
+        type: string
+    type: object
+  response_body.Error:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  response_body.Id:
+    properties:
+      id:
+        type: integer
+      message:
+        type: string
+    type: object
+  response_body.Link:
+    properties:
+      link:
+        type: string
+    type: object
+  response_body.Message:
+    properties:
+      message:
+        type: string
+    type: object
+  response_body.MinimalProfileInfo:
+    properties:
+      avatar:
+        type: string
+      broccoins:
+        type: integer
+      creation_timestamp:
+        type: string
+      id:
+        type: integer
+      premium:
+        type: boolean
+      username:
+        type: string
+    type: object
+  response_body.Recipe:
+    properties:
+      calories:
+        type: integer
+      categories:
+        items:
+          $ref: '#/definitions/response_body.Category'
+        type: array
+      cooking:
+        items:
+          $ref: '#/definitions/common_body.CookingItem'
+        type: array
+      creation_timestamp:
+        type: string
+      description:
+        type: string
+      encrypted:
+        type: boolean
+      favourite:
+        type: boolean
+      id:
+        type: integer
+      ingredients:
+        items:
+          $ref: '#/definitions/common_body.IngredientItem'
+        type: array
+      language:
+        type: string
+      liked:
+        type: boolean
+      likes:
+        type: integer
+      macronutrients:
+        $ref: '#/definitions/common_body.Macronutrients'
+      name:
+        type: string
+      owned:
+        type: boolean
+      owner_id:
+        type: integer
+      owner_name:
+        type: string
+      preview:
+        type: string
+      servings:
+        type: integer
+      time:
+        type: integer
+      update_timestamp:
+        type: string
+      visibility:
+        type: string
+    type: object
+  response_body.RecipeInfo:
+    properties:
+      calories:
+        type: integer
+      categories:
+        items:
+          $ref: '#/definitions/response_body.Category'
+        type: array
+      creation_timestamp:
+        type: string
+      encrypted:
+        type: boolean
+      favourite:
+        type: boolean
+      id:
+        type: integer
+      language:
+        type: string
+      liked:
+        type: boolean
+      likes:
+        type: integer
+      name:
+        type: string
+      owned:
+        type: boolean
+      owner_id:
+        type: integer
+      owner_name:
+        type: string
+      preview:
+        type: string
+      servings:
+        type: integer
+      time:
+        type: integer
+      update_timestamp:
+        type: string
+      visibility:
+        type: string
+    type: object
+  response_body.ShoppingList:
+    properties:
+      purchases:
+        items:
+          $ref: '#/definitions/common_body.Purchase'
+        type: array
+      timestamp:
+        type: string
+    type: object
+  response_body.Tokens:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+host: api.chefbook.space
+info:
+  contact:
+    email: support@chefbook.space
+    name: ChefBook API Support
+  description: ChefBook API Server
+  title: ChefBook API
+  version: "1.0"
+paths:
+  /v1/auth/activate/{activation_code}:
+    get:
+      consumes:
+      - application/json
+      description: Activate profile
+      parameters:
+      - description: Activation Code
+        in: path
+        name: activation_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      summary: Activate Profile
+      tags:
+      - auth
+  /v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh session to get new tokens pair
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.RefreshToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      summary: Refresh Session
+      tags:
+      - auth
+  /v1/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Sign in to profile
+      parameters:
+      - description: Credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      summary: Sign In
+      tags:
+      - auth
+  /v1/auth/sign-out:
+    post:
+      consumes:
+      - application/json
+      description: Sign out and remove session
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.RefreshToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      summary: Sign Out
+      tags:
+      - auth
+  /v1/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Create new profile
+      parameters:
+      - description: Credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Id'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      summary: Sign Up
+      tags:
+      - auth
+  /v1/categories:
+    get:
+      consumes:
+      - application/json
+      description: Get user categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response_body.Category'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create new user category
+      parameters:
+      - description: Category
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.CategoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Id'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Category
+      tags:
+      - categories
+  /v1/categories/{category_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user category
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Category
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: Get user category
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Category
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Update user category
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      - description: Category
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.CategoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Category
+      tags:
+      - categories
+  /v1/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get user profile info
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.MinimalProfileInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Profile Info
+      tags:
+      - profile
+  /v1/profile/avatar:
+    delete:
+      consumes:
+      - application/json
+      description: Delete profile avatar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Avatar
+      tags:
+      - profile
+    put:
+      consumes:
+      - multipart/form-data
+      description: Upload profile avatar
+      parameters:
+      - description: Avatar File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload avatar
+      tags:
+      - profile
+  /v1/profile/key:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user encrypted vault key (RSA encrypted by vault password
+        generated AES)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete User Key
+      tags:
+      - profile-encryption
+    get:
+      consumes:
+      - application/json
+      description: Get user encrypted vault key (AES encrypted by generated RSA)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User Key
+      tags:
+      - profile-encryption
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload user encrypted vault key (RSA encrypted by vault password
+        generated AES)
+      parameters:
+      - description: User Key File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload User Key
+      tags:
+      - profile-encryption
+  /v1/profile/password:
+    put:
+      consumes:
+      - application/json
+      description: Change profile password
+      parameters:
+      - description: Password Changing
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.PasswordChanging'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Change Password
+      tags:
+      - profile
+  /v1/profile/username:
+    put:
+      consumes:
+      - application/json
+      description: Change profile username
+      parameters:
+      - description: Username
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.Username'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Change Username
+      tags:
+      - profile
+  /v1/recipes:
+    get:
+      consumes:
+      - application/json
+      description: Get recipes by query
+      parameters:
+      - description: Recipes author ID
+        in: query
+        name: author_id
+        type: integer
+      - description: Get only those recipes that were created by user
+        in: query
+        name: owned
+        type: boolean
+      - description: Get only those recipes that saved to user recipe book
+        in: query
+        name: saved
+        type: boolean
+      - description: Search recipes with specified name
+        in: query
+        name: search
+        type: string
+      - description: 'Sorting. Acceptable values: ''creation_timestamp'', ''update_timestamp'',
+          ''likes'', ''time'', ''servings'', ''calories'''
+        in: query
+        name: sort_by
+        type: string
+      - description: Recipe language codes
+        in: query
+        items:
+          type: string
+        name: language
+        type: array
+      - description: Page of the result
+        in: query
+        name: page
+        type: string
+      - description: Page size of the result. Maximum is 50
+        in: query
+        name: page_size
+        type: string
+      - description: Minimal recipe cooking time
+        in: query
+        name: min_time
+        type: string
+      - description: Maximum recipe cooking time
+        in: query
+        name: max_time
+        type: string
+      - description: Minimal recipe servings
+        in: query
+        name: min_servings
+        type: string
+      - description: Maximum recipe servings
+        in: query
+        name: max_servings
+        type: string
+      - description: Minimal recipe calories
+        in: query
+        name: min_calories
+        type: string
+      - description: Maximum recipe calories
+        in: query
+        name: max_calories
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response_body.RecipeInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Recipes
+      tags:
+      - recipes
+    post:
+      consumes:
+      - application/json
+      description: Create new recipe
+      parameters:
+      - description: Recipe
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.RecipeInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Id'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Recipe
+      tags:
+      - recipes
+  /v1/recipes/{recipe_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Recipe
+      tags:
+      - recipes
+    get:
+      consumes:
+      - application/json
+      description: Get recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Recipe'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Recipe
+      tags:
+      - recipes
+    put:
+      consumes:
+      - application/json
+      description: Update recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: Recipe
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request_body.RecipeInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Recipe
+      tags:
+      - recipes
+  /v1/recipes/{recipe_id}/categories:
+    put:
+      consumes:
+      - application/json
+      description: Set user categories for recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: Recipe categories
+        in: body
+        name: categories
+        required: true
+        schema:
+          items:
+            type: integer
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Set Recipe Categories
+      tags:
+      - recipes
+  /v1/recipes/{recipe_id}/favourite:
+    delete:
+      consumes:
+      - application/json
+      description: Delete recipe from favourites
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Recipe from Favourites
+      tags:
+      - recipes
+    put:
+      consumes:
+      - application/json
+      description: Add recipe to favourites
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Recipe to Favourites
+      tags:
+      - recipes
+  /v1/recipes/{recipe_id}/key:
+    delete:
+      consumes:
+      - application/json
+      description: Delete recipe encrypted key (AES encrypted by user RSA Private
+        Key)
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Recipe Key
+      tags:
+      - recipe-encryption
+    get:
+      consumes:
+      - application/json
+      description: Get recipe encrypted key (AES encrypted by user RSA Private Key)
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Recipe Key
+      tags:
+      - recipe-encryption
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload recipe encrypted key (AES encrypted by user RSA Private
+        Key)
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: string
+      - description: Recipe Key File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Recipe Key
+      tags:
+      - recipe-encryption
+  /v1/recipes/{recipe_id}/likes:
+    delete:
+      consumes:
+      - application/json
+      description: Unlike recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Unlike recipe
+      tags:
+      - recipes
+    put:
+      consumes:
+      - application/json
+      description: Like recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Like Recipe
+      tags:
+      - recipes
+  /v1/recipes/{recipe_id}/pictures:
+    get:
+      consumes:
+      - application/json
+      description: Get recipe pictures links
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Recipe Pictures
+      tags:
+      - recipe-pictures
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload recipe picture as usual or encrypted file
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: Picture File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Link'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Recipe Picture
+      tags:
+      - recipe-pictures
+  /v1/recipes/{recipe_id}/pictures/{picture_name}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Delete recipe picture by name
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: Picture Name
+        in: path
+        name: picture_name
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Recipe Picture
+      tags:
+      - recipe-pictures
+  /v1/recipes/{recipe_id}/save:
+    delete:
+      consumes:
+      - application/json
+      description: Remove recipe from user recipe book
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove Recipe from Recipe Book
+      tags:
+      - recipes
+    post:
+      consumes:
+      - application/json
+      description: Add recipe to user recipe book
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Recipe to Recipe Book
+      tags:
+      - recipes
+  /v1/recipes/{recipe_id}/users:
+    get:
+      consumes:
+      - application/json
+      description: Get users that saved recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response_body.MinimalProfileInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Recipe Users
+      tags:
+      - recipe-sharing
+  /v1/recipes/{recipe_id}/users/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user access to recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete User Access to Recipe
+      tags:
+      - recipe-sharing
+  /v1/recipes/{recipe_id}/users/{user_id}/key:
+    delete:
+      consumes:
+      - application/json
+      description: Delete owner private key encrypted by public user key for recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Recipe Owner Private Key
+      tags:
+      - recipe-sharing
+    get:
+      consumes:
+      - application/json
+      description: Get user public key for recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common_body.RecipeUserPublicKey'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User Public Key for Recipe
+      tags:
+      - recipe-sharing
+    post:
+      consumes:
+      - application/json
+      description: Set owner private key encrypted by public user key for recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Key
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/common_body.RecipeOwnerPrivateKey'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Set Recipe Owner Private Key
+      tags:
+      - recipe-sharing
+  /v1/recipes/{recipe_id}/users/key:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user public key for recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Recipe User Public Key
+      tags:
+      - recipe-sharing
+    get:
+      consumes:
+      - application/json
+      description: Get recipe key encrypted by user public key
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common_body.RecipeOwnerPrivateKey'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User Recipe Private Key
+      tags:
+      - recipe-sharing
+    put:
+      consumes:
+      - application/json
+      description: Set user public key for recipe
+      parameters:
+      - description: Recipe ID
+        in: path
+        name: recipe_id
+        required: true
+        type: integer
+      - description: Key
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/common_body.RecipeUserPublicKey'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Set Recipe User Public Key
+      tags:
+      - recipe-sharing
+  /v1/recipes/random:
+    get:
+      consumes:
+      - application/json
+      description: Get random recipe
+      parameters:
+      - description: Recipe language codes
+        in: query
+        items:
+          type: string
+        name: language
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Recipe'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Random Recipe
+      tags:
+      - recipes
+  /v1/shopping-list:
+    get:
+      consumes:
+      - application/json
+      description: Get user shopping list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.ShoppingList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Shopping List
+      tags:
+      - shopping-list
+    post:
+      consumes:
+      - application/json
+      description: Set user shopping list
+      parameters:
+      - description: Shopping List
+        in: body
+        name: input
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/common_body.Purchase'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Set Shopping List
+      tags:
+      - shopping-list
+    put:
+      consumes:
+      - application/json
+      description: Add purchases to user shopping list
+      parameters:
+      - description: New Purchases
+        in: body
+        name: input
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/common_body.Purchase'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_body.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_body.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Purchases to Shopping List
+      tags:
+      - shopping-list
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

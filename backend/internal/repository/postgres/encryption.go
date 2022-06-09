@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 )
 
 type EncryptionPostgres struct {
@@ -16,36 +16,67 @@ func NewEncryptionPostgres(db *sqlx.DB) *EncryptionPostgres {
 	}
 }
 
-func (r *EncryptionPostgres) GetUserKey(userId int) (string, error) {
-	var key sql.NullString
-	query := fmt.Sprintf("SELECT key FROM %s WHERE user_id=$1", usersTable)
-	err := r.db.Get(&key, query, userId)
-	return key.String, err
-}
+func (r *EncryptionPostgres) GetUserKeyLink(userId int) (*string, error) {
+	var link *string
 
-func (r *EncryptionPostgres) SetUserKey(userId int, url string) error {
-	var key interface{}
-	if url != "" { key = url} else { key = nil}
-	query := fmt.Sprintf("UPDATE %s SET key=$1 WHERE user_id=$2", usersTable)
-	_, err := r.db.Exec(query, key, userId)
-	return err
-}
+	getKeyLinkQuery := fmt.Sprintf(`
+			SELECT key FROM %s
+			WHERE user_id=$1
+		`, usersTable)
 
-func (r *EncryptionPostgres) GetRecipeKey(recipeId int) (string, error) {
-	var key sql.NullString
-	query := fmt.Sprintf("SELECT key FROM %s WHERE recipe_id=$1", recipesTable)
-	err := r.db.Get(&key, query, recipeId)
-	return key.String, err
-}
-
-func (r *EncryptionPostgres) SetRecipeKey(recipeId int, url string) error {
-	var key interface{}
-	if url != "" {
-		key = url
-	} else {
-		key = nil
+	if err := r.db.Get(&link, getKeyLinkQuery, userId); err != nil {
+		logRepoError(err)
+		return nil, failure.NoKey
 	}
-	query := fmt.Sprintf("UPDATE %s SET key=$1 WHERE recipe_id=$2", recipesTable)
-	_, err := r.db.Exec(query, key, recipeId)
-	return err
+
+	return link, nil
+}
+
+func (r *EncryptionPostgres) SetUserKeyLink(userId int, url *string) error {
+
+	setKeyQuery := fmt.Sprintf(`
+			UPDATE %s
+			SET key=$1
+			WHERE user_id=$2
+		`, usersTable)
+
+	if _, err := r.db.Exec(setKeyQuery, url, userId); err != nil {
+		logRepoError(err)
+		return failure.UserNotFound
+	}
+
+	return nil
+}
+
+func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId int) (*string, error) {
+	var link *string
+
+	getKeyLinkQuery := fmt.Sprintf(`
+			SELECT key
+			FROM %s
+			WHERE recipe_id=$1
+		`, recipesTable)
+
+	if err := r.db.Get(&link, getKeyLinkQuery, recipeId); err != nil {
+		logRepoError(err)
+		return nil, failure.NoKey
+	}
+
+	return link, nil
+}
+
+func (r *EncryptionPostgres) SetRecipeKeyLink(recipeId int, url *string) error {
+
+	setKeyQuery := fmt.Sprintf(`
+			UPDATE %s
+			SET key=$1
+			WHERE recipe_id=$2
+		`, recipesTable)
+
+	if _, err := r.db.Exec(setKeyQuery, url, recipeId); err != nil {
+		logRepoError(err)
+		return failure.UserNotFound
+	}
+
+	return nil
 }
