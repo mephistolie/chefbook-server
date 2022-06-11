@@ -5,7 +5,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/config"
 	"github.com/mephistolie/chefbook-server/internal/service"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
-	"github.com/mephistolie/chefbook-server/pkg/cache"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
 	"github.com/mephistolie/chefbook-server/pkg/mail"
 	"time"
@@ -25,7 +24,6 @@ type Service struct {
 
 type Dependencies struct {
 	Repo                  *repository.Repository
-	Cache                 cache.Cache
 	HashManager           hash.HashManager
 	TokenManager          auth.TokenManager
 	MailSender            mail.Sender
@@ -40,7 +38,7 @@ type Dependencies struct {
 
 func NewService(dependencies Dependencies) *Service {
 
-	mailService := service.NewMailService(dependencies.MailSender, dependencies.MailConfig, dependencies.Cache)
+	mailService := service.NewMailService(dependencies.MailSender, dependencies.MailConfig)
 	var firebaseService *service.FirebaseService = nil
 	if dependencies.FirebaseImportEnabled {
 		firebaseService = service.NewFirebaseService(dependencies.Repo.Migration, dependencies.Repo.Auth, dependencies.Repo.Profile,

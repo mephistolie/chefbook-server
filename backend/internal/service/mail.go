@@ -6,7 +6,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/config"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/pkg/cache"
 	emailProvider "github.com/mephistolie/chefbook-server/pkg/mail"
 )
 
@@ -17,19 +16,16 @@ const (
 type MailService struct {
 	sender emailProvider.Sender
 	config config.MailConfig
-
-	cache cache.Cache
 }
 
 type verificationEmailInput struct {
 	VerificationLink string
 }
 
-func NewMailService(sender emailProvider.Sender, config config.MailConfig, cache cache.Cache) *MailService {
+func NewMailService(sender emailProvider.Sender, config config.MailConfig) *MailService {
 	return &MailService{
 		sender: sender,
 		config: config,
-		cache:  cache,
 	}
 }
 

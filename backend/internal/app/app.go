@@ -13,7 +13,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/repository/postgres"
 	"github.com/mephistolie/chefbook-server/internal/server"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
-	"github.com/mephistolie/chefbook-server/pkg/cache"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
 	"github.com/mephistolie/chefbook-server/pkg/logger"
 	smtp "github.com/mephistolie/chefbook-server/pkg/mail"
@@ -47,7 +46,6 @@ func Run(configPath string) {
 		logger.Errorf("failed to initialize db: %s", err.Error())
 	}
 
-	memCache := cache.NewMemoryCache()
 	hashManager := hash.NewBcryptManager(cfg.Auth.SaltCost)
 
 	emailSender, err := smtp.NewSMTPSender(cfg.SMTP.From, cfg.SMTP.Password, cfg.SMTP.Host, cfg.SMTP.Port)
@@ -81,7 +79,6 @@ func Run(configPath string) {
 	repositories := repository.NewRepository(db, client, firebaseApp, cfg.Firebase.ApiKey)
 	services := service.NewService(service.Dependencies{
 		Repo:                  repositories,
-		Cache:                 memCache,
 		HashManager:           hashManager,
 		TokenManager:          tokenManager,
 		MailSender:            emailSender,

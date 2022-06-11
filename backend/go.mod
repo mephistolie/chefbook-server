@@ -3,25 +3,22 @@ module github.com/mephistolie/chefbook-server
 go 1.17
 
 require (
+	cloud.google.com/go/firestore v1.6.0
+	firebase.google.com/go/v4 v4.7.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
-	github.com/jmoiron/sqlx v1.3.4 // indirectc
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.3
+	github.com/minio/minio-go/v7 v7.0.18
 	github.com/siruspen/logrus v1.7.1
 	github.com/spf13/viper v1.9.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
-)
-
-require (
-	cloud.google.com/go/firestore v1.6.0
-	firebase.google.com/go/v4 v4.7.0
-	github.com/minio/minio-go/v7 v7.0.18
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.4.3
 	github.com/swaggo/swag v1.8.2
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	google.golang.org/api v0.56.0
 )
 

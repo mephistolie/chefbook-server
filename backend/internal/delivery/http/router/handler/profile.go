@@ -150,7 +150,7 @@ func (r *ProfileHandler) SetUsername(c *gin.Context) {
 // @Accept mpfd
 // @Produce json
 // @Param file formData file true "Avatar File"
-// @Success 200 {object} response_body.Message
+// @Success 200 {object} response_body.Link
 // @Failure 400 {object} response_body.Error
 // @Router /v1/profile/avatar [put]
 func (r *ProfileHandler) UploadAvatar(c *gin.Context) {
