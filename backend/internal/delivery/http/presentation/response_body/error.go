@@ -51,8 +51,6 @@ func NewError(err error) Error {
 		errType = errTypeInvalidBody
 	case failure.InvalidFileSize:
 		errType = errTypeBigFile
-	case failure.UnableSendEmail:
-		errType = errTypeUnableSendMail
 	case failure.InvalidCredentials:
 		errType = errTypeInvalidCredentials
 	case failure.ProfileNotActivated:
