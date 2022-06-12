@@ -5,27 +5,26 @@ import (
 )
 
 const (
-	errTypeAccessDenied        = "ACCESS_DENIED"
-	errTypeInvalidAccessToken  = "INVALID_ACCESS_TOKEN"
-	errTypeInvalidRefreshToken = "INVALID_REFRESH_TOKEN"
+	errTypeAccessDenied        = "access_denied"
+	errTypeInvalidAccessToken  = "unauthorized"
+	errTypeInvalidRefreshToken = "invalid_refresh_token"
 
-	errTypeInvalidBody = "INVALID_BODY"
-	errTypeBigFile     = "BIG_FILE"
-	errTypeNotFound    = "NOT_FOUND"
+	errTypeInvalidBody = "invalid_body"
+	errTypeBigFile     = "big_file"
+	errTypeNotFound    = "not_found"
 
-	errTypeUnableSendMail        = "UNABLE_SEND_MAIL"
-	errTypeInvalidCredentials    = "INVALID_CREDENTIALS"
-	errTypeProfileNotActivated   = "PROFILE_NOT_ACTIVATED"
-	errTypeInvalidActivationLink = "INVALID_ACTIVATION_LINK"
-	errTypeUserExists            = "USER_EXISTS"
-	errTypeUserBlocked           = "USER_BLOCKED"
+	errTypeInvalidCredentials    = "invalid_credentials"
+	errTypeProfileNotActivated   = "profile_not_activated"
+	errTypeInvalidActivationLink = "invalid_activation_link"
+	errTypeUserExists            = "user_exists"
+	errTypeUserBlocked           = "user_blocked"
 
-	errFirebaseProfileImport = "IMPORT_OLD_PROFILE_FAILED"
+	errFirebaseProfileImport = "import_old_profile_failed"
 
-	errInvalidRecipe = "INVALID_RECIPE"
-	errNotInRecipeBook = "NOT_IN_RECIPE_BOOK"
+	errInvalidRecipe = "invalid_recipe"
+	errNotInRecipeBook = "not_in_recipe_book"
 
-	errTypeUnknown = "UNKNOWN_ERROR"
+	errTypeUnknown = "unknown_error"
 )
 
 type Error struct {

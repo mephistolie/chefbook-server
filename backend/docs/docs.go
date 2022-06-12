@@ -504,7 +504,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response_body.Message"
+                            "$ref": "#/definitions/response_body.Link"
                         }
                     },
                     "400": {
