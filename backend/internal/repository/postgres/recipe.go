@@ -114,10 +114,9 @@ func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId int) (entit
 				(
 					SELECT EXISTS
 					(
-						SELECT 1 FROM
-							%[2]v
-						WHERE
-							%[2]v.recipe_id=%[2]v.recipe_id AND user_id=$1
+						SELECT 1
+						FROM %[2]v
+						WHERE %[2]v.recipe_id=%[1]v.recipe_id AND user_id=$1
 					)
 				) AS saved
 			FROM
@@ -181,10 +180,9 @@ func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId int) (entity.U
 				(
 					SELECT EXISTS
 					(
-						SELECT 1 FROM
-							%[2]v
-						WHERE
-							%[2]v.recipe_id=%[2]v.recipe_id AND user_id=$1
+						SELECT 1
+						FROM %[2]v
+						WHERE %[2]v.recipe_id=%[1]v.recipe_id AND user_id=$1
 					)
 				) AS saved
 			FROM
@@ -480,19 +478,17 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 				(
 					SELECT EXISTS
 					(
-						SELECT 1 FROM
-							%[3]v
-						WHERE
-							%[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v
+						SELECT 1
+						FROM %[3]v
+						WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v
 					)
 				) AS liked, %[4]v.username,
 				(
 					SELECT EXISTS
 					(
-						SELECT 1 FROM
-							%[2]v
-						WHERE
-							%[2]v.recipe_id=%[2]v.recipe_id AND user_id=%[5]v
+						SELECT 1
+						FROM %[2]v
+						WHERE %[2]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v
 					)
 				) AS saved
 			FROM
