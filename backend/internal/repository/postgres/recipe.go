@@ -116,6 +116,8 @@ func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId int) (entit
 					(
 						SELECT 1 FROM
 							%[2]v
+						WHERE
+							%[2]v.recipe_id=%[2]v.recipe_id AND user_id=$1
 					)
 				) AS saved
 			FROM
@@ -181,6 +183,8 @@ func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId int) (entity.U
 					(
 						SELECT 1 FROM
 							%[2]v
+						WHERE
+							%[2]v.recipe_id=%[2]v.recipe_id AND user_id=$1
 					)
 				) AS saved
 			FROM
@@ -487,6 +491,8 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 					(
 						SELECT 1 FROM
 							%[2]v
+						WHERE
+							%[2]v.recipe_id=%[2]v.recipe_id AND user_id=%[5]v
 					)
 				) AS saved
 			FROM
