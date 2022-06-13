@@ -11,7 +11,8 @@ type Recipe struct {
 	Name        string  `json:"name"`
 	OwnerId     int     `json:"owner_id"`
 	OwnerName   string  `json:"owner_name"`
-	Owned       bool    `json:"owned"`
+	IsOwned     bool    `json:"owned"`
+	IsSaved     bool    `json:"saved"`
 	Likes       int16   `json:"likes"`
 	Visibility  string  `json:"visibility"`
 	IsEncrypted bool    `json:"encrypted"`
@@ -52,7 +53,8 @@ func NewRecipe(recipe entity.UserRecipe) Recipe {
 		Name:        recipe.Name,
 		OwnerId:     recipe.OwnerId,
 		OwnerName:   recipe.OwnerName,
-		Owned:       recipe.Owned,
+		IsOwned:     recipe.IsOwned,
+		IsSaved:     recipe.IsSaved,
 		Likes:       recipe.Likes,
 		Visibility:  recipe.Visibility,
 		IsEncrypted: recipe.IsEncrypted,
@@ -83,7 +85,8 @@ type RecipeInfo struct {
 	Name        string  `json:"name"`
 	OwnerId     int     `json:"owner_id"`
 	OwnerName   string  `json:"owner_name"`
-	Owned       bool    `json:"owned"`
+	IsOwned     bool    `json:"owned"`
+	IsSaved     bool    `json:"saved"`
 	Likes       int16   `json:"likes"`
 	Visibility  string  `json:"visibility"`
 	IsEncrypted bool    `json:"encrypted"`
@@ -109,7 +112,8 @@ func NewRecipeInfo(recipe entity.RecipeInfo) RecipeInfo {
 		Name:        recipe.Name,
 		OwnerId:     recipe.OwnerId,
 		OwnerName:   recipe.OwnerName,
-		Owned:       recipe.Owned,
+		IsOwned:     recipe.IsOwned,
+		IsSaved:     recipe.IsSaved,
 		Likes:       recipe.Likes,
 		Visibility:  recipe.Visibility,
 		IsEncrypted: recipe.IsEncrypted,

@@ -41,11 +41,12 @@ func (r *RecipePostgres) GetRecipes(params entity.RecipesQuery, userId int) ([]e
 		var recipe entity.RecipeInfo
 		err := rows.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Likes, &recipe.Servings,
 			&recipe.Time, &recipe.Calories, &recipe.Preview, &recipe.Visibility, &recipe.IsEncrypted, &recipe.CreationTimestamp,
-			&recipe.UpdateTimestamp, &recipe.IsFavourite, &recipe.IsLiked, &recipe.OwnerName)
+			&recipe.UpdateTimestamp, &recipe.IsFavourite, &recipe.IsLiked, &recipe.OwnerName, &recipe.IsSaved)
 		if err != nil {
 			logRepoError(err)
 			continue
 		}
+		recipe.IsOwned = recipe.OwnerId == userId
 		recipes = append(recipes, recipe)
 	}
 
@@ -109,7 +110,14 @@ func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId int) (entit
 						FROM %[3]v
 						WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1
 					)
-				) AS liked, %[4]v.username
+				) AS liked, %[4]v.username,
+				(
+					SELECT EXISTS
+					(
+						SELECT 1 FROM
+							%[2]v
+					)
+				) AS saved
 			FROM
 				%[1]v
 			LEFT JOIN
@@ -126,10 +134,12 @@ func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId int) (entit
 		&recipe.Servings, &recipe.Time, &recipe.Calories, &recipe.Macronutrients.Protein, &recipe.Macronutrients.Fats,
 		&recipe.Macronutrients.Carbohydrates, &bsonIngredients, &bsonCooking, &recipe.Preview, &recipe.Visibility,
 		&recipe.IsEncrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp, &recipe.IsFavourite, &recipe.IsLiked,
-		&recipe.OwnerName); err != nil {
+		&recipe.OwnerName, &recipe.IsSaved); err != nil {
 		logRepoError(err)
 		return entity.UserRecipe{}, failure.UnableGetRandomRecipe
 	}
+
+	recipe.IsOwned = recipe.OwnerId == userId
 
 	var ingredients []dto.IngredientItem
 	var cooking []dto.CookingItem
@@ -165,7 +175,14 @@ func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId int) (entity.U
 						FROM %[3]v
 						WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1
 					)
-				) AS liked, %[4]v.username
+				) AS liked, %[4]v.username,
+				(
+					SELECT EXISTS
+					(
+						SELECT 1 FROM
+							%[2]v
+					)
+				) AS saved
 			FROM
 				%[1]v
 			LEFT JOIN
@@ -179,10 +196,12 @@ func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId int) (entity.U
 	if err := row.Scan(&recipe.Id, &recipe.Name, &recipe.OwnerId, &recipe.Language, &recipe.Description, &recipe.Likes, &recipe.Servings,
 		&recipe.Time, &recipe.Calories, &recipe.Macronutrients.Protein, &recipe.Macronutrients.Fats, &recipe.Macronutrients.Carbohydrates,
 		&bsonIngredients, &bsonCooking, &recipe.Preview, &recipe.Visibility, &recipe.IsEncrypted, &recipe.CreationTimestamp, &recipe.UpdateTimestamp,
-		&recipe.IsFavourite, &recipe.IsLiked, &recipe.OwnerName); err != nil {
+		&recipe.IsFavourite, &recipe.IsLiked, &recipe.OwnerName, &recipe.IsSaved); err != nil {
 		logRepoError(err)
 		return entity.UserRecipe{}, failure.RecipeNotFound
 	}
+
+	recipe.IsOwned = recipe.OwnerId == userId
 
 	var ingredients []dto.IngredientItem
 	var cooking []dto.CookingItem
@@ -462,7 +481,14 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 						WHERE
 							%[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v
 					)
-				) AS liked, %[4]v.username
+				) AS liked, %[4]v.username,
+				(
+					SELECT EXISTS
+					(
+						SELECT 1 FROM
+							%[2]v
+					)
+				) AS saved
 			FROM
 				%[1]v
 			LEFT JOIN

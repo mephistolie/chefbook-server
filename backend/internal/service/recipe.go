@@ -25,7 +25,7 @@ func (s *RecipeService)	GetRecipes(query entity.RecipesQuery, userId int) ([]ent
 	for i := range recipes {
 		recipes[i].Categories= s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
 		if recipes[i].OwnerId == userId {
-			recipes[i].Owned = true
+			recipes[i].IsOwned = true
 		}
 	}
 	return recipes, err
@@ -43,7 +43,7 @@ func (s *RecipeService) GetRecipe(recipeId, userId int) (entity.UserRecipe, erro
 
 	recipe.Categories = s.categoriesRepo.GetRecipeCategories(recipeId, userId)
 	if recipe.OwnerId == userId {
-		recipe.Owned = true
+		recipe.IsOwned = true
 	}
 
 	return recipe, err

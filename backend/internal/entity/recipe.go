@@ -41,7 +41,8 @@ type UserRecipe struct {
 	Name        string
 	OwnerId     int
 	OwnerName   string
-	Owned       bool
+	IsOwned     bool
+	IsSaved     bool
 	Likes       int16
 	Visibility  string
 	IsEncrypted bool
@@ -71,7 +72,8 @@ type RecipeInfo struct {
 	Name        string
 	OwnerId     int
 	OwnerName   string
-	Owned       bool
+	IsOwned     bool
+	IsSaved     bool
 	Likes       int16
 	Visibility  string
 	IsEncrypted bool
