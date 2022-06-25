@@ -8,7 +8,7 @@ import (
 
 type ShoppingList struct {
 	Purchases []common_body.Purchase `json:"purchases"`
-	Timestamp time.Time              `json:"timestamp"`
+	Timestamp string                 `json:"timestamp"`
 }
 
 func NewShoppingList(shoppingList entity.ShoppingList) ShoppingList {
@@ -19,6 +19,6 @@ func NewShoppingList(shoppingList entity.ShoppingList) ShoppingList {
 
 	return ShoppingList{
 		Purchases: purchases,
-		Timestamp: shoppingList.Timestamp,
+		Timestamp: shoppingList.Timestamp.UTC().Format(time.RFC3339),
 	}
 }

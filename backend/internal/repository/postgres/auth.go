@@ -98,7 +98,7 @@ func (r *AuthPostgres) GetUserById(userId int) (entity.Profile, error) {
 	var user dto.ProfileInfo
 
 	getUserQuery := fmt.Sprintf(`
-			SELECT user_id, email, username, password, is_activated, avatar, premium, broccoins, is_blocked
+			SELECT user_id, email, username, registered, password, is_activated,avatar, premium, broccoins, is_blocked
 			FROM %s
 			WHERE user_id=$1
 		`, usersTable)

@@ -20,8 +20,8 @@ type Recipe struct {
 	Description *string `json:"description,omitempty"`
 	Preview     *string `json:"preview,omitempty"`
 
-	CreationTimestamp time.Time `json:"creation_timestamp"`
-	UpdateTimestamp   time.Time `json:"update_timestamp"`
+	CreationTimestamp string `json:"creation_timestamp"`
+	UpdateTimestamp   string `json:"update_timestamp"`
 
 	Categories  *[]Category `json:"categories,omitempty"`
 	IsFavourite bool        `json:"favourite"`
@@ -62,8 +62,8 @@ func NewRecipe(recipe entity.UserRecipe) Recipe {
 		Description: recipe.Description,
 		Preview:     recipe.Preview,
 
-		CreationTimestamp: recipe.CreationTimestamp.UTC(),
-		UpdateTimestamp:   recipe.UpdateTimestamp.UTC(),
+		CreationTimestamp: recipe.CreationTimestamp.UTC().Format(time.RFC3339),
+		UpdateTimestamp:   recipe.UpdateTimestamp.UTC().Format(time.RFC3339),
 
 		Categories:  getRecipeCategories(&recipe.Categories),
 		IsFavourite: recipe.IsFavourite,
