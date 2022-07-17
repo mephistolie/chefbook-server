@@ -279,7 +279,7 @@ func (r *RecipeHandler) setRecipeFavourite(c *gin.Context, favourite bool) {
 		return
 	}
 
-	response.Success(c, message.FavouriteStatusUpdated)
+	response.Message(c, message.FavouriteStatusUpdated)
 }
 
 // LikeRecipe Swagger Documentation
@@ -325,7 +325,7 @@ func (r *RecipeHandler) setRecipeLiked(c *gin.Context, liked bool) {
 		return
 	}
 
-	response.Success(c, message.RecipeLikeSet)
+	response.Message(c, message.RecipeLikeSet)
 }
 
 func (r *RecipeHandler) getRecipesQuery(c *gin.Context) *request_body.RecipesQuery {

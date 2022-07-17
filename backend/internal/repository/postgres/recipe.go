@@ -240,6 +240,26 @@ func (r *RecipePostgres) GetRecipeOwnerId(recipeId int) (int, error) {
 }
 
 func (r *RecipePostgres) AddRecipeToRecipeBook(recipeId, userId int) error {
+	var exists bool
+
+	checkSavingQuery := fmt.Sprintf(`
+			SELECT EXISTS
+			(
+				SELECT 1
+				FROM %s
+				WHERE recipe_id=$1 AND user_id=$2
+			)
+		`, usersRecipesTable)
+
+	err := r.db.QueryRow(checkSavingQuery, recipeId, userId).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		logRepoError(err)
+		return failure.Unknown
+	}
+
+	if exists {
+		return nil
+	}
 
 	addRecipeQuery := fmt.Sprintf(`
 			INSERT INTO %s (recipe_id, user_id)
