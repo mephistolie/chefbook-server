@@ -1,7 +1,7 @@
 package response_body
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/entity/failure"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 
 	errFirebaseProfileImport = "import_old_profile_failed"
 
-	errInvalidRecipe = "invalid_recipe"
+	errInvalidRecipe   = "invalid_recipe"
 	errNotInRecipeBook = "not_in_recipe_book"
 
 	errTypeUnknown = "unknown_error"

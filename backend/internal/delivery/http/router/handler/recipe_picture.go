@@ -1,11 +1,11 @@
 package handler
 
 import (
+	"chefbook-server/internal/app/dependencies/service"
+	"chefbook-server/internal/delivery/http/middleware"
+	"chefbook-server/internal/delivery/http/middleware/response"
+	"chefbook-server/internal/delivery/http/presentation/response_body/message"
 	"github.com/gin-gonic/gin"
-	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body/message"
 )
 
 const (

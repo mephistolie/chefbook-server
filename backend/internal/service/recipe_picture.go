@@ -1,21 +1,21 @@
 package service
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/service/interface/repository"
 	"context"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
 )
 
 type RecipePicturesService struct {
-	recipesRepo            repository.Recipe
-	filesRepo              repository.File
+	recipesRepo repository.Recipe
+	filesRepo   repository.File
 }
 
 func NewRecipePicturesService(recipesRepo repository.Recipe, filesRepo repository.File) *RecipePicturesService {
 	return &RecipePicturesService{
-		recipesRepo:            recipesRepo,
-		filesRepo:              filesRepo,
+		recipesRepo: recipesRepo,
+		filesRepo:   filesRepo,
 	}
 }
 

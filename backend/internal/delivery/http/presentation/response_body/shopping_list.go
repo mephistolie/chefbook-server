@@ -1,8 +1,8 @@
 package response_body
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/common_body"
-	"github.com/mephistolie/chefbook-server/internal/entity"
+	"chefbook-server/internal/delivery/http/presentation/common_body"
+	"chefbook-server/internal/entity"
 	"time"
 )
 

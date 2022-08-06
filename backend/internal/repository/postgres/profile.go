@@ -1,9 +1,9 @@
 package postgres
 
 import (
+	"chefbook-server/internal/entity/failure"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"time"
 )
 

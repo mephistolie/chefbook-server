@@ -1,8 +1,8 @@
 package request_body
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
 	"unicode"
 )
 
@@ -15,7 +15,7 @@ func (c *Credentials) Validate() error {
 	return validatePassword(c.Password)
 }
 
-func validatePassword(password string) error  {
+func validatePassword(password string) error {
 	lower := false
 	upper := false
 	number := false

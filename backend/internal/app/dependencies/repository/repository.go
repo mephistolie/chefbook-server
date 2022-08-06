@@ -1,12 +1,12 @@
 package repository
 
 import (
+	firebaseRepo "chefbook-server/internal/repository/firebase"
+	"chefbook-server/internal/repository/postgres"
+	"chefbook-server/internal/repository/s3"
+	"chefbook-server/internal/service/interface/repository"
 	firebase "firebase.google.com/go/v4"
 	"github.com/jmoiron/sqlx"
-	firebaseRepo "github.com/mephistolie/chefbook-server/internal/repository/firebase"
-	"github.com/mephistolie/chefbook-server/internal/repository/postgres"
-	"github.com/mephistolie/chefbook-server/internal/repository/s3"
-	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
 	"github.com/minio/minio-go/v7"
 )
 

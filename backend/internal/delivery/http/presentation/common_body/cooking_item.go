@@ -1,8 +1,8 @@
 package common_body
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
 	"strings"
 )
 

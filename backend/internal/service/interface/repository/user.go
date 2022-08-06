@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"chefbook-server/internal/entity"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/entity"
 	"time"
 )
 

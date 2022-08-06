@@ -1,6 +1,6 @@
 package response_body
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type Tokens struct {
 	AccessToken  string `json:"access_token"`

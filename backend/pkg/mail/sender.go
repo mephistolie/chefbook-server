@@ -2,8 +2,8 @@ package mail
 
 import (
 	"bytes"
+	"chefbook-server/pkg/logger"
 	"errors"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"html/template"
 )
 

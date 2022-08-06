@@ -1,23 +1,23 @@
 package s3
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
 	"context"
 	"fmt"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/minio/minio-go/v7"
 	"strings"
 )
 
 const (
 	chefBookBucket = "chefbook-storage"
-	usersDir = "users"
-	avatarsDir = "avatars"
-	keysDir = "keys"
-	recipesDir = "recipes"
-	imagesDir = "images"
+	usersDir       = "users"
+	avatarsDir     = "avatars"
+	keysDir        = "keys"
+	recipesDir     = "recipes"
+	imagesDir      = "images"
 
-	xAmzAcl = "x-amz-acl"
+	xAmzAcl    = "x-amz-acl"
 	publicRead = "public-read"
 )
 
@@ -33,7 +33,7 @@ func NewAWSFileManager(client *minio.Client) *AWSFileManager {
 
 func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
-		ContentType: input.ContentType,
+		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
@@ -48,7 +48,7 @@ func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId int, input ent
 
 func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId int, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
-		ContentType: input.ContentType,
+		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
@@ -72,7 +72,7 @@ func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId int) []
 
 func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId int, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
-		ContentType: input.ContentType,
+		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
@@ -91,7 +91,7 @@ func (r *AWSFileManager) DeleteRecipePicture(ctx context.Context, recipeId int, 
 
 func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId int, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
-		ContentType: input.ContentType,
+		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
@@ -105,7 +105,7 @@ func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId int, inpu
 }
 
 func (r *AWSFileManager) DeleteFile(ctx context.Context, url string) error {
-	opts := minio.RemoveObjectOptions{ ForceDelete: true }
+	opts := minio.RemoveObjectOptions{ForceDelete: true}
 	filePath := strings.ReplaceAll(url, fmt.Sprintf("%s/%s/", r.client.EndpointURL().String(), chefBookBucket), "")
 	if err := r.client.RemoveObject(ctx, chefBookBucket, filePath, opts); err != nil {
 		return failure.UnableDeleteFile

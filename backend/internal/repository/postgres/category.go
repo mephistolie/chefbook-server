@@ -1,12 +1,12 @@
 package postgres
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/repository/postgres/dto"
+	"chefbook-server/pkg/logger"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/repository/postgres/dto"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 )
 
 type CategoryPostgres struct {

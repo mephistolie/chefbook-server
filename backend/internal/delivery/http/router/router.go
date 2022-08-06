@@ -1,14 +1,14 @@
 package router
 
 import (
+	_ "chefbook-server/docs"
+	"chefbook-server/internal/app/dependencies/service"
+	"chefbook-server/internal/config"
+	"chefbook-server/internal/delivery/http/middleware"
+	"chefbook-server/internal/delivery/http/router/v1"
+	"chefbook-server/pkg/auth"
+	"chefbook-server/pkg/limiter"
 	"github.com/gin-gonic/gin"
-	_ "github.com/mephistolie/chefbook-server/docs"
-	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
-	"github.com/mephistolie/chefbook-server/internal/config"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/router/v1"
-	"github.com/mephistolie/chefbook-server/pkg/auth"
-	"github.com/mephistolie/chefbook-server/pkg/limiter"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )

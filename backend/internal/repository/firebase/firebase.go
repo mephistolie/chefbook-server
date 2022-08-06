@@ -2,6 +2,10 @@ package firebase
 
 import (
 	"bytes"
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/repository/firebase/dto"
+	"chefbook-server/pkg/logger"
 	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/json"
@@ -9,10 +13,6 @@ import (
 	"firebase.google.com/go/v4/auth"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/repository/firebase/dto"
-	"github.com/mephistolie/chefbook-server/pkg/logger"
 	"net/http"
 	"regexp"
 	"strconv"

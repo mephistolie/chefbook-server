@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/service/interface/repository"
 	"time"
 )
 

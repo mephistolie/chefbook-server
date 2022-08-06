@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"chefbook-server/internal/delivery/http/middleware/response"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/pkg/auth"
 	"github.com/gin-gonic/gin"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"strconv"
 	"strings"
 )

@@ -1,8 +1,8 @@
 package response
 
 import (
+	"chefbook-server/internal/delivery/http/presentation/response_body"
 	"github.com/gin-gonic/gin"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body"
 	"net/http"
 )
 

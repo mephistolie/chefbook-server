@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type IngredientItem struct {
 	Text   string  `json:"text" binding:"required,min=1"`

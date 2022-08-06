@@ -1,8 +1,8 @@
 package service
 
 import (
+	"chefbook-server/internal/entity"
 	"context"
-	"github.com/mephistolie/chefbook-server/internal/entity"
 )
 
 type Profile interface {

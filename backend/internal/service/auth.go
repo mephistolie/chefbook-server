@@ -1,12 +1,12 @@
 package service
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/service/interface/repository"
+	"chefbook-server/pkg/auth"
+	"chefbook-server/pkg/hash"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
-	"github.com/mephistolie/chefbook-server/pkg/auth"
-	"github.com/mephistolie/chefbook-server/pkg/hash"
 	"strconv"
 	"time"
 )

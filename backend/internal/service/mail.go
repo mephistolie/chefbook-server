@@ -1,12 +1,12 @@
 package service
 
 import (
+	"chefbook-server/internal/config"
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	emailProvider "chefbook-server/pkg/mail"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/mephistolie/chefbook-server/internal/config"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	emailProvider "github.com/mephistolie/chefbook-server/pkg/mail"
 )
 
 const (

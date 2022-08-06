@@ -1,10 +1,10 @@
 package postgres
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 )
 
 type RecipeSharingPostgres struct {
@@ -50,7 +50,7 @@ func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId int) ([]entity.Profil
 	return users, nil
 }
 
-func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId int) (string, error)  {
+func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId int) (string, error) {
 	var key *string
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
@@ -91,7 +91,7 @@ func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId int, userId int, u
 	return nil
 }
 
-func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId int) (string, error)  {
+func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId int) (string, error) {
 	var key *string
 
 	setUserPublicKeyQuery := fmt.Sprintf(`

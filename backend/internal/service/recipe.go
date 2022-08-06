@@ -1,29 +1,29 @@
 package service
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/service/interface/repository"
 	"strings"
 )
 
 type RecipeService struct {
-	recipesRepo            repository.Recipe
-	categoriesRepo         repository.Category
+	recipesRepo    repository.Recipe
+	categoriesRepo repository.Category
 }
 
 func NewRecipeService(recipesRepo repository.Recipe, categoriesRepo repository.Category) *RecipeService {
 	return &RecipeService{
-		recipesRepo:            recipesRepo,
-		categoriesRepo:         categoriesRepo,
+		recipesRepo:    recipesRepo,
+		categoriesRepo: categoriesRepo,
 	}
 }
 
-func (s *RecipeService)	GetRecipes(query entity.RecipesQuery, userId int) ([]entity.RecipeInfo, error) {
+func (s *RecipeService) GetRecipes(query entity.RecipesQuery, userId int) ([]entity.RecipeInfo, error) {
 	recipes, err := s.recipesRepo.GetRecipes(query, userId)
 
 	for i := range recipes {
-		recipes[i].Categories= s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
+		recipes[i].Categories = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
 		if recipes[i].OwnerId == userId {
 			recipes[i].IsOwned = true
 		}

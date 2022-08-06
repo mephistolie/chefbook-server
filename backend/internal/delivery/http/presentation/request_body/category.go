@@ -1,6 +1,6 @@
 package request_body
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type CategoryInput struct {
 	Name  string  `json:"name" binding:"required,min=1,max=50"`

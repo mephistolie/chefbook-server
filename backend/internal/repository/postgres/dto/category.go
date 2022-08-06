@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type Category struct {
 	Id     int     `db:"category_id"`

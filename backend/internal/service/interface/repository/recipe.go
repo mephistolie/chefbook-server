@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type RecipeOwnership interface {
 	CreateRecipe(recipe entity.RecipeInput, userId int) (int, error)

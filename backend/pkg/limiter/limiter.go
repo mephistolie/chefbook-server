@@ -1,7 +1,7 @@
 package limiter
 
 import (
-	"github.com/mephistolie/chefbook-server/pkg/logger"
+	"chefbook-server/pkg/logger"
 	"net"
 	"net/http"
 	"sync"

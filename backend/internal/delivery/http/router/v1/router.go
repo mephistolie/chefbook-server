@@ -1,11 +1,11 @@
 package v1
 
 import (
+	"chefbook-server/internal/app/dependencies/service"
+	"chefbook-server/internal/delivery/http/middleware"
+	"chefbook-server/internal/delivery/http/router/handler"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
-	"github.com/mephistolie/chefbook-server/internal/delivery/http/router/handler"
 )
 
 type v1Handler struct {

@@ -1,11 +1,11 @@
 package service
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/service/interface/repository"
+	"chefbook-server/pkg/hash"
 	"context"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
-	"github.com/mephistolie/chefbook-server/pkg/hash"
 )
 
 type ProfileService struct {

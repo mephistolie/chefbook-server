@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type FirebaseMigration interface {
 	GetProfile(credentials entity.Credentials) (entity.FirebaseProfile, error)

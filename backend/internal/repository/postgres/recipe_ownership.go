@@ -1,12 +1,12 @@
 package postgres
 
 import (
+	"chefbook-server/internal/entity"
+	"chefbook-server/internal/entity/failure"
+	"chefbook-server/internal/repository/postgres/dto"
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/mephistolie/chefbook-server/internal/entity"
-	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"github.com/mephistolie/chefbook-server/internal/repository/postgres/dto"
 	"time"
 )
 
@@ -47,7 +47,7 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 				($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 			RETURNING
 				recipe_id
-		`,	recipesTable)
+		`, recipesTable)
 
 	row := tx.QueryRow(createRecipeQuery, recipe.Name, userId, recipe.Language, recipe.Description, recipe.Servings,
 		recipe.Time, recipe.Calories, recipe.Macronutrients.Protein, recipe.Macronutrients.Fats, recipe.Macronutrients.Carbohydrates,

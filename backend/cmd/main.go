@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/mephistolie/chefbook-server/internal/app"
+	"chefbook-server/internal/app"
 )
 
 // @title ChefBook API

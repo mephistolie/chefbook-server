@@ -1,6 +1,6 @@
 package common_body
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import "chefbook-server/internal/entity"
 
 type Purchase struct {
 	Id          string `json:"purchase_id" binding:"required"`

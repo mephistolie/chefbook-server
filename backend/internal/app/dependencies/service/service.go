@@ -1,12 +1,12 @@
 package service
 
 import (
-	"github.com/mephistolie/chefbook-server/internal/app/dependencies/repository"
-	"github.com/mephistolie/chefbook-server/internal/config"
-	"github.com/mephistolie/chefbook-server/internal/service"
-	"github.com/mephistolie/chefbook-server/pkg/auth"
-	"github.com/mephistolie/chefbook-server/pkg/hash"
-	"github.com/mephistolie/chefbook-server/pkg/mail"
+	"chefbook-server/internal/app/dependencies/repository"
+	"chefbook-server/internal/config"
+	"chefbook-server/internal/service"
+	"chefbook-server/pkg/auth"
+	"chefbook-server/pkg/hash"
+	"chefbook-server/pkg/mail"
 	"time"
 )
 
