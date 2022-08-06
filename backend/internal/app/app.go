@@ -1,6 +1,21 @@
 package app
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	firebase "firebase.google.com/go/v4"
+	_ "github.com/lib/pq"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	"google.golang.org/api/option"
+
 	"chefbook-server/internal/app/dependencies/repository"
 	"chefbook-server/internal/app/dependencies/service"
 	"chefbook-server/internal/config"
@@ -11,23 +26,9 @@ import (
 	"chefbook-server/pkg/hash"
 	"chefbook-server/pkg/logger"
 	smtp "chefbook-server/pkg/mail"
-	"context"
-	"errors"
-	firebase "firebase.google.com/go/v4"
-	"fmt"
-	_ "github.com/lib/pq"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"google.golang.org/api/option"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
-func Run(configPath string) {
-
+func Run(configPath string, useSMTP bool) {
 	cfg, err := config.Init(configPath)
 	if err != nil {
 		logger.Errorf("failed to initialize config: %s", err.Error())
@@ -48,7 +49,7 @@ func Run(configPath string) {
 
 	hashManager := hash.NewBcryptManager(cfg.Auth.SaltCost)
 
-	emailSender, err := smtp.NewSMTPSender(cfg.SMTP.From, cfg.SMTP.Password, cfg.SMTP.Host, cfg.SMTP.Port)
+	emailSender, err := smtp.NewSender(cfg.SMTP, useSMTP)
 	if err != nil {
 		logger.Error(err)
 		return

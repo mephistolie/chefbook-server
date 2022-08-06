@@ -21,9 +21,13 @@ import (
 // @name Authorization
 
 func main() {
-	var configDir string
+	var (
+		configDir string
+		useSMTP   bool
+	)
 	flag.StringVar(&configDir, "configDir", "configs", "Path to directory with config files.")
+	flag.BoolVar(&useSMTP, "useSMTP", false, "If false, service doesn't use SMTP.")
 	flag.Parse()
 
-	app.Run(configDir)
+	app.Run(configDir, useSMTP)
 }

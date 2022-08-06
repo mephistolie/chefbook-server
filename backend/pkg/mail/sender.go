@@ -2,19 +2,28 @@ package mail
 
 import (
 	"bytes"
-	"chefbook-server/pkg/logger"
 	"errors"
 	"html/template"
+
+	"chefbook-server/internal/config"
+	"chefbook-server/pkg/logger"
 )
+
+type Sender interface {
+	Send(input SendEmailInput) error
+}
+
+func NewSender(config config.SMTPConfig, useSMTP bool) (Sender, error) {
+	if useSMTP {
+		return NewSMTPSender(config.From, config.Password, config.Host, config.Port)
+	}
+	return NewFakeSMTP(), nil
+}
 
 type SendEmailInput struct {
 	To      string
 	Subject string
 	Body    string
-}
-
-type Sender interface {
-	Send(input SendEmailInput) error
 }
 
 func (e *SendEmailInput) GenerateBodyFromHTML(templateFileName string, data interface{}) error {
