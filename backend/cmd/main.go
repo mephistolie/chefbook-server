@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/mephistolie/chefbook-server/internal/app"
 )
-
-const configDir = "configs"
 
 // @title ChefBook API
 // @version 1.0
@@ -21,5 +21,9 @@ const configDir = "configs"
 // @name Authorization
 
 func main() {
+	var configDir string
+	flag.StringVar(&configDir, "configDir", "configs", "Path to directory with config files.")
+	flag.Parse()
+
 	app.Run(configDir)
 }
