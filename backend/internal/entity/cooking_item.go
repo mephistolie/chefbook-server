@@ -5,6 +5,7 @@ const (
 )
 
 type CookingItem struct {
+	Id       string
 	Text     string
 	Link     *string
 	Time     *int16

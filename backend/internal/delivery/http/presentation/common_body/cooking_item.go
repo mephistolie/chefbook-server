@@ -7,6 +7,7 @@ import (
 )
 
 type CookingItem struct {
+	Id       string    `json:"id" binding:"required,min=10"`
 	Text     string    `json:"text"`
 	Type     string    `json:"type"`
 	Link     *string   `json:"link,omitempty"`
@@ -30,6 +31,7 @@ func (i *CookingItem) IsEncrypted() bool {
 
 func (i *CookingItem) Entity() entity.CookingItem {
 	return entity.CookingItem{
+		Id:       i.Id,
 		Text:     i.Text,
 		Type:     i.Type,
 		Time:     i.Time,
@@ -40,6 +42,7 @@ func (i *CookingItem) Entity() entity.CookingItem {
 
 func NewCookingItem(cookingItem entity.CookingItem) CookingItem {
 	return CookingItem{
+		Id:       cookingItem.Id,
 		Text:     cookingItem.Text,
 		Type:     cookingItem.Type,
 		Time:     cookingItem.Time,

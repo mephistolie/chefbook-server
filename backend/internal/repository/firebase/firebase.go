@@ -257,6 +257,7 @@ func parseIngredients(firebaseRecipe map[string]interface{}) ([]entity.Ingredien
 		}
 
 		ingredient := entity.IngredientItem{
+			Id:   uuid.NewString(),
 			Text: item,
 			Type: stringType,
 		}
@@ -291,6 +292,7 @@ func parseCooking(firebaseRecipe map[string]interface{}) ([]entity.CookingItem, 
 			stringType = entity.TypeSection
 		}
 		step := entity.CookingItem{
+			Id:   uuid.NewString(),
 			Text: item,
 			Type: stringType,
 		}

@@ -3,6 +3,7 @@ package dto
 import "github.com/mephistolie/chefbook-server/internal/entity"
 
 type IngredientItem struct {
+	Id     string  `json:"id" binding:"required,min=10"`
 	Text   string  `json:"text" binding:"required,min=1"`
 	Type   string  `json:"type" binding:"required"`
 	Amount *int    `json:"amount,omitempty"`
@@ -11,6 +12,7 @@ type IngredientItem struct {
 }
 
 type CookingItem struct {
+	Id       string    `json:"id" binding:"required,min=10"`
 	Text     string    `json:"text" binding:"required,min=1"`
 	Type     string    `json:"type" binding:"required"`
 	Link     *string   `json:"link,omitempty"`
@@ -20,6 +22,7 @@ type CookingItem struct {
 
 func (i *IngredientItem) Entity() entity.IngredientItem {
 	return entity.IngredientItem{
+		Id:     i.Id,
 		Text:   i.Text,
 		Type:   i.Type,
 		Amount: i.Amount,
@@ -30,6 +33,7 @@ func (i *IngredientItem) Entity() entity.IngredientItem {
 
 func NewIngredientItem(ingredientItem entity.IngredientItem) IngredientItem {
 	return IngredientItem{
+		Id:     ingredientItem.Id,
 		Text:   ingredientItem.Text,
 		Type:   ingredientItem.Type,
 		Amount: ingredientItem.Amount,
@@ -56,6 +60,7 @@ func NewIngredients(entities []entity.IngredientItem) []IngredientItem {
 
 func (i *CookingItem) Entity() entity.CookingItem {
 	return entity.CookingItem{
+		Id:       i.Id,
 		Text:     i.Text,
 		Type:     i.Type,
 		Time:     i.Time,
@@ -66,6 +71,7 @@ func (i *CookingItem) Entity() entity.CookingItem {
 
 func NewCookingItem(cookingItem entity.CookingItem) CookingItem {
 	return CookingItem{
+		Id:       cookingItem.Id,
 		Text:     cookingItem.Text,
 		Type:     cookingItem.Type,
 		Time:     cookingItem.Time,

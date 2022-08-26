@@ -5,6 +5,7 @@ const (
 )
 
 type IngredientItem struct {
+	Id     string
 	Text   string
 	Amount *int
 	Unit   *string
