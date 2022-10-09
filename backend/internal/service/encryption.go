@@ -38,7 +38,7 @@ func (s *EncryptionService) GetUserKeyLink(userId int) (string, error) {
 
 func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file entity.MultipartFile) (string, error) {
 	previousUrl, err := s.encryptionRepo.GetUserKeyLink(userId)
-	if err != nil {
+	if err != nil && err != failure.NoKey {
 		return "", err
 	}
 
@@ -104,7 +104,7 @@ func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userI
 	}
 
 	previousLink, err := s.encryptionRepo.GetRecipeKeyLink(recipeId)
-	if err != nil {
+	if err != nil && err != failure.NoKey {
 		return "", err
 	}
 
