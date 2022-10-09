@@ -25,7 +25,9 @@ func (r *EncryptionPostgres) GetUserKeyLink(userId int) (*string, error) {
 		`, usersTable)
 
 	if err := r.db.Get(&link, getKeyLinkQuery, userId); err != nil || len(*link) == 0 {
-		logRepoError(err)
+		if err != nil {
+			logRepoError(err)
+		}
 		return nil, failure.NoKey
 	}
 
@@ -57,8 +59,10 @@ func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId int) (*string, error) {
 			WHERE recipe_id=$1
 		`, recipesTable)
 
-	if err := r.db.Get(&link, getKeyLinkQuery, recipeId); err != nil {
-		logRepoError(err)
+	if err := r.db.Get(&link, getKeyLinkQuery, recipeId); err != nil || len(*link) == 0 {
+		if err != nil {
+			logRepoError(err)
+		}
 		return nil, failure.NoKey
 	}
 
