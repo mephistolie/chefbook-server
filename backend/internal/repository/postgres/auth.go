@@ -22,7 +22,6 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink uuid.UUID) (uuid.UUID, error) {
 	id := credentials.Id
 	if id == nil {
-		Ну
 		*id = uuid.New()
 	}
 
