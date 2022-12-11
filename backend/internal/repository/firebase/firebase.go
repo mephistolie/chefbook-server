@@ -183,10 +183,8 @@ func (r *MigrationRepo) getRecipesAndCategories(firebaseUser entity.FirebaseProf
 				}
 
 				if !isAddedToAllCategories && len(category) > 0 {
-					cover := string([]rune(category)[0:1])
 					categoryEntity := entity.CategoryInput{
-						Name:  category,
-						Cover: &cover,
+						Name: category,
 					}
 					categories = append(categories, categoryEntity)
 				}
