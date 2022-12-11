@@ -35,14 +35,15 @@ func (l *ShoppingList) Entity() entity.ShoppingList {
 }
 
 type Purchase struct {
-	Id          string `json:"purchase_id" binding:"required"`
-	Type        string `json:"type,omitempty"`
-	Name        string `json:"name" binding:"required"`
-	Multiplier  int    `json:"multiplier,omitempty"`
-	IsPurchased bool   `json:"is_purchased"`
-	Amount      int    `json:"amount,omitempty"`
-	Unit        string `json:"unit,omitempty"`
-	RecipeId    string `json:"recipe_id,omitempty"`
+	Id          string  `json:"purchase_id" binding:"required"`
+	Type        string  `json:"type,omitempty"`
+	Name        string  `json:"name" binding:"required"`
+	Multiplier  int     `json:"multiplier,omitempty"`
+	IsPurchased bool    `json:"is_purchased"`
+	Amount      int     `json:"amount,omitempty"`
+	Unit        *string `json:"unit,omitempty"`
+	RecipeId    *string `json:"recipe_id,omitempty"`
+	RecipeName  *string `json:"recipe_name,omitempty"`
 }
 
 func newPurchase(purchase entity.Purchase) Purchase {
@@ -52,9 +53,10 @@ func newPurchase(purchase entity.Purchase) Purchase {
 		Name:        purchase.Name,
 		Multiplier:  purchase.Multiplier,
 		IsPurchased: purchase.IsPurchased,
-		Amount:      purchase.Multiplier,
+		Amount:      purchase.Amount,
 		Unit:        purchase.Unit,
 		RecipeId:    purchase.RecipeId,
+		RecipeName:  purchase.RecipeName,
 	}
 }
 
@@ -65,8 +67,9 @@ func (l *Purchase) Entity() entity.Purchase {
 		Name:        l.Name,
 		Multiplier:  l.Multiplier,
 		IsPurchased: l.IsPurchased,
-		Amount:      l.Multiplier,
+		Amount:      l.Amount,
 		Unit:        l.Unit,
 		RecipeId:    l.RecipeId,
+		RecipeName:  l.RecipeName,
 	}
 }

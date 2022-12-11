@@ -20,6 +20,7 @@ type Purchase struct {
 	Multiplier  int
 	IsPurchased bool
 	Amount      int
-	Unit        string
-	RecipeId    string
+	Unit        *string
+	RecipeId    *string
+	RecipeName  *string
 }
