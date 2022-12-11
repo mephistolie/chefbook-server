@@ -36,7 +36,6 @@ func (l *ShoppingList) Entity() entity.ShoppingList {
 
 type Purchase struct {
 	Id          string  `json:"purchase_id" binding:"required"`
-	Type        string  `json:"type,omitempty"`
 	Name        string  `json:"name" binding:"required"`
 	Multiplier  int     `json:"multiplier,omitempty"`
 	IsPurchased bool    `json:"is_purchased"`
@@ -49,7 +48,6 @@ type Purchase struct {
 func newPurchase(purchase entity.Purchase) Purchase {
 	return Purchase{
 		Id:          purchase.Id,
-		Type:        purchase.Type,
 		Name:        purchase.Name,
 		Multiplier:  purchase.Multiplier,
 		IsPurchased: purchase.IsPurchased,
@@ -63,7 +61,6 @@ func newPurchase(purchase entity.Purchase) Purchase {
 func (l *Purchase) Entity() entity.Purchase {
 	return entity.Purchase{
 		Id:          l.Id,
-		Type:        l.Type,
 		Name:        l.Name,
 		Multiplier:  l.Multiplier,
 		IsPurchased: l.IsPurchased,

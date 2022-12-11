@@ -15,7 +15,6 @@ type ShoppingList struct {
 
 type Purchase struct {
 	Id          string
-	Type        string
 	Name        string
 	Multiplier  int
 	IsPurchased bool
