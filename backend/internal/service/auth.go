@@ -7,7 +7,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
 	"github.com/mephistolie/chefbook-server/pkg/hash"
-	"strconv"
 	"time"
 )
 
@@ -41,28 +40,28 @@ func NewAuthService(repo repository.Auth, firebaseService *FirebaseService, hash
 	}
 }
 
-func (s *AuthService) SignUp(credentials entity.Credentials) (int, error) {
+func (s *AuthService) SignUp(credentials entity.Credentials) (string, error) {
 	hashedPassword, err := s.hashManager.Hash(credentials.Password)
 	if err != nil {
-		return 0, failure.Unknown
+		return "", failure.Unknown
 	}
 
 	if candidate, err := s.repo.GetUserByEmail(credentials.Email); err == nil {
 		if candidate.IsActivated {
-			return 0, failure.UserAlreadyExists
+			return "", failure.UserAlreadyExists
 		}
 
 		if err = s.hashManager.ValidateByHash(credentials.Password, candidate.Password); err != nil {
 			credentials.Password = hashedPassword
 			err := s.repo.ChangePassword(candidate.Id, credentials.Password)
 			if err != nil {
-				return 0, failure.Unknown
+				return "", failure.Unknown
 			}
 		}
 
 		activationLink, err := s.repo.GetUserActivationLink(candidate.Id)
 		if err != nil {
-			return 0, failure.Unknown
+			return "", failure.Unknown
 		}
 		return candidate.Id, s.sendActivationLink(credentials.Email, activationLink)
 	}
@@ -71,7 +70,7 @@ func (s *AuthService) SignUp(credentials entity.Credentials) (int, error) {
 	activationLink := uuid.New()
 	userId, err := s.repo.CreateUser(credentials, activationLink)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return userId, s.sendActivationLink(credentials.Email, activationLink)
@@ -179,12 +178,12 @@ func (s *AuthService) migrateFromFirebase(credentials entity.Credentials) (entit
 	return user, nil
 }
 
-func (s *AuthService) createSessionModel(userId int, ip string) (entity.Tokens, entity.Session, error) {
+func (s *AuthService) createSessionModel(userId string, ip string) (entity.Tokens, entity.Session, error) {
 	var (
 		res entity.Tokens
 		err error
 	)
-	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(userId), s.accessTokenTTL)
+	res.AccessToken, err = s.tokenManager.NewJWT(userId, s.accessTokenTTL)
 	if err != nil {
 		return entity.Tokens{}, entity.Session{}, failure.Unknown
 	}

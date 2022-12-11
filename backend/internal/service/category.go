@@ -16,19 +16,19 @@ func NewCategoriesService(repo repository.Category) *CategoriesService {
 	}
 }
 
-func (s *CategoriesService) GetUserCategories(userId int) []entity.Category {
+func (s *CategoriesService) GetUserCategories(userId string) []entity.Category {
 	return s.repo.GetUserCategories(userId)
 }
 
-func (s *CategoriesService) GetRecipeCategories(recipeId, userId int) []entity.Category {
+func (s *CategoriesService) GetRecipeCategories(recipeId, userId string) []entity.Category {
 	return s.repo.GetRecipeCategories(recipeId, userId)
 }
 
-func (s *CategoriesService) CreateCategory(category entity.CategoryInput, userId int) (int, error) {
+func (s *CategoriesService) CreateCategory(category entity.CategoryInput, userId string) (string, error) {
 	return s.repo.CreateCategory(category, userId)
 }
 
-func (s *CategoriesService) GetCategory(categoryId int, userId int) (entity.Category, error) {
+func (s *CategoriesService) GetCategory(categoryId, userId string) (entity.Category, error) {
 	category, err := s.repo.GetCategory(categoryId)
 	if err != nil {
 		return entity.Category{}, err
@@ -41,7 +41,7 @@ func (s *CategoriesService) GetCategory(categoryId int, userId int) (entity.Cate
 	return category, nil
 }
 
-func (s *CategoriesService) UpdateCategory(categoryId int, category entity.CategoryInput, userId int) error {
+func (s *CategoriesService) UpdateCategory(categoryId string, category entity.CategoryInput, userId string) error {
 	ownerId, err := s.repo.GetCategoryOwnerId(categoryId)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (s *CategoriesService) UpdateCategory(categoryId int, category entity.Categ
 	return s.repo.UpdateCategory(categoryId, category)
 }
 
-func (s *CategoriesService) DeleteCategory(categoryId, userId int) error {
+func (s *CategoriesService) DeleteCategory(categoryId, userId string) error {
 	category, err := s.repo.GetCategory(categoryId)
 	if err != nil {
 		return err

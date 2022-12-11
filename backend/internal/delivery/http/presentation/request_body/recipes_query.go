@@ -7,7 +7,7 @@ import (
 )
 
 type RecipesQuery struct {
-	AuthorId    *int
+	AuthorId    *string
 	Owned       bool
 	Saved       bool
 	Search      *string
@@ -23,8 +23,8 @@ type RecipesQuery struct {
 	MaxCalories *int
 }
 
-func (p *RecipesQuery) Validate(userId int) error {
-	if p.AuthorId != nil && *p.AuthorId <= 0 {
+func (p *RecipesQuery) Validate(userId string) error {
+	if p.AuthorId != nil && len(*p.AuthorId) == 0 {
 		return failure.InvalidBody
 	}
 

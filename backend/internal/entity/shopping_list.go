@@ -1,6 +1,8 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type ShoppingList struct {
 	Purchases []Purchase
@@ -9,7 +11,11 @@ type ShoppingList struct {
 
 type Purchase struct {
 	Id          string
+	Type        string
 	Name        string
 	Multiplier  int
 	IsPurchased bool
+	Amount      int
+	Unit        string
+	RecipeId    string
 }

@@ -331,10 +331,8 @@ func (r *RecipeHandler) setRecipeLiked(c *gin.Context, liked bool) {
 func (r *RecipeHandler) getRecipesQuery(c *gin.Context) *request_body.RecipesQuery {
 	var params request_body.RecipesQuery
 
-	if query, ok := c.GetQuery(queryAuthorId); ok {
-		if authorId, err := strconv.Atoi(query); err == nil {
-			*params.AuthorId = authorId
-		}
+	if authorId, ok := c.GetQuery(queryAuthorId); ok {
+		*params.AuthorId = authorId
 	}
 
 	if ownedQuery, ok := c.GetQuery(queryOwned); ok {
@@ -408,15 +406,15 @@ func (r *RecipeHandler) getRecipesQuery(c *gin.Context) *request_body.RecipesQue
 	return &params
 }
 
-func getUserAndRecipeIds(c *gin.Context, middleware middleware.AuthMiddleware) (int, int, error) {
+func getUserAndRecipeIds(c *gin.Context, middleware middleware.AuthMiddleware) (string, string, error) {
 	userId, err := middleware.GetUserId(c)
 	if err != nil {
-		return 0, 0, err
+		return "", "", err
 	}
 
-	recipeId, err := strconv.Atoi(c.Param(ParamRecipeId))
-	if err != nil {
-		return 0, 0, err
+	recipeId := c.Param(ParamRecipeId)
+	if len(recipeId) == 0 {
+		return "", "", failure.InvalidRecipe
 	}
 
 	return userId, recipeId, nil

@@ -18,11 +18,11 @@ func NewRecipeOwnershipService(recipeRepo repository.Recipe, ownershipRepo repos
 	}
 }
 
-func (s *RecipeOwnershipService) CreateRecipe(recipe entity.RecipeInput, userId int) (int, error) {
+func (s *RecipeOwnershipService) CreateRecipe(recipe entity.RecipeInput, userId string) (string, error) {
 	return s.ownershipRepo.CreateRecipe(recipe, userId)
 }
 
-func (s *RecipeOwnershipService) UpdateRecipe(recipe entity.RecipeInput, recipeId, userId int) error {
+func (s *RecipeOwnershipService) UpdateRecipe(recipe entity.RecipeInput, recipeId, userId string) error {
 	ownerId, err := s.recipeRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func (s *RecipeOwnershipService) UpdateRecipe(recipe entity.RecipeInput, recipeI
 	return s.ownershipRepo.UpdateRecipe(recipeId, recipe)
 }
 
-func (s *RecipeOwnershipService) DeleteRecipe(recipeId, userId int) error {
+func (s *RecipeOwnershipService) DeleteRecipe(recipeId, userId string) error {
 	ownerId, err := s.recipeRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err

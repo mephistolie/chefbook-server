@@ -10,7 +10,7 @@ type Username struct {
 }
 
 type MinimalProfileInfo struct {
-	Id                int     `json:"id"`
+	Id                string  `json:"id"`
 	Username          *string `json:"username,omitempty"`
 	CreationTimestamp string  `json:"creation_timestamp"`
 	Avatar            *string `json:"avatar,omitempty"`
@@ -49,14 +49,14 @@ func NewUsersList(profiles []entity.ProfileInfo) []MinimalProfileInfo {
 }
 
 type DetailedProfileInfo struct {
-	Id                int       `json:"id"`
-	Email             string    `json:"email"`
-	Username          *string   `json:"username,omitempty"`
-	CreationTimestamp string `json:"creation_timestamp"`
-	Avatar            *string   `json:"avatar,omitempty"`
-	IsPremium         bool      `json:"premium,omitempty"`
-	Broccoins         int       `json:"broccoins"`
-	IsBlocked         bool      `json:"is_blocked,omitempty"`
+	Id                string  `json:"id"`
+	Email             string  `json:"email"`
+	Username          *string `json:"username,omitempty"`
+	CreationTimestamp string  `json:"creation_timestamp"`
+	Avatar            *string `json:"avatar,omitempty"`
+	IsPremium         bool    `json:"premium,omitempty"`
+	Broccoins         int     `json:"broccoins"`
+	IsBlocked         bool    `json:"is_blocked,omitempty"`
 }
 
 func NewDetailedProfileInfo(profile entity.Profile) DetailedProfileInfo {

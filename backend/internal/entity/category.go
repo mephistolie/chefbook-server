@@ -1,10 +1,10 @@
 package entity
 
 type Category struct {
-	Id     int
+	Id     string
 	Name   string
 	Cover  *string
-	UserId int
+	UserId string
 }
 
 type CategoryInput struct {

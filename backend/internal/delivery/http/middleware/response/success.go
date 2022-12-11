@@ -10,7 +10,7 @@ func Success(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, data)
 }
 
-func NewId(c *gin.Context, id int, message string) {
+func NewId(c *gin.Context, id string, message string) {
 	Success(c, response_body.Id{Id: id, Message: message})
 }
 

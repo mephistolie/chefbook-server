@@ -6,33 +6,33 @@ import (
 )
 
 type Recipe interface {
-	GetRecipes(query entity.RecipesQuery, userId int) ([]entity.RecipeInfo, error)
-	GetRecipe(recipeId, userId int) (entity.UserRecipe, error)
-	GetRandomRecipe(languages *[]string, userId int) (entity.UserRecipe, error)
-	AddRecipeToRecipeBook(recipeId, userId int) error
-	RemoveRecipeFromRecipeBook(recipeId, userId int) error
-	SetRecipeCategories(recipeId int, categories []int, userId int) error
-	SetRecipeFavourite(recipeId int, favourite bool, userId int) error
-	SetRecipeLikeStatus(recipeId int, favourite bool, userId int) error
+	GetRecipes(query entity.RecipesQuery, userId string) ([]entity.RecipeInfo, error)
+	GetRecipe(recipeId, userId string) (entity.UserRecipe, error)
+	GetRandomRecipe(languages *[]string, userId string) (entity.UserRecipe, error)
+	AddRecipeToRecipeBook(recipeId, userId string) error
+	RemoveRecipeFromRecipeBook(recipeId, userId string) error
+	SetRecipeCategories(recipeId string, categories []string, userId string) error
+	SetRecipeFavourite(recipeId string, favourite bool, userId string) error
+	SetRecipeLikeStatus(recipeId string, favourite bool, userId string) error
 }
 
 type RecipeOwnership interface {
-	CreateRecipe(recipe entity.RecipeInput, userId int) (int, error)
-	UpdateRecipe(recipe entity.RecipeInput, recipeId, userId int) error
-	DeleteRecipe(recipeId, userId int) error
+	CreateRecipe(recipe entity.RecipeInput, userId string) (string, error)
+	UpdateRecipe(recipe entity.RecipeInput, recipeId, userId string) error
+	DeleteRecipe(recipeId, userId string) error
 }
 
 type RecipePicture interface {
-	GetRecipePictures(ctx context.Context, recipeId int, userId int) ([]string, error)
-	UploadRecipePicture(ctx context.Context, recipeId, userId int, file entity.MultipartFile) (string, error)
-	DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error
+	GetRecipePictures(ctx context.Context, recipeId string, userId string) ([]string, error)
+	UploadRecipePicture(ctx context.Context, recipeId, userId string, file entity.MultipartFile) (string, error)
+	DeleteRecipePicture(ctx context.Context, recipeId, userId string, pictureName string) error
 }
 
 type RecipeSharing interface {
-	GetUsersList(recipeId, userId int) ([]entity.ProfileInfo, error)
-	GetUserPublicKey(recipeId, userId, requesterId int) (string, error)
-	SetUserPublicKey(recipeId int, userId int, userKey *string) error
-	GetOwnerPrivateKeyForUser(recipeId, userId int) (string, error)
-	SetOwnerPrivateKeyForUser(recipeId int, userId int, requesterId int, ownerKey *string) error
-	DeleteUserAccess(recipeId, userId, requesterId int) error
+	GetUsersList(recipeId, userId string) ([]entity.ProfileInfo, error)
+	GetUserPublicKey(recipeId, userId, requesterId string) (string, error)
+	SetUserPublicKey(recipeId string, userId string, userKey *string) error
+	GetOwnerPrivateKeyForUser(recipeId, userId string) (string, error)
+	SetOwnerPrivateKeyForUser(recipeId string, userId string, requesterId string, ownerKey *string) error
+	DeleteUserAccess(recipeId, userId, requesterId string) error
 }

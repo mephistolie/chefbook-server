@@ -1,6 +1,6 @@
 package response_body
 
 type Id struct {
-	Id      int    `json:"id"`
+	Id      string `json:"id"`
 	Message string `json:"message,omitempty"`
 }

@@ -18,7 +18,7 @@ func NewShoppingListPostgres(db *sqlx.DB) *ShoppingList {
 	return &ShoppingList{db: db}
 }
 
-func (r *ShoppingList) GetShoppingList(userId int) (entity.ShoppingList, error) {
+func (r *ShoppingList) GetShoppingList(userId string) (entity.ShoppingList, error) {
 	var shoppingList dto.ShoppingList
 	var shoppingListBSON []byte
 
@@ -45,7 +45,7 @@ func (r *ShoppingList) GetShoppingList(userId int) (entity.ShoppingList, error) 
 	return shoppingList.Entity(), nil
 }
 
-func (r *ShoppingList) SetShoppingList(shoppingList entity.ShoppingList, userId int) error {
+func (r *ShoppingList) SetShoppingList(shoppingList entity.ShoppingList, userId string) error {
 	var shoppingListBSON, err = json.Marshal(dto.NewShoppingList(shoppingList))
 	if err != nil {
 		logRepoError(err)

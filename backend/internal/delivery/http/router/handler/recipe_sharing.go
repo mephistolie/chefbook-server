@@ -9,7 +9,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body/message"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"strconv"
 )
 
 type RecipeSharingHandler struct {
@@ -71,8 +70,8 @@ func (r *RecipeSharingHandler) GetUserPublicKey(c *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(c.Param(ParamUserId))
-	if err != nil {
+	userId := c.Param(ParamUserId)
+	if len(userId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}
@@ -196,8 +195,8 @@ func (r *RecipeSharingHandler) SetOwnerPrivateKey(c *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(c.Param(ParamUserId))
-	if err != nil {
+	userId := c.Param(ParamUserId)
+	if len(userId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}
@@ -236,8 +235,8 @@ func (r *RecipeSharingHandler) DeleteOwnerPrivateKey(c *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(c.Param(ParamUserId))
-	if err != nil {
+	userId := c.Param(ParamUserId)
+	if len(userId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}
@@ -270,9 +269,9 @@ func (r *RecipeSharingHandler) DeleteUserAccess(c *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(c.Param(ParamUserId))
-	if err != nil {
-		response.Failure(c, failure.InvalidBody)
+	userId := c.Param(ParamUserId)
+	if len(userId) == 0 {
+		response.Failure(c, failure.Unknown)
 		return
 	}
 

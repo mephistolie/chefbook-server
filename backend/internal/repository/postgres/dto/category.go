@@ -1,12 +1,14 @@
 package dto
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import (
+	"github.com/mephistolie/chefbook-server/internal/entity"
+)
 
 type Category struct {
-	Id     int     `db:"category_id"`
+	Id     string  `db:"category_id"`
 	Name   string  `db:"name"`
 	Cover  *string `db:"cover"`
-	UserId int     `db:"user_id"`
+	UserId string  `db:"user_id"`
 }
 
 func (c *Category) Entity() entity.Category {

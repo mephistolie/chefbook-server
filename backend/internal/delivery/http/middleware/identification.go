@@ -5,7 +5,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
-	"strconv"
 	"strings"
 )
 
@@ -54,24 +53,19 @@ func (m AuthMiddleware) parseAuthHeader(c *gin.Context) (string, error) {
 	return token, err
 }
 
-func (m AuthMiddleware) GetUserId(c *gin.Context) (int, error) {
+func (m AuthMiddleware) GetUserId(c *gin.Context) (string, error) {
 	return m.getIdByContext(c, userContext)
 }
 
-func (m AuthMiddleware) getIdByContext(c *gin.Context, context string) (int, error) {
+func (m AuthMiddleware) getIdByContext(c *gin.Context, context string) (string, error) {
 	idFromCtx, ok := c.Get(context)
 	if !ok {
-		return 0, failure.Unknown
+		return "", failure.Unknown
 	}
 
-	idStr, ok := idFromCtx.(string)
+	id, ok := idFromCtx.(string)
 	if !ok {
-		return 0, failure.Unknown
-	}
-
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return 0, failure.Unknown
+		return "", failure.Unknown
 	}
 
 	return id, nil

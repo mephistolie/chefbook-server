@@ -25,11 +25,11 @@ func NewProfileService(usersRepo repository.Auth, profileRepo repository.Profile
 	}
 }
 
-func (s *ProfileService) GetProfile(userId int) (entity.Profile, error) {
+func (s *ProfileService) GetProfile(userId string) (entity.Profile, error) {
 	return s.authRepo.GetUserById(userId)
 }
 
-func (s *ProfileService) ChangePassword(userId int, oldPassword string, newPassword string) error {
+func (s *ProfileService) ChangePassword(userId string, oldPassword string, newPassword string) error {
 	profile, err := s.authRepo.GetUserById(userId)
 	if err != nil {
 		return err
@@ -47,11 +47,11 @@ func (s *ProfileService) ChangePassword(userId int, oldPassword string, newPassw
 	return s.authRepo.ChangePassword(userId, newHashedPassword)
 }
 
-func (s *ProfileService) SetUsername(userId int, username *string) error {
+func (s *ProfileService) SetUsername(userId string, username *string) error {
 	return s.profileRepo.SetUsername(userId, username)
 }
 
-func (s *ProfileService) UploadAvatar(ctx context.Context, userId int, file entity.MultipartFile) (string, error) {
+func (s *ProfileService) UploadAvatar(ctx context.Context, userId string, file entity.MultipartFile) (string, error) {
 	user, err := s.authRepo.GetUserById(userId)
 	if err != nil {
 		return "", err
@@ -74,7 +74,7 @@ func (s *ProfileService) UploadAvatar(ctx context.Context, userId int, file enti
 	return url, nil
 }
 
-func (s *ProfileService) DeleteAvatar(ctx context.Context, userId int) error {
+func (s *ProfileService) DeleteAvatar(ctx context.Context, userId string) error {
 	user, err := s.authRepo.GetUserById(userId)
 	if err != nil {
 		return err

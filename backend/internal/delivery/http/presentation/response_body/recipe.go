@@ -7,9 +7,9 @@ import (
 )
 
 type Recipe struct {
-	Id          int     `json:"id"`
+	Id          string  `json:"id"`
 	Name        string  `json:"name"`
-	OwnerId     int     `json:"owner_id"`
+	OwnerId     string  `json:"owner_id"`
 	OwnerName   string  `json:"owner_name"`
 	IsOwned     bool    `json:"owned"`
 	IsSaved     bool    `json:"saved"`
@@ -81,9 +81,9 @@ func NewRecipe(recipe entity.UserRecipe) Recipe {
 }
 
 type RecipeInfo struct {
-	Id          int     `json:"id"`
+	Id          string  `json:"id"`
 	Name        string  `json:"name"`
-	OwnerId     int     `json:"owner_id"`
+	OwnerId     string  `json:"owner_id"`
 	OwnerName   string  `json:"owner_name"`
 	IsOwned     bool    `json:"owned"`
 	IsSaved     bool    `json:"saved"`

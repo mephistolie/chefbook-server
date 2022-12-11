@@ -16,7 +16,7 @@ func NewEncryptionPostgres(db *sqlx.DB) *EncryptionPostgres {
 	}
 }
 
-func (r *EncryptionPostgres) GetUserKeyLink(userId int) (*string, error) {
+func (r *EncryptionPostgres) GetUserKeyLink(userId string) (*string, error) {
 	var link *string
 
 	getKeyLinkQuery := fmt.Sprintf(`
@@ -34,7 +34,7 @@ func (r *EncryptionPostgres) GetUserKeyLink(userId int) (*string, error) {
 	return link, nil
 }
 
-func (r *EncryptionPostgres) SetUserKeyLink(userId int, url *string) error {
+func (r *EncryptionPostgres) SetUserKeyLink(userId string, url *string) error {
 
 	setKeyQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -50,7 +50,7 @@ func (r *EncryptionPostgres) SetUserKeyLink(userId int, url *string) error {
 	return nil
 }
 
-func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId int) (*string, error) {
+func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId string) (*string, error) {
 	var link *string
 
 	getKeyLinkQuery := fmt.Sprintf(`
@@ -69,7 +69,7 @@ func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId int) (*string, error) {
 	return link, nil
 }
 
-func (r *EncryptionPostgres) SetRecipeKeyLink(recipeId int, url *string) error {
+func (r *EncryptionPostgres) SetRecipeKeyLink(recipeId string, url *string) error {
 
 	setKeyQuery := fmt.Sprintf(`
 			UPDATE %s

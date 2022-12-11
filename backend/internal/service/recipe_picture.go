@@ -8,18 +8,18 @@ import (
 )
 
 type RecipePicturesService struct {
-	recipesRepo            repository.Recipe
-	filesRepo              repository.File
+	recipesRepo repository.Recipe
+	filesRepo   repository.File
 }
 
 func NewRecipePicturesService(recipesRepo repository.Recipe, filesRepo repository.File) *RecipePicturesService {
 	return &RecipePicturesService{
-		recipesRepo:            recipesRepo,
-		filesRepo:              filesRepo,
+		recipesRepo: recipesRepo,
+		filesRepo:   filesRepo,
 	}
 }
 
-func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId int, userId int) ([]string, error) {
+func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId string, userId string) ([]string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return []string{}, err
@@ -36,7 +36,7 @@ func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId 
 	return pictures, nil
 }
 
-func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeId, userId int, file entity.MultipartFile) (string, error) {
+func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeId, userId string, file entity.MultipartFile) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return "", err
@@ -57,7 +57,7 @@ func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeI
 	return url, nil
 }
 
-func (s *RecipePicturesService) DeleteRecipePicture(ctx context.Context, recipeId, userId int, pictureName string) error {
+func (s *RecipePicturesService) DeleteRecipePicture(ctx context.Context, recipeId, userId string, pictureName string) error {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err

@@ -10,7 +10,7 @@ const (
 )
 
 type RecipesQuery struct {
-	AuthorId    *int
+	AuthorId    *string
 	Saved       bool
 	Search      *string
 	Page        int

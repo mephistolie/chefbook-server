@@ -16,7 +16,7 @@ type Tokens struct {
 }
 
 type Session struct {
-	UserId       int
+	UserId       string
 	RefreshToken string
 	Ip           string
 	ExpiresAt    time.Time

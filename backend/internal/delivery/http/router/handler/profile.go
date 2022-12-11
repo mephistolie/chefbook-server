@@ -9,7 +9,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body/message"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"strconv"
 )
 
 const (
@@ -53,8 +52,8 @@ func (r *ProfileHandler) GetProfileInfo(c *gin.Context) {
 		return
 	}
 
-	requestedUserId, err := strconv.Atoi(c.Request.URL.Query().Get(queryUserId))
-	if err != nil {
+	requestedUserId := c.Request.URL.Query().Get(queryUserId)
+	if len(requestedUserId) == 0 {
 		requestedUserId = userId
 	}
 

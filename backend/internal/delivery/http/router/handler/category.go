@@ -9,7 +9,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body/message"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"strconv"
 )
 
 const (
@@ -105,8 +104,8 @@ func (r *CategoriesHandler) GetCategory(c *gin.Context) {
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param(ParamCategoryId))
-	if err != nil {
+	categoryId := c.Param(ParamCategoryId)
+	if len(categoryId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}
@@ -139,8 +138,8 @@ func (r *CategoriesHandler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param(ParamCategoryId))
-	if err != nil {
+	categoryId := c.Param(ParamCategoryId)
+	if len(categoryId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}
@@ -177,8 +176,8 @@ func (r *CategoriesHandler) DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param(ParamCategoryId))
-	if err != nil {
+	categoryId := c.Param(ParamCategoryId)
+	if len(categoryId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}

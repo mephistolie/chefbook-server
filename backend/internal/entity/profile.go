@@ -5,7 +5,7 @@ import (
 )
 
 type Profile struct {
-	Id                int
+	Id                string
 	Email             string
 	Username          *string
 	CreationTimestamp time.Time
@@ -18,7 +18,7 @@ type Profile struct {
 }
 
 type ProfileInfo struct {
-	Id                int
+	Id                string
 	Username          *string
 	CreationTimestamp time.Time
 	Avatar            *string

@@ -18,7 +18,7 @@ func NewRecipeSharingService(recipesRepo repository.Recipe, recipesSharingRepo r
 	}
 }
 
-func (s *RecipeSharingService) GetUsersList(recipeId, userId int) ([]entity.ProfileInfo, error) {
+func (s *RecipeSharingService) GetUsersList(recipeId, userId string) ([]entity.ProfileInfo, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return []entity.ProfileInfo{}, err
@@ -31,7 +31,7 @@ func (s *RecipeSharingService) GetUsersList(recipeId, userId int) ([]entity.Prof
 	return s.recipesSharingRepo.GetRecipeUserList(recipeId)
 }
 
-func (s *RecipeSharingService) GetUserPublicKey(recipeId, userId, requesterId int) (string, error) {
+func (s *RecipeSharingService) GetUserPublicKey(recipeId, userId, requesterId string) (string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return "", err
@@ -44,7 +44,7 @@ func (s *RecipeSharingService) GetUserPublicKey(recipeId, userId, requesterId in
 	return s.recipesSharingRepo.GetUserRecipeKey(recipeId, userId)
 }
 
-func (s *RecipeSharingService) SetUserPublicKey(recipeId, userId int, userKey *string) error {
+func (s *RecipeSharingService) SetUserPublicKey(recipeId, userId string, userKey *string) error {
 	err := s.recipesSharingRepo.SetUserPublicKeyLink(recipeId, userId, userKey)
 	if err != nil {
 		return err
@@ -57,11 +57,11 @@ func (s *RecipeSharingService) SetUserPublicKey(recipeId, userId int, userKey *s
 	return nil
 }
 
-func (s *RecipeSharingService) GetOwnerPrivateKeyForUser(recipeId, userId int) (string, error) {
+func (s *RecipeSharingService) GetOwnerPrivateKeyForUser(recipeId, userId string) (string, error) {
 	return s.recipesSharingRepo.GetUserRecipeKey(recipeId, userId)
 }
 
-func (s *RecipeSharingService) SetOwnerPrivateKeyForUser(recipeId int, userId int, requesterId int, ownerKey *string) error {
+func (s *RecipeSharingService) SetOwnerPrivateKeyForUser(recipeId, userId, requesterId string, ownerKey *string) error {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (s *RecipeSharingService) SetOwnerPrivateKeyForUser(recipeId int, userId in
 	return s.recipesSharingRepo.SetOwnerPrivateKeyLinkForUser(recipeId, userId, ownerKey)
 }
 
-func (s *RecipeSharingService) DeleteUserAccess(recipeId, userId, requesterId int) error {
+func (s *RecipeSharingService) DeleteUserAccess(recipeId, userId, requesterId string) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err

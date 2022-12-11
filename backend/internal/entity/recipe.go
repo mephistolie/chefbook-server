@@ -13,9 +13,9 @@ const (
 )
 
 type Recipe struct {
-	Id          int
+	Id          string
 	Name        string
-	OwnerId     int
+	OwnerId     string
 	Likes       int16
 	Visibility  string
 	IsEncrypted bool
@@ -37,9 +37,9 @@ type Recipe struct {
 }
 
 type UserRecipe struct {
-	Id          int
+	Id          string
 	Name        string
-	OwnerId     int
+	OwnerId     string
 	OwnerName   string
 	IsOwned     bool
 	IsSaved     bool
@@ -68,9 +68,9 @@ type UserRecipe struct {
 }
 
 type RecipeInfo struct {
-	Id          int
+	Id          string
 	Name        string
-	OwnerId     int
+	OwnerId     string
 	OwnerName   string
 	IsOwned     bool
 	IsSaved     bool

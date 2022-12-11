@@ -20,23 +20,23 @@ func NewRecipeOwnershipPostgres(db *sqlx.DB) *RecipeOwnershipPostgres {
 	}
 }
 
-func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId int) (int, error) {
-	var id int
+func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId string) (string, error) {
+	var id string
 	tx, err := r.db.Begin()
 	if err != nil {
 		logRepoError(err)
-		return 0, failure.Unknown
+		return "", failure.Unknown
 	}
 
 	bsonIngredients, err := json.Marshal(dto.NewIngredients(recipe.Ingredients))
 	if err != nil {
 		logRepoError(err)
-		return 0, failure.Unknown
+		return "", failure.Unknown
 	}
 	bsonCooking, err := json.Marshal(dto.NewCooking(recipe.Cooking))
 	if err != nil {
 		logRepoError(err)
-		return 0, failure.Unknown
+		return "", failure.Unknown
 	}
 
 	createRecipeQuery := fmt.Sprintf(`
@@ -47,7 +47,7 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 				($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 			RETURNING
 				recipe_id
-		`,	recipesTable)
+		`, recipesTable)
 
 	row := tx.QueryRow(createRecipeQuery, recipe.Name, userId, recipe.Language, recipe.Description, recipe.Servings,
 		recipe.Time, recipe.Calories, recipe.Macronutrients.Protein, recipe.Macronutrients.Fats, recipe.Macronutrients.Carbohydrates,
@@ -56,9 +56,9 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return 0, failure.Unknown
+			return "", failure.Unknown
 		}
-		return 0, failure.UnableCreateRecipe
+		return "", failure.UnableCreateRecipe
 	}
 
 	createRecipeLinkQuery := fmt.Sprintf(`
@@ -71,20 +71,20 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return 0, err
+			return "", err
 		}
-		return 0, failure.UnableCreateRecipe
+		return "", failure.UnableCreateRecipe
 	}
 
 	if err = tx.Commit(); err != nil {
 		logRepoError(err)
-		return 0, failure.UnableCreateRecipe
+		return "", failure.UnableCreateRecipe
 	}
 
 	return id, nil
 }
 
-func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId int, recipe entity.RecipeInput) error {
+func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId string, recipe entity.RecipeInput) error {
 
 	bsonIngredients, err := json.Marshal(dto.NewIngredients(recipe.Ingredients))
 	if err != nil {
@@ -118,7 +118,7 @@ func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId int, recipe entity.Recip
 	return nil
 }
 
-func (r *RecipeOwnershipPostgres) DeleteRecipe(recipeId int) error {
+func (r *RecipeOwnershipPostgres) DeleteRecipe(recipeId string) error {
 
 	deleteRecipeQuery := fmt.Sprintf(`
 			DELETE FROM %s

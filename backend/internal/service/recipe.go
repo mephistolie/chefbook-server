@@ -8,22 +8,22 @@ import (
 )
 
 type RecipeService struct {
-	recipesRepo            repository.Recipe
-	categoriesRepo         repository.Category
+	recipesRepo    repository.Recipe
+	categoriesRepo repository.Category
 }
 
 func NewRecipeService(recipesRepo repository.Recipe, categoriesRepo repository.Category) *RecipeService {
 	return &RecipeService{
-		recipesRepo:            recipesRepo,
-		categoriesRepo:         categoriesRepo,
+		recipesRepo:    recipesRepo,
+		categoriesRepo: categoriesRepo,
 	}
 }
 
-func (s *RecipeService)	GetRecipes(query entity.RecipesQuery, userId int) ([]entity.RecipeInfo, error) {
+func (s *RecipeService) GetRecipes(query entity.RecipesQuery, userId string) ([]entity.RecipeInfo, error) {
 	recipes, err := s.recipesRepo.GetRecipes(query, userId)
 
 	for i := range recipes {
-		recipes[i].Categories= s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
+		recipes[i].Categories = s.categoriesRepo.GetRecipeCategories(recipes[i].Id, userId)
 		if recipes[i].OwnerId == userId {
 			recipes[i].IsOwned = true
 		}
@@ -31,7 +31,7 @@ func (s *RecipeService)	GetRecipes(query entity.RecipesQuery, userId int) ([]ent
 	return recipes, err
 }
 
-func (s *RecipeService) GetRecipe(recipeId, userId int) (entity.UserRecipe, error) {
+func (s *RecipeService) GetRecipe(recipeId, userId string) (entity.UserRecipe, error) {
 	recipe, err := s.recipesRepo.GetRecipeWithUserFields(recipeId, userId)
 	if err != nil {
 		return entity.UserRecipe{}, err
@@ -49,11 +49,11 @@ func (s *RecipeService) GetRecipe(recipeId, userId int) (entity.UserRecipe, erro
 	return recipe, err
 }
 
-func (s *RecipeService) GetRandomRecipe(languages *[]string, userId int) (entity.UserRecipe, error) {
+func (s *RecipeService) GetRandomRecipe(languages *[]string, userId string) (entity.UserRecipe, error) {
 	return s.recipesRepo.GetRandomRecipe(languages, userId)
 }
 
-func (s *RecipeService) AddRecipeToRecipeBook(recipeId, userId int) error {
+func (s *RecipeService) AddRecipeToRecipeBook(recipeId, userId string) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err
@@ -71,18 +71,18 @@ func (s *RecipeService) AddRecipeToRecipeBook(recipeId, userId int) error {
 	return nil
 }
 
-func (s *RecipeService) RemoveRecipeFromRecipeBook(recipeId, userId int) error {
+func (s *RecipeService) RemoveRecipeFromRecipeBook(recipeId, userId string) error {
 	return s.recipesRepo.RemoveRecipeFromRecipeBook(recipeId, userId)
 }
 
-func (s *RecipeService) SetRecipeCategories(recipeId int, categories []int, userId int) error {
+func (s *RecipeService) SetRecipeCategories(recipeId string, categories []string, userId string) error {
 	return s.recipesRepo.SetRecipeCategories(recipeId, categories, userId)
 }
 
-func (s *RecipeService) SetRecipeFavourite(recipeId int, favourite bool, userId int) error {
+func (s *RecipeService) SetRecipeFavourite(recipeId string, favourite bool, userId string) error {
 	return s.recipesRepo.SetRecipeFavourite(recipeId, favourite, userId)
 }
 
-func (s *RecipeService) SetRecipeLikeStatus(recipeId int, favourite bool, userId int) error {
+func (s *RecipeService) SetRecipeLikeStatus(recipeId string, favourite bool, userId string) error {
 	return s.recipesRepo.SetRecipeLiked(recipeId, favourite, userId)
 }

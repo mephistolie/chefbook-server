@@ -1,8 +1,8 @@
 package repository
 
 type Encryption interface {
-	GetUserKeyLink(userId int) (*string, error)
-	SetUserKeyLink(userId int, url *string) error
-	GetRecipeKeyLink(recipeId int) (*string, error)
-	SetRecipeKeyLink(recipeId int, url *string) error
+	GetUserKeyLink(userId string) (*string, error)
+	SetUserKeyLink(userId string, url *string) error
+	GetRecipeKeyLink(recipeId string) (*string, error)
+	SetRecipeKeyLink(recipeId string, url *string) error
 }

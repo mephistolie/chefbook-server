@@ -17,7 +17,7 @@ func NewRecipeSharingPostgres(db *sqlx.DB) *RecipeSharingPostgres {
 	}
 }
 
-func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId int) ([]entity.ProfileInfo, error) {
+func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId string) ([]entity.ProfileInfo, error) {
 
 	query := fmt.Sprintf(`
 			SELECT
@@ -50,7 +50,7 @@ func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId int) ([]entity.Profil
 	return users, nil
 }
 
-func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId int) (string, error)  {
+func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId string) (string, error) {
 	var key *string
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
@@ -70,7 +70,7 @@ func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId int) (string, 
 	return *key, nil
 }
 
-func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId int, userId int, userKey *string) error {
+func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId string, userId string, userKey *string) error {
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -91,7 +91,7 @@ func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId int, userId int, u
 	return nil
 }
 
-func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId int) (string, error)  {
+func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId string) (string, error) {
 	var key *string
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
@@ -111,7 +111,7 @@ func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId int) (string, 
 	return *key, nil
 }
 
-func (r *RecipeSharingPostgres) SetOwnerPrivateKeyLinkForUser(recipeId int, userId int, recipeKey *string) error {
+func (r *RecipeSharingPostgres) SetOwnerPrivateKeyLinkForUser(recipeId string, userId string, recipeKey *string) error {
 
 	query := fmt.Sprintf(`
 			UPDATE %s

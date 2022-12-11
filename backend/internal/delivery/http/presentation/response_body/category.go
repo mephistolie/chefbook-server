@@ -3,7 +3,7 @@ package response_body
 import "github.com/mephistolie/chefbook-server/internal/entity"
 
 type Category struct {
-	Id    int     `json:"id"`
+	Id    string  `json:"id"`
 	Name  string  `json:"name"`
 	Cover *string `json:"cover"`
 }

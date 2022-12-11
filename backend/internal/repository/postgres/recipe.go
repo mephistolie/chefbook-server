@@ -20,7 +20,7 @@ func NewRecipePostgres(db *sqlx.DB) *RecipePostgres {
 	}
 }
 
-func (r *RecipePostgres) GetRecipes(params entity.RecipesQuery, userId int) ([]entity.RecipeInfo, error) {
+func (r *RecipePostgres) GetRecipes(params entity.RecipesQuery, userId string) ([]entity.RecipeInfo, error) {
 	var recipes []entity.RecipeInfo
 	var rows *sql.Rows
 	var err error
@@ -53,7 +53,7 @@ func (r *RecipePostgres) GetRecipes(params entity.RecipesQuery, userId int) ([]e
 	return recipes, nil
 }
 
-func (r *RecipePostgres) GetRecipe(recipeId int) (entity.Recipe, error) {
+func (r *RecipePostgres) GetRecipe(recipeId string) (entity.Recipe, error) {
 	var recipe entity.Recipe
 	var bsonIngredients []byte
 	var bsonCooking []byte
@@ -92,7 +92,7 @@ func (r *RecipePostgres) GetRecipe(recipeId int) (entity.Recipe, error) {
 	return recipe, nil
 }
 
-func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId int) (entity.UserRecipe, error) {
+func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId string) (entity.UserRecipe, error) {
 	var recipe entity.UserRecipe
 	var bsonIngredients []byte
 	var bsonCooking []byte
@@ -158,7 +158,7 @@ func (r *RecipePostgres) GetRandomRecipe(languages *[]string, userId int) (entit
 	return recipe, nil
 }
 
-func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId int) (entity.UserRecipe, error) {
+func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId string) (entity.UserRecipe, error) {
 	var recipe entity.UserRecipe
 	var bsonIngredients []byte
 	var bsonCooking []byte
@@ -221,8 +221,8 @@ func (r *RecipePostgres) GetRecipeWithUserFields(recipeId, userId int) (entity.U
 	return recipe, nil
 }
 
-func (r *RecipePostgres) GetRecipeOwnerId(recipeId int) (int, error) {
-	var userId int
+func (r *RecipePostgres) GetRecipeOwnerId(recipeId string) (string, error) {
+	var userId string
 
 	getOwnerQuery := fmt.Sprintf(`
 			SELECT owner_id
@@ -233,13 +233,13 @@ func (r *RecipePostgres) GetRecipeOwnerId(recipeId int) (int, error) {
 	err := r.db.Get(&userId, getOwnerQuery, recipeId)
 	if err != nil {
 		logRepoError(err)
-		return -1, failure.RecipeNotFound
+		return "", failure.RecipeNotFound
 	}
 
 	return userId, err
 }
 
-func (r *RecipePostgres) AddRecipeToRecipeBook(recipeId, userId int) error {
+func (r *RecipePostgres) AddRecipeToRecipeBook(recipeId, userId string) error {
 	var exists bool
 
 	checkSavingQuery := fmt.Sprintf(`
@@ -274,7 +274,7 @@ func (r *RecipePostgres) AddRecipeToRecipeBook(recipeId, userId int) error {
 	return nil
 }
 
-func (r *RecipePostgres) RemoveRecipeFromRecipeBook(recipeId, userId int) error {
+func (r *RecipePostgres) RemoveRecipeFromRecipeBook(recipeId, userId string) error {
 
 	deleteRecipeQuery := fmt.Sprintf(`
 			DELETE FROM %s
@@ -289,7 +289,7 @@ func (r *RecipePostgres) RemoveRecipeFromRecipeBook(recipeId, userId int) error 
 	return nil
 }
 
-func (r *RecipePostgres) SetRecipeCategories(recipeId int, categoriesIds []int, userId int) error {
+func (r *RecipePostgres) SetRecipeCategories(recipeId string, categoriesIds []string, userId string) error {
 	tx, err := r.db.Begin()
 	if err != nil {
 		logRepoError(err)
@@ -359,7 +359,7 @@ func (r *RecipePostgres) SetRecipeCategories(recipeId int, categoriesIds []int, 
 	return nil
 }
 
-func (r *RecipePostgres) SetRecipeFavourite(recipeId int, isFavourite bool, userId int) error {
+func (r *RecipePostgres) SetRecipeFavourite(recipeId string, isFavourite bool, userId string) error {
 	query := fmt.Sprintf(`
 			UPDATE %s
 			SET favourite=$1
@@ -379,7 +379,7 @@ func (r *RecipePostgres) SetRecipeFavourite(recipeId int, isFavourite bool, user
 	return nil
 }
 
-func (r *RecipePostgres) SetRecipeLiked(recipeId int, isLiked bool, userId int) error {
+func (r *RecipePostgres) SetRecipeLiked(recipeId string, isLiked bool, userId string) error {
 	var exists bool
 
 	checkLikeQuery := fmt.Sprintf(`
@@ -408,7 +408,7 @@ func (r *RecipePostgres) SetRecipeLiked(recipeId int, isLiked bool, userId int) 
 		`, recipesTable)
 
 	var visibility string
-	var ownerId int
+	var ownerId string
 	err = r.db.QueryRow(getRecipeVisibilityQuery, recipeId).Scan(&visibility, &ownerId)
 	if err != nil {
 		logRepoError(err)
@@ -488,7 +488,7 @@ func (r *RecipePostgres) SetRecipeLiked(recipeId int, isLiked bool, userId int) 
 	return nil
 }
 
-func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, userId int) string {
+func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, userId string) string {
 
 	getRecipesQuery := fmt.Sprintf(`
 			SELECT
@@ -525,7 +525,7 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 	return getRecipesQuery + whereStatement + pagingStatement
 }
 
-func (r *RecipePostgres) getWhereStatement(params entity.RecipesQuery, userId int) string {
+func (r *RecipePostgres) getWhereStatement(params entity.RecipesQuery, userId string) string {
 	whereStatement := " WHERE"
 
 	if params.Saved {

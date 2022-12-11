@@ -15,7 +15,7 @@ func NewProfilePostgres(db *sqlx.DB) *ProfilePostgres {
 	return &ProfilePostgres{db: db}
 }
 
-func (r *ProfilePostgres) SetUsername(userId int, username *string) error {
+func (r *ProfilePostgres) SetUsername(userId string, username *string) error {
 
 	SetUsernameQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -31,7 +31,7 @@ func (r *ProfilePostgres) SetUsername(userId int, username *string) error {
 	return nil
 }
 
-func (r *ProfilePostgres) IncreaseBroccoins(userId, broccoins int) error {
+func (r *ProfilePostgres) IncreaseBroccoins(userId string, broccoins int) error {
 
 	increaseBroccoinsQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -47,7 +47,7 @@ func (r *ProfilePostgres) IncreaseBroccoins(userId, broccoins int) error {
 	return nil
 }
 
-func (r *ProfilePostgres) SetAvatarLink(userId int, url *string) error {
+func (r *ProfilePostgres) SetAvatarLink(userId string, url *string) error {
 
 	setAvatarQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -63,7 +63,7 @@ func (r *ProfilePostgres) SetAvatarLink(userId int, url *string) error {
 	return nil
 }
 
-func (r *ProfilePostgres) SetPremiumDate(userId int, expiresAt time.Time) error {
+func (r *ProfilePostgres) SetPremiumDate(userId string, expiresAt time.Time) error {
 
 	setPremiumDateQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -78,7 +78,7 @@ func (r *ProfilePostgres) SetPremiumDate(userId int, expiresAt time.Time) error 
 	return nil
 }
 
-func (r *ProfilePostgres) SetProfileCreationDate(userId int, creationTimestamp time.Time) error {
+func (r *ProfilePostgres) SetProfileCreationDate(userId string, creationTimestamp time.Time) error {
 
 	setProfileCreationDate := fmt.Sprintf(`
 			UPDATE %s

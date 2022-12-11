@@ -16,11 +16,11 @@ func NewShoppingListService(repo repository.ShoppingList) *ShoppingListService {
 	}
 }
 
-func (s *ShoppingListService) GetShoppingList(userId int) (entity.ShoppingList, error) {
+func (s *ShoppingListService) GetShoppingList(userId string) (entity.ShoppingList, error) {
 	return s.repo.GetShoppingList(userId)
 }
 
-func (s *ShoppingListService) SetShoppingList(purchases []entity.Purchase, userId int) error {
+func (s *ShoppingListService) SetShoppingList(purchases []entity.Purchase, userId string) error {
 	shoppingList := entity.ShoppingList{
 		Purchases: purchases,
 		Timestamp: time.Now().UTC(),
@@ -29,7 +29,7 @@ func (s *ShoppingListService) SetShoppingList(purchases []entity.Purchase, userI
 	return s.repo.SetShoppingList(shoppingList, userId)
 }
 
-func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, userId int) error {
+func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, userId string) error {
 	shoppingList, err := s.repo.GetShoppingList(userId)
 	if err != nil {
 		return err

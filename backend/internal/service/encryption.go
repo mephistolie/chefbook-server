@@ -23,7 +23,7 @@ func NewEncryptionService(encryptionRepo repository.Encryption, sharingRepo repo
 	}
 }
 
-func (s *EncryptionService) GetUserKeyLink(userId int) (string, error) {
+func (s *EncryptionService) GetUserKeyLink(userId string) (string, error) {
 	link, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil {
 		return "", err
@@ -36,7 +36,7 @@ func (s *EncryptionService) GetUserKeyLink(userId int) (string, error) {
 	return *link, nil
 }
 
-func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file entity.MultipartFile) (string, error) {
+func (s *EncryptionService) UploadUserKey(ctx context.Context, userId string, file entity.MultipartFile) (string, error) {
 	previousUrl, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil && err != failure.NoKey {
 		return "", err
@@ -59,7 +59,7 @@ func (s *EncryptionService) UploadUserKey(ctx context.Context, userId int, file 
 	return link, err
 }
 
-func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId int) error {
+func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId string) error {
 	link, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId int) error
 	return err
 }
 
-func (s *EncryptionService) GetRecipeKey(recipeId, userId int) (string, error) {
+func (s *EncryptionService) GetRecipeKey(recipeId, userId string) (string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return "", err
@@ -94,7 +94,7 @@ func (s *EncryptionService) GetRecipeKey(recipeId, userId int) (string, error) {
 	return *link, err
 }
 
-func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId int, file entity.MultipartFile) (string, error) {
+func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId string, file entity.MultipartFile) (string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return "", err
@@ -125,7 +125,7 @@ func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userI
 	return url, err
 }
 
-func (s *EncryptionService) DeleteRecipeKey(ctx context.Context, recipeId, userId int) error {
+func (s *EncryptionService) DeleteRecipeKey(ctx context.Context, recipeId, userId string) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err

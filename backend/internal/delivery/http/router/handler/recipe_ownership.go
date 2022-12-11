@@ -8,7 +8,6 @@ import (
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/request_body"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/response_body/message"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
-	"strconv"
 )
 
 type OwnedRecipeHandler struct {
@@ -80,8 +79,8 @@ func (r *OwnedRecipeHandler) UpdateRecipe(c *gin.Context) {
 		return
 	}
 
-	recipeId, err := strconv.Atoi(c.Param(ParamRecipeId))
-	if err != nil {
+	recipeId := c.Param(ParamRecipeId)
+	if len(recipeId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}
@@ -96,7 +95,6 @@ func (r *OwnedRecipeHandler) UpdateRecipe(c *gin.Context) {
 		response.Failure(c, err)
 		return
 	}
-
 
 	if err := r.service.UpdateRecipe(body.Entity(), recipeId, userId); err != nil {
 		response.Failure(c, err)
@@ -124,8 +122,8 @@ func (r *OwnedRecipeHandler) DeleteRecipe(c *gin.Context) {
 		return
 	}
 
-	recipeId, err := strconv.Atoi(c.Param(ParamRecipeId))
-	if err != nil {
+	recipeId := c.Param(ParamRecipeId)
+	if len(recipeId) == 0 {
 		response.Failure(c, failure.Unknown)
 		return
 	}

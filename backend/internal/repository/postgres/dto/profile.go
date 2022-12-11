@@ -6,7 +6,7 @@ import (
 )
 
 type ProfileInfo struct {
-	Id                int        `db:"user_id"`
+	Id                string     `db:"user_id"`
 	Email             string     `db:"email"`
 	Username          *string    `db:"username,omitempty"`
 	CreationTimestamp time.Time  `db:"registered"`
