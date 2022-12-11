@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
@@ -18,11 +19,11 @@ func NewRecipeOwnershipService(recipeRepo repository.Recipe, ownershipRepo repos
 	}
 }
 
-func (s *RecipeOwnershipService) CreateRecipe(recipe entity.RecipeInput, userId string) (string, error) {
+func (s *RecipeOwnershipService) CreateRecipe(recipe entity.RecipeInput, userId uuid.UUID) (uuid.UUID, error) {
 	return s.ownershipRepo.CreateRecipe(recipe, userId)
 }
 
-func (s *RecipeOwnershipService) UpdateRecipe(recipe entity.RecipeInput, recipeId, userId string) error {
+func (s *RecipeOwnershipService) UpdateRecipe(recipe entity.RecipeInput, recipeId, userId uuid.UUID) error {
 	ownerId, err := s.recipeRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err
@@ -34,7 +35,7 @@ func (s *RecipeOwnershipService) UpdateRecipe(recipe entity.RecipeInput, recipeI
 	return s.ownershipRepo.UpdateRecipe(recipeId, recipe)
 }
 
-func (s *RecipeOwnershipService) DeleteRecipe(recipeId, userId string) error {
+func (s *RecipeOwnershipService) DeleteRecipe(recipeId, userId uuid.UUID) error {
 	ownerId, err := s.recipeRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err

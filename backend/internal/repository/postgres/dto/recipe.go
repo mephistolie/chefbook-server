@@ -1,18 +1,21 @@
 package dto
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import (
+	"github.com/google/uuid"
+	"github.com/mephistolie/chefbook-server/internal/entity"
+)
 
 type IngredientItem struct {
-	Id     string  `json:"id" binding:"required,min=10"`
-	Text   string  `json:"text" binding:"required,min=1"`
-	Type   string  `json:"type" binding:"required"`
-	Amount *int    `json:"amount,omitempty"`
-	Unit   *string `json:"unit,omitempty"`
-	Link   *string `json:"link,omitempty"`
+	Id     uuid.UUID `json:"id" binding:"required,min=10"`
+	Text   string    `json:"text" binding:"required,min=1"`
+	Type   string    `json:"type" binding:"required"`
+	Amount *int      `json:"amount,omitempty"`
+	Unit   *string   `json:"unit,omitempty"`
+	Link   *string   `json:"link,omitempty"`
 }
 
 type CookingItem struct {
-	Id       string    `json:"id" binding:"required,min=10"`
+	Id       uuid.UUID `json:"id" binding:"required,min=10"`
 	Text     string    `json:"text" binding:"required,min=1"`
 	Type     string    `json:"type" binding:"required"`
 	Link     *string   `json:"link,omitempty"`

@@ -1,18 +1,19 @@
 package common_body
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"strings"
 )
 
 type IngredientItem struct {
-	Id     string  `json:"id" binding:"required,min=10"`
-	Text   string  `json:"text" binding:"required,min=1"`
-	Type   string  `json:"type" binding:"required"`
-	Amount *int    `json:"amount,omitempty"`
-	Unit   *string `json:"unit,omitempty"`
-	Link   *string `json:"link,omitempty"`
+	Id     uuid.UUID `json:"id" binding:"required,min=10"`
+	Text   string    `json:"text" binding:"required,min=1"`
+	Type   string    `json:"type" binding:"required"`
+	Amount *int      `json:"amount,omitempty"`
+	Unit   *string   `json:"unit,omitempty"`
+	Link   *string   `json:"link,omitempty"`
 }
 
 func (i *IngredientItem) Validate() error {

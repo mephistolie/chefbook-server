@@ -1,11 +1,14 @@
 package response_body
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import (
+	"github.com/google/uuid"
+	"github.com/mephistolie/chefbook-server/internal/entity"
+)
 
 type Category struct {
-	Id    string  `json:"id"`
-	Name  string  `json:"name"`
-	Cover *string `json:"cover"`
+	Id    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Cover *string   `json:"cover"`
 }
 
 func NewCategory(category entity.Category) Category {

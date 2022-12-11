@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
@@ -19,7 +20,7 @@ func NewRecipeService(recipesRepo repository.Recipe, categoriesRepo repository.C
 	}
 }
 
-func (s *RecipeService) GetRecipes(query entity.RecipesQuery, userId string) ([]entity.RecipeInfo, error) {
+func (s *RecipeService) GetRecipes(query entity.RecipesQuery, userId uuid.UUID) ([]entity.RecipeInfo, error) {
 	recipes, err := s.recipesRepo.GetRecipes(query, userId)
 
 	for i := range recipes {
@@ -31,7 +32,7 @@ func (s *RecipeService) GetRecipes(query entity.RecipesQuery, userId string) ([]
 	return recipes, err
 }
 
-func (s *RecipeService) GetRecipe(recipeId, userId string) (entity.UserRecipe, error) {
+func (s *RecipeService) GetRecipe(recipeId, userId uuid.UUID) (entity.UserRecipe, error) {
 	recipe, err := s.recipesRepo.GetRecipeWithUserFields(recipeId, userId)
 	if err != nil {
 		return entity.UserRecipe{}, err
@@ -49,11 +50,11 @@ func (s *RecipeService) GetRecipe(recipeId, userId string) (entity.UserRecipe, e
 	return recipe, err
 }
 
-func (s *RecipeService) GetRandomRecipe(languages *[]string, userId string) (entity.UserRecipe, error) {
+func (s *RecipeService) GetRandomRecipe(languages *[]string, userId uuid.UUID) (entity.UserRecipe, error) {
 	return s.recipesRepo.GetRandomRecipe(languages, userId)
 }
 
-func (s *RecipeService) AddRecipeToRecipeBook(recipeId, userId string) error {
+func (s *RecipeService) AddRecipeToRecipeBook(recipeId, userId uuid.UUID) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err
@@ -71,18 +72,18 @@ func (s *RecipeService) AddRecipeToRecipeBook(recipeId, userId string) error {
 	return nil
 }
 
-func (s *RecipeService) RemoveRecipeFromRecipeBook(recipeId, userId string) error {
+func (s *RecipeService) RemoveRecipeFromRecipeBook(recipeId, userId uuid.UUID) error {
 	return s.recipesRepo.RemoveRecipeFromRecipeBook(recipeId, userId)
 }
 
-func (s *RecipeService) SetRecipeCategories(recipeId string, categories []string, userId string) error {
+func (s *RecipeService) SetRecipeCategories(recipeId uuid.UUID, categories []uuid.UUID, userId uuid.UUID) error {
 	return s.recipesRepo.SetRecipeCategories(recipeId, categories, userId)
 }
 
-func (s *RecipeService) SetRecipeFavourite(recipeId string, favourite bool, userId string) error {
+func (s *RecipeService) SetRecipeFavourite(recipeId uuid.UUID, favourite bool, userId uuid.UUID) error {
 	return s.recipesRepo.SetRecipeFavourite(recipeId, favourite, userId)
 }
 
-func (s *RecipeService) SetRecipeLikeStatus(recipeId string, favourite bool, userId string) error {
+func (s *RecipeService) SetRecipeLikeStatus(recipeId uuid.UUID, favourite bool, userId uuid.UUID) error {
 	return s.recipesRepo.SetRecipeLiked(recipeId, favourite, userId)
 }

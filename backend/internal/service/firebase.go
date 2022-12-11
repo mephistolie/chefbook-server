@@ -63,7 +63,7 @@ func (s *FirebaseService) MigrateFromFirebase(credentials entity.Credentials, fi
 	return nil
 }
 
-func (s *FirebaseService) importProfileInfo(userId string, profile entity.FirebaseProfileInfo) {
+func (s *FirebaseService) importProfileInfo(userId uuid.UUID, profile entity.FirebaseProfileInfo) {
 	if profile.Username != nil {
 		if err := s.profileRepo.SetUsername(userId, profile.Username); err != nil {
 			logger.Warn("migration: error during setting name ", *profile.Username)
@@ -89,8 +89,8 @@ func (s *FirebaseService) importProfileInfo(userId string, profile entity.Fireba
 	}
 }
 
-func (s *FirebaseService) importCategories(userId string, categories []entity.CategoryInput) map[string]string {
-	categoriesIds := make(map[string]string)
+func (s *FirebaseService) importCategories(userId uuid.UUID, categories []entity.CategoryInput) map[string]uuid.UUID {
+	categoriesIds := make(map[string]uuid.UUID)
 	for _, category := range categories {
 		categoryId, err := s.categoriesRepo.CreateCategory(category, userId)
 		if err == nil {
@@ -101,7 +101,7 @@ func (s *FirebaseService) importCategories(userId string, categories []entity.Ca
 	return categoriesIds
 }
 
-func (s *FirebaseService) importRecipes(userId string, recipes []entity.FirebaseRecipe, categoriesIds map[string]string) {
+func (s *FirebaseService) importRecipes(userId uuid.UUID, recipes []entity.FirebaseRecipe, categoriesIds map[string]uuid.UUID) {
 	for _, recipe := range recipes {
 		recipeId, err := s.recipesOwnershipRepo.CreateRecipe(recipe.Recipe, userId)
 		if err != nil {
@@ -109,7 +109,7 @@ func (s *FirebaseService) importRecipes(userId string, recipes []entity.Firebase
 			continue
 		}
 
-		var recipeCategoriesId []string
+		var recipeCategoriesId []uuid.UUID
 		for _, category := range recipe.Categories {
 			recipeCategoriesId = append(recipeCategoriesId, categoriesIds[category])
 		}
@@ -119,7 +119,7 @@ func (s *FirebaseService) importRecipes(userId string, recipes []entity.Firebase
 	}
 }
 
-func (s *FirebaseService) importFirebaseShoppingList(userId string, shoppingList entity.ShoppingList) {
+func (s *FirebaseService) importFirebaseShoppingList(userId uuid.UUID, shoppingList entity.ShoppingList) {
 	if err := s.shoppingListRepo.SetShoppingList(shoppingList, userId); err != nil {
 		logger.Warn("migration: error during setting shopping list ")
 	}

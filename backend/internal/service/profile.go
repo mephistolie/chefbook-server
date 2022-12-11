@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
@@ -25,11 +26,11 @@ func NewProfileService(usersRepo repository.Auth, profileRepo repository.Profile
 	}
 }
 
-func (s *ProfileService) GetProfile(userId string) (entity.Profile, error) {
+func (s *ProfileService) GetProfile(userId uuid.UUID) (entity.Profile, error) {
 	return s.authRepo.GetUserById(userId)
 }
 
-func (s *ProfileService) ChangePassword(userId string, oldPassword string, newPassword string) error {
+func (s *ProfileService) ChangePassword(userId uuid.UUID, oldPassword string, newPassword string) error {
 	profile, err := s.authRepo.GetUserById(userId)
 	if err != nil {
 		return err
@@ -47,11 +48,11 @@ func (s *ProfileService) ChangePassword(userId string, oldPassword string, newPa
 	return s.authRepo.ChangePassword(userId, newHashedPassword)
 }
 
-func (s *ProfileService) SetUsername(userId string, username *string) error {
+func (s *ProfileService) SetUsername(userId uuid.UUID, username *string) error {
 	return s.profileRepo.SetUsername(userId, username)
 }
 
-func (s *ProfileService) UploadAvatar(ctx context.Context, userId string, file entity.MultipartFile) (string, error) {
+func (s *ProfileService) UploadAvatar(ctx context.Context, userId uuid.UUID, file entity.MultipartFile) (string, error) {
 	user, err := s.authRepo.GetUserById(userId)
 	if err != nil {
 		return "", err
@@ -74,7 +75,7 @@ func (s *ProfileService) UploadAvatar(ctx context.Context, userId string, file e
 	return url, nil
 }
 
-func (s *ProfileService) DeleteAvatar(ctx context.Context, userId string) error {
+func (s *ProfileService) DeleteAvatar(ctx context.Context, userId uuid.UUID) error {
 	user, err := s.authRepo.GetUserById(userId)
 	if err != nil {
 		return err

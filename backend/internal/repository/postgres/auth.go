@@ -19,13 +19,13 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
-func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink uuid.UUID) (string, error) {
-	var id string
+func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink uuid.UUID) (uuid.UUID, error) {
+	var id uuid.UUID
 
 	tx, err := r.db.Begin()
 	if err != nil {
 		logRepoError(err)
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
 	}
 
 	createUserQuery := fmt.Sprintf(`
@@ -39,9 +39,9 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 	if err := row.Scan(&id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return "", failure.Unknown
+			return uuid.UUID{}, failure.Unknown
 		}
-		return "", failure.UnableCreateProfile
+		return uuid.UUID{}, failure.UnableCreateProfile
 	}
 
 	createActivationLinkQuery := fmt.Sprintf(`
@@ -53,9 +53,9 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 	if _, err := tx.Exec(createActivationLinkQuery, activationLink, id); err != nil {
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return "", failure.Unknown
+			return uuid.UUID{}, failure.Unknown
 		}
-		return "", failure.UnableCreateProfile
+		return uuid.UUID{}, failure.UnableCreateProfile
 	}
 
 	createRoleQuery := fmt.Sprintf(`
@@ -67,9 +67,9 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return "", failure.Unknown
+			return uuid.UUID{}, failure.Unknown
 		}
-		return "", failure.UnableCreateProfile
+		return uuid.UUID{}, failure.UnableCreateProfile
 	}
 
 	createShoppingListQuery := fmt.Sprintf(`
@@ -81,20 +81,20 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return "", failure.Unknown
+			return uuid.UUID{}, failure.Unknown
 		}
-		return "", failure.UnableCreateProfile
+		return uuid.UUID{}, failure.UnableCreateProfile
 	}
 
 	if err = tx.Commit(); err != nil {
 		logRepoError(err)
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
 	}
 
 	return id, nil
 }
 
-func (r *AuthPostgres) GetUserById(userId string) (entity.Profile, error) {
+func (r *AuthPostgres) GetUserById(userId uuid.UUID) (entity.Profile, error) {
 	var user dto.ProfileInfo
 
 	getUserQuery := fmt.Sprintf(`
@@ -129,7 +129,7 @@ func (r *AuthPostgres) GetUserByEmail(email string) (entity.Profile, error) {
 }
 
 func (r *AuthPostgres) GetUserByRefreshToken(refreshToken string) (entity.Profile, error) {
-	var userId string
+	var userId uuid.UUID
 	var session entity.Session
 
 	getUserIdQuery := fmt.Sprintf(`
@@ -152,7 +152,7 @@ func (r *AuthPostgres) GetUserByRefreshToken(refreshToken string) (entity.Profil
 	return r.GetUserById(userId)
 }
 
-func (r *AuthPostgres) GetUserActivationLink(userId string) (uuid.UUID, error) {
+func (r *AuthPostgres) GetUserActivationLink(userId uuid.UUID) (uuid.UUID, error) {
 	var activationLink uuid.UUID
 
 	getActivationLinkQuery := fmt.Sprintf(`
@@ -190,7 +190,7 @@ func (r *AuthPostgres) ActivateProfile(activationLink uuid.UUID) error {
 	return nil
 }
 
-func (r *AuthPostgres) ChangePassword(userId string, password string) error {
+func (r *AuthPostgres) ChangePassword(userId uuid.UUID, password string) error {
 	id := 0
 
 	changePasswordQuery := fmt.Sprintf(`
@@ -221,7 +221,7 @@ func (r *AuthPostgres) CreateSession(session entity.Session) error {
 	return nil
 }
 
-func (r *AuthPostgres) DeleteOldSessions(userId string, sessionsThreshold int) error {
+func (r *AuthPostgres) DeleteOldSessions(userId uuid.UUID, sessionsThreshold int) error {
 
 	deleteOldSessionsQuery := fmt.Sprintf(`
 				DELETE FROM %[1]v

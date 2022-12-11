@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
@@ -19,7 +20,7 @@ func NewCategoryPostgres(db *sqlx.DB) *CategoryPostgres {
 	}
 }
 
-func (r *CategoryPostgres) GetUserCategories(userId string) []entity.Category {
+func (r *CategoryPostgres) GetUserCategories(userId uuid.UUID) []entity.Category {
 	var categories []entity.Category
 
 	getCategoriesQuery := fmt.Sprintf(`
@@ -48,7 +49,7 @@ func (r *CategoryPostgres) GetUserCategories(userId string) []entity.Category {
 	return categories
 }
 
-func (r *CategoryPostgres) GetRecipeCategories(recipeId, userId string) []entity.Category {
+func (r *CategoryPostgres) GetRecipeCategories(recipeId, userId uuid.UUID) []entity.Category {
 	var categories []entity.Category
 
 	getCategoriesQuery := fmt.Sprintf(`
@@ -80,8 +81,8 @@ func (r *CategoryPostgres) GetRecipeCategories(recipeId, userId string) []entity
 	return categories
 }
 
-func (r *CategoryPostgres) CreateCategory(category entity.CategoryInput, userId string) (string, error) {
-	var id string
+func (r *CategoryPostgres) CreateCategory(category entity.CategoryInput, userId uuid.UUID) (uuid.UUID, error) {
+	var id uuid.UUID
 
 	addCategoryQuery := fmt.Sprintf(`
 			INSERT INTO %s (name, cover, user_id)
@@ -92,13 +93,13 @@ func (r *CategoryPostgres) CreateCategory(category entity.CategoryInput, userId 
 	row := r.db.QueryRow(addCategoryQuery, category.Name, category.Cover, userId)
 	if err := row.Scan(&id); err != nil {
 		logRepoError(err)
-		return "", failure.UnableAddCategory
+		return uuid.UUID{}, failure.UnableAddCategory
 	}
 
 	return id, nil
 }
 
-func (r *CategoryPostgres) GetCategory(categoryId string) (entity.Category, error) {
+func (r *CategoryPostgres) GetCategory(categoryId uuid.UUID) (entity.Category, error) {
 	var category dto.Category
 
 	getCategoryQuery := fmt.Sprintf(`
@@ -116,8 +117,8 @@ func (r *CategoryPostgres) GetCategory(categoryId string) (entity.Category, erro
 	return category.Entity(), nil
 }
 
-func (r *CategoryPostgres) GetCategoryOwnerId(categoryId string) (string, error) {
-	var ownerId string
+func (r *CategoryPostgres) GetCategoryOwnerId(categoryId uuid.UUID) (uuid.UUID, error) {
+	var ownerId uuid.UUID
 
 	getCategoryOwnerIdQuery := fmt.Sprintf(`
 			SELECT user_id
@@ -128,13 +129,13 @@ func (r *CategoryPostgres) GetCategoryOwnerId(categoryId string) (string, error)
 	row := r.db.QueryRow(getCategoryOwnerIdQuery, categoryId)
 	if err := row.Scan(&ownerId); err != nil {
 		logRepoError(err)
-		return "", failure.CategoryNotFound
+		return uuid.UUID{}, failure.CategoryNotFound
 	}
 
 	return ownerId, nil
 }
 
-func (r *CategoryPostgres) UpdateCategory(categoryId string, category entity.CategoryInput) error {
+func (r *CategoryPostgres) UpdateCategory(categoryId uuid.UUID, category entity.CategoryInput) error {
 
 	updateCategoryQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -150,7 +151,7 @@ func (r *CategoryPostgres) UpdateCategory(categoryId string, category entity.Cat
 	return nil
 }
 
-func (r *CategoryPostgres) DeleteCategory(categoryId string) error {
+func (r *CategoryPostgres) DeleteCategory(categoryId uuid.UUID) error {
 
 	deleteCategoryQuery := fmt.Sprintf(`
 			DELETE FROM %s

@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"time"
 )
@@ -35,14 +36,14 @@ func (l *ShoppingList) Entity() entity.ShoppingList {
 }
 
 type Purchase struct {
-	Id          string  `json:"purchase_id" binding:"required"`
-	Name        string  `json:"name" binding:"required"`
-	Multiplier  int     `json:"multiplier,omitempty"`
-	IsPurchased bool    `json:"is_purchased"`
-	Amount      int     `json:"amount,omitempty"`
-	Unit        *string `json:"unit,omitempty"`
-	RecipeId    *string `json:"recipe_id,omitempty"`
-	RecipeName  *string `json:"recipe_name,omitempty"`
+	Id          uuid.UUID `json:"purchase_id" binding:"required"`
+	Name        string    `json:"name" binding:"required"`
+	Multiplier  int       `json:"multiplier,omitempty"`
+	IsPurchased bool      `json:"is_purchased"`
+	Amount      int       `json:"amount,omitempty"`
+	Unit        *string   `json:"unit,omitempty"`
+	RecipeId    *string   `json:"recipe_id,omitempty"`
+	RecipeName  *string   `json:"recipe_name,omitempty"`
 }
 
 func newPurchase(purchase entity.Purchase) Purchase {

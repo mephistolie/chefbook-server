@@ -6,7 +6,7 @@ import (
 )
 
 type Auth interface {
-	SignUp(credentials entity.Credentials) (string, error)
+	SignUp(credentials entity.Credentials) (uuid.UUID, error)
 	ActivateProfile(activationLink uuid.UUID) error
 	SignIn(credentials entity.Credentials, ip string) (entity.Tokens, error)
 	SignOut(refreshToken string) error

@@ -1,24 +1,25 @@
 package response_body
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/common_body"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"time"
 )
 
 type Recipe struct {
-	Id          string  `json:"id"`
-	Name        string  `json:"name"`
-	OwnerId     string  `json:"owner_id"`
-	OwnerName   string  `json:"owner_name"`
-	IsOwned     bool    `json:"owned"`
-	IsSaved     bool    `json:"saved"`
-	Likes       int16   `json:"likes"`
-	Visibility  string  `json:"visibility"`
-	IsEncrypted bool    `json:"encrypted"`
-	Language    string  `json:"language"`
-	Description *string `json:"description,omitempty"`
-	Preview     *string `json:"preview,omitempty"`
+	Id          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	OwnerId     uuid.UUID `json:"owner_id"`
+	OwnerName   string    `json:"owner_name"`
+	IsOwned     bool      `json:"owned"`
+	IsSaved     bool      `json:"saved"`
+	Likes       int16     `json:"likes"`
+	Visibility  string    `json:"visibility"`
+	IsEncrypted bool      `json:"encrypted"`
+	Language    string    `json:"language"`
+	Description *string   `json:"description,omitempty"`
+	Preview     *string   `json:"preview,omitempty"`
 
 	CreationTimestamp string `json:"creation_timestamp"`
 	UpdateTimestamp   string `json:"update_timestamp"`
@@ -81,17 +82,17 @@ func NewRecipe(recipe entity.UserRecipe) Recipe {
 }
 
 type RecipeInfo struct {
-	Id          string  `json:"id"`
-	Name        string  `json:"name"`
-	OwnerId     string  `json:"owner_id"`
-	OwnerName   string  `json:"owner_name"`
-	IsOwned     bool    `json:"owned"`
-	IsSaved     bool    `json:"saved"`
-	Likes       int16   `json:"likes"`
-	Visibility  string  `json:"visibility"`
-	IsEncrypted bool    `json:"encrypted"`
-	Language    string  `json:"language"`
-	Preview     *string `json:"preview,omitempty"`
+	Id          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	OwnerId     uuid.UUID `json:"owner_id"`
+	OwnerName   string    `json:"owner_name"`
+	IsOwned     bool      `json:"owned"`
+	IsSaved     bool      `json:"saved"`
+	Likes       int16     `json:"likes"`
+	Visibility  string    `json:"visibility"`
+	IsEncrypted bool      `json:"encrypted"`
+	Language    string    `json:"language"`
+	Preview     *string   `json:"preview,omitempty"`
 
 	CreationTimestamp string `json:"creation_timestamp"`
 	UpdateTimestamp   string `json:"update_timestamp"`

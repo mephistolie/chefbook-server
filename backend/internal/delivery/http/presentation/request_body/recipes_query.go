@@ -1,13 +1,14 @@
 package request_body
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"strings"
 )
 
 type RecipesQuery struct {
-	AuthorId    *string
+	AuthorId    *uuid.UUID
 	Owned       bool
 	Saved       bool
 	Search      *string
@@ -23,7 +24,7 @@ type RecipesQuery struct {
 	MaxCalories *int
 }
 
-func (p *RecipesQuery) Validate(userId string) error {
+func (p *RecipesQuery) Validate(userId uuid.UUID) error {
 	if p.AuthorId != nil && len(*p.AuthorId) == 0 {
 		return failure.InvalidBody
 	}

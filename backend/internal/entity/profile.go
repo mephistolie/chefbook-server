@@ -1,11 +1,12 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
 type Profile struct {
-	Id                string
+	Id                uuid.UUID
 	Email             string
 	Username          *string
 	CreationTimestamp time.Time
@@ -18,7 +19,7 @@ type Profile struct {
 }
 
 type ProfileInfo struct {
-	Id                string
+	Id                uuid.UUID
 	Username          *string
 	CreationTimestamp time.Time
 	Avatar            *string

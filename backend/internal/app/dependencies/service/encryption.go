@@ -6,10 +6,10 @@ import (
 )
 
 type Encryption interface {
-	GetUserKeyLink(userId string) (string, error)
-	UploadUserKey(ctx context.Context, userId string, file entity.MultipartFile) (string, error)
-	DeleteUserKey(ctx context.Context, userId string) error
-	GetRecipeKey(recipeId, userId string) (string, error)
-	UploadRecipeKey(ctx context.Context, recipeId, userId string, file entity.MultipartFile) (string, error)
-	DeleteRecipeKey(ctx context.Context, recipeId, userId string) error
+	GetUserKeyLink(userId uuid.UUID) (string, error)
+	UploadUserKey(ctx context.Context, userId uuid.UUID, file entity.MultipartFile) (string, error)
+	DeleteUserKey(ctx context.Context, userId uuid.UUID) error
+	GetRecipeKey(recipeId, userId uuid.UUID) (string, error)
+	UploadRecipeKey(ctx context.Context, recipeId, userId uuid.UUID, file entity.MultipartFile) (string, error)
+	DeleteRecipeKey(ctx context.Context, recipeId, userId uuid.UUID) error
 }

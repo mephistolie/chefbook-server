@@ -1,5 +1,7 @@
 package request_body
 
+import "github.com/google/uuid"
+
 type RecipeCategoriesInput struct {
-	Categories []string `json:"categories"`
+	Categories []uuid.UUID `json:"categories"`
 }

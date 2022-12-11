@@ -1,12 +1,13 @@
 package dto
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"time"
 )
 
 type ProfileInfo struct {
-	Id                string     `db:"user_id"`
+	Id                uuid.UUID  `db:"user_id"`
 	Email             string     `db:"email"`
 	Username          *string    `db:"username,omitempty"`
 	CreationTimestamp time.Time  `db:"registered"`

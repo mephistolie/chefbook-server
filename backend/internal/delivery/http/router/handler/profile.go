@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
@@ -52,9 +53,10 @@ func (r *ProfileHandler) GetProfileInfo(c *gin.Context) {
 		return
 	}
 
-	requestedUserId := c.Request.URL.Query().Get(queryUserId)
-	if len(requestedUserId) == 0 {
-		requestedUserId = userId
+	requestedUserId, err := uuid.Parse(c.Param(queryUserId))
+	if err != nil {
+		response.Failure(c, err)
+		return
 	}
 
 	profile, err := r.service.GetProfile(requestedUserId)

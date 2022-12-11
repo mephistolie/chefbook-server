@@ -1,13 +1,14 @@
 package common_body
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"strings"
 )
 
 type CookingItem struct {
-	Id       string    `json:"id" binding:"required,min=10"`
+	Id       uuid.UUID `json:"id" binding:"required,min=10"`
 	Text     string    `json:"text"`
 	Type     string    `json:"type"`
 	Link     *string   `json:"link,omitempty"`

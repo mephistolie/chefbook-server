@@ -31,7 +31,7 @@ func NewAWSFileManager(client *minio.Client) *AWSFileManager {
 	}
 }
 
-func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId string, input entity.MultipartFile) (string, error) {
+func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId uuid.UUID, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -46,7 +46,7 @@ func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId string, input 
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath), nil
 }
 
-func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId string, input entity.MultipartFile) (string, error) {
+func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId uuid.UUID, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -61,7 +61,7 @@ func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId string, input
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath), nil
 }
 
-func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId string) []string {
+func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId uuid.UUID) []string {
 	picturesPath := fmt.Sprintf("%s/%d/%s", recipesDir, recipeId, imagesDir)
 	var objects []string
 	for object := range r.client.ListObjects(ctx, chefBookBucket, minio.ListObjectsOptions{Prefix: picturesPath, Recursive: true}) {
@@ -70,7 +70,7 @@ func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId string)
 	return objects
 }
 
-func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId string, input entity.MultipartFile) (string, error) {
+func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId uuid.UUID, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -85,11 +85,11 @@ func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId strin
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath), nil
 }
 
-func (r *AWSFileManager) DeleteRecipePicture(ctx context.Context, recipeId string, pictureName string) error {
+func (r *AWSFileManager) DeleteRecipePicture(ctx context.Context, recipeId uuid.UUID, pictureName string) error {
 	return r.DeleteFile(ctx, r.getRecipePictureLink(recipeId, pictureName))
 }
 
-func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId string, input entity.MultipartFile) (string, error) {
+func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId uuid.UUID, input entity.MultipartFile) (string, error) {
 	opts := minio.PutObjectOptions{
 		ContentType:  input.ContentType,
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
@@ -113,12 +113,12 @@ func (r *AWSFileManager) DeleteFile(ctx context.Context, url string) error {
 	return nil
 }
 
-func (r *AWSFileManager) getRecipePictureLink(recipeId string, pictureName string) string {
+func (r *AWSFileManager) getRecipePictureLink(recipeId uuid.UUID, pictureName string) string {
 	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, imagesDir, pictureName)
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath)
 }
 
-func (r *AWSFileManager) getRecipeKeysLink(recipeId string, pictureName string) string {
+func (r *AWSFileManager) getRecipeKeysLink(recipeId uuid.UUID, pictureName string) string {
 	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, keysDir, pictureName)
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath)
 }

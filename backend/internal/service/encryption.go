@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
@@ -23,7 +24,7 @@ func NewEncryptionService(encryptionRepo repository.Encryption, sharingRepo repo
 	}
 }
 
-func (s *EncryptionService) GetUserKeyLink(userId string) (string, error) {
+func (s *EncryptionService) GetUserKeyLink(userId uuid.UUID) (string, error) {
 	link, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil {
 		return "", err
@@ -36,7 +37,7 @@ func (s *EncryptionService) GetUserKeyLink(userId string) (string, error) {
 	return *link, nil
 }
 
-func (s *EncryptionService) UploadUserKey(ctx context.Context, userId string, file entity.MultipartFile) (string, error) {
+func (s *EncryptionService) UploadUserKey(ctx context.Context, userId uuid.UUID, file entity.MultipartFile) (string, error) {
 	previousUrl, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil && err != failure.NoKey {
 		return "", err
@@ -59,7 +60,7 @@ func (s *EncryptionService) UploadUserKey(ctx context.Context, userId string, fi
 	return link, err
 }
 
-func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId string) error {
+func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId uuid.UUID) error {
 	link, err := s.encryptionRepo.GetUserKeyLink(userId)
 	if err != nil {
 		return err
@@ -73,7 +74,7 @@ func (s *EncryptionService) DeleteUserKey(ctx context.Context, userId string) er
 	return err
 }
 
-func (s *EncryptionService) GetRecipeKey(recipeId, userId string) (string, error) {
+func (s *EncryptionService) GetRecipeKey(recipeId, userId uuid.UUID) (string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return "", err
@@ -94,7 +95,7 @@ func (s *EncryptionService) GetRecipeKey(recipeId, userId string) (string, error
 	return *link, err
 }
 
-func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId string, file entity.MultipartFile) (string, error) {
+func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userId uuid.UUID, file entity.MultipartFile) (string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return "", err
@@ -125,7 +126,7 @@ func (s *EncryptionService) UploadRecipeKey(ctx context.Context, recipeId, userI
 	return url, err
 }
 
-func (s *EncryptionService) DeleteRecipeKey(ctx context.Context, recipeId, userId string) error {
+func (s *EncryptionService) DeleteRecipeKey(ctx context.Context, recipeId, userId uuid.UUID) error {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return err

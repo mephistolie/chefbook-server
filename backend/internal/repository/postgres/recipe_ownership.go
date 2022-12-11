@@ -3,6 +3,7 @@ package postgres
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
@@ -20,23 +21,23 @@ func NewRecipeOwnershipPostgres(db *sqlx.DB) *RecipeOwnershipPostgres {
 	}
 }
 
-func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId string) (string, error) {
-	var id string
+func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId uuid.UUID) (uuid.UUID, error) {
+	var id uuid.UUID
 	tx, err := r.db.Begin()
 	if err != nil {
 		logRepoError(err)
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
 	}
 
 	bsonIngredients, err := json.Marshal(dto.NewIngredients(recipe.Ingredients))
 	if err != nil {
 		logRepoError(err)
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
 	}
 	bsonCooking, err := json.Marshal(dto.NewCooking(recipe.Cooking))
 	if err != nil {
 		logRepoError(err)
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
 	}
 
 	createRecipeQuery := fmt.Sprintf(`
@@ -56,9 +57,9 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return "", failure.Unknown
+			return uuid.UUID{}, failure.Unknown
 		}
-		return "", failure.UnableCreateRecipe
+		return uuid.UUID{}, failure.UnableCreateRecipe
 	}
 
 	createRecipeLinkQuery := fmt.Sprintf(`
@@ -71,20 +72,20 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
-			return "", err
+			return uuid.UUID{}, err
 		}
-		return "", failure.UnableCreateRecipe
+		return uuid.UUID{}, failure.UnableCreateRecipe
 	}
 
 	if err = tx.Commit(); err != nil {
 		logRepoError(err)
-		return "", failure.UnableCreateRecipe
+		return uuid.UUID{}, failure.UnableCreateRecipe
 	}
 
 	return id, nil
 }
 
-func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId string, recipe entity.RecipeInput) error {
+func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId uuid.UUID, recipe entity.RecipeInput) error {
 
 	bsonIngredients, err := json.Marshal(dto.NewIngredients(recipe.Ingredients))
 	if err != nil {
@@ -118,7 +119,7 @@ func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId string, recipe entity.Re
 	return nil
 }
 
-func (r *RecipeOwnershipPostgres) DeleteRecipe(recipeId string) error {
+func (r *RecipeOwnershipPostgres) DeleteRecipe(recipeId uuid.UUID) error {
 
 	deleteRecipeQuery := fmt.Sprintf(`
 			DELETE FROM %s

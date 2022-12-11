@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/pkg/auth"
@@ -53,19 +54,24 @@ func (m AuthMiddleware) parseAuthHeader(c *gin.Context) (string, error) {
 	return token, err
 }
 
-func (m AuthMiddleware) GetUserId(c *gin.Context) (string, error) {
+func (m AuthMiddleware) GetUserId(c *gin.Context) (uuid.UUID, error) {
 	return m.getIdByContext(c, userContext)
 }
 
-func (m AuthMiddleware) getIdByContext(c *gin.Context, context string) (string, error) {
+func (m AuthMiddleware) getIdByContext(c *gin.Context, context string) (uuid.UUID, error) {
 	idFromCtx, ok := c.Get(context)
 	if !ok {
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
 	}
 
-	id, ok := idFromCtx.(string)
+	idStr, ok := idFromCtx.(string)
 	if !ok {
-		return "", failure.Unknown
+		return uuid.UUID{}, failure.Unknown
+	}
+
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		return uuid.UUID{}, failure.Unknown
 	}
 
 	return id, nil

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
@@ -331,8 +332,10 @@ func (r *RecipeHandler) setRecipeLiked(c *gin.Context, liked bool) {
 func (r *RecipeHandler) getRecipesQuery(c *gin.Context) *request_body.RecipesQuery {
 	var params request_body.RecipesQuery
 
-	if authorId, ok := c.GetQuery(queryAuthorId); ok {
-		*params.AuthorId = authorId
+	if authorIdStr, ok := c.GetQuery(queryAuthorId); ok {
+		if authorId, err := uuid.Parse(authorIdStr); err == nil {
+			*params.AuthorId = authorId
+		}
 	}
 
 	if ownedQuery, ok := c.GetQuery(queryOwned); ok {
@@ -406,15 +409,15 @@ func (r *RecipeHandler) getRecipesQuery(c *gin.Context) *request_body.RecipesQue
 	return &params
 }
 
-func getUserAndRecipeIds(c *gin.Context, middleware middleware.AuthMiddleware) (string, string, error) {
+func getUserAndRecipeIds(c *gin.Context, middleware middleware.AuthMiddleware) (uuid.UUID, uuid.UUID, error) {
 	userId, err := middleware.GetUserId(c)
 	if err != nil {
-		return "", "", err
+		return uuid.UUID{}, uuid.UUID{}, err
 	}
 
-	recipeId := c.Param(ParamRecipeId)
-	if len(recipeId) == 0 {
-		return "", "", failure.InvalidRecipe
+	recipeId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		return uuid.UUID{}, uuid.UUID{}, err
 	}
 
 	return userId, recipeId, nil

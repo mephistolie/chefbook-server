@@ -1,30 +1,33 @@
 package repository
 
-import "github.com/mephistolie/chefbook-server/internal/entity"
+import (
+	"github.com/google/uuid"
+	"github.com/mephistolie/chefbook-server/internal/entity"
+)
 
 type RecipeOwnership interface {
-	CreateRecipe(recipe entity.RecipeInput, userId string) (string, error)
-	UpdateRecipe(recipeId string, recipe entity.RecipeInput) error
-	DeleteRecipe(recipeId string) error
+	CreateRecipe(recipe entity.RecipeInput, userId uuid.UUID) (uuid.UUID, error)
+	UpdateRecipe(recipeId uuid.UUID, recipe entity.RecipeInput) error
+	DeleteRecipe(recipeId uuid.UUID) error
 }
 
 type Recipe interface {
-	GetRecipes(params entity.RecipesQuery, userId string) ([]entity.RecipeInfo, error)
-	GetRecipe(recipeId string) (entity.Recipe, error)
-	GetRandomRecipe(languages *[]string, userId string) (entity.UserRecipe, error)
-	GetRecipeWithUserFields(recipeId, userId string) (entity.UserRecipe, error)
-	GetRecipeOwnerId(recipeId string) (string, error)
-	AddRecipeToRecipeBook(recipeId, userId string) error
-	RemoveRecipeFromRecipeBook(recipeId, userId string) error
-	SetRecipeCategories(recipeId string, categoriesIds []string, userId string) error
-	SetRecipeFavourite(recipeId string, isFavourite bool, userId string) error
-	SetRecipeLiked(recipeId string, isLiked bool, userId string) error
+	GetRecipes(params entity.RecipesQuery, userId uuid.UUID) ([]entity.RecipeInfo, error)
+	GetRecipe(recipeId uuid.UUID) (entity.Recipe, error)
+	GetRandomRecipe(languages *[]string, userId uuid.UUID) (entity.UserRecipe, error)
+	GetRecipeWithUserFields(recipeId, userId uuid.UUID) (entity.UserRecipe, error)
+	GetRecipeOwnerId(recipeId uuid.UUID) (uuid.UUID, error)
+	AddRecipeToRecipeBook(recipeId, userId uuid.UUID) error
+	RemoveRecipeFromRecipeBook(recipeId, userId uuid.UUID) error
+	SetRecipeCategories(recipeId uuid.UUID, categoriesIds []uuid.UUID, userId uuid.UUID) error
+	SetRecipeFavourite(recipeId uuid.UUID, isFavourite bool, userId uuid.UUID) error
+	SetRecipeLiked(recipeId uuid.UUID, isLiked bool, userId uuid.UUID) error
 }
 
 type RecipeSharing interface {
-	GetRecipeUserList(recipeId string) ([]entity.ProfileInfo, error)
-	GetUserPublicKey(recipeId, userId string) (string, error)
-	SetUserPublicKeyLink(recipeId string, userId string, userKey *string) error
-	GetUserRecipeKey(recipeId, userId string) (string, error)
-	SetOwnerPrivateKeyLinkForUser(recipeId string, userId string, userKey *string) error
+	GetRecipeUserList(recipeId uuid.UUID) ([]entity.ProfileInfo, error)
+	GetUserPublicKey(recipeId, userId uuid.UUID) (string, error)
+	SetUserPublicKeyLink(recipeId uuid.UUID, userId uuid.UUID, userKey *string) error
+	GetUserRecipeKey(recipeId, userId uuid.UUID) (string, error)
+	SetOwnerPrivateKeyLinkForUser(recipeId uuid.UUID, userId uuid.UUID, userKey *string) error
 }

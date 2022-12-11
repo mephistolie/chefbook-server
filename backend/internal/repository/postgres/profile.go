@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"time"
@@ -15,7 +16,7 @@ func NewProfilePostgres(db *sqlx.DB) *ProfilePostgres {
 	return &ProfilePostgres{db: db}
 }
 
-func (r *ProfilePostgres) SetUsername(userId string, username *string) error {
+func (r *ProfilePostgres) SetUsername(userId uuid.UUID, username *string) error {
 
 	SetUsernameQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -31,7 +32,7 @@ func (r *ProfilePostgres) SetUsername(userId string, username *string) error {
 	return nil
 }
 
-func (r *ProfilePostgres) IncreaseBroccoins(userId string, broccoins int) error {
+func (r *ProfilePostgres) IncreaseBroccoins(userId uuid.UUID, broccoins int) error {
 
 	increaseBroccoinsQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -47,7 +48,7 @@ func (r *ProfilePostgres) IncreaseBroccoins(userId string, broccoins int) error 
 	return nil
 }
 
-func (r *ProfilePostgres) SetAvatarLink(userId string, url *string) error {
+func (r *ProfilePostgres) SetAvatarLink(userId uuid.UUID, url *string) error {
 
 	setAvatarQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -63,7 +64,7 @@ func (r *ProfilePostgres) SetAvatarLink(userId string, url *string) error {
 	return nil
 }
 
-func (r *ProfilePostgres) SetPremiumDate(userId string, expiresAt time.Time) error {
+func (r *ProfilePostgres) SetPremiumDate(userId uuid.UUID, expiresAt time.Time) error {
 
 	setPremiumDateQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -78,7 +79,7 @@ func (r *ProfilePostgres) SetPremiumDate(userId string, expiresAt time.Time) err
 	return nil
 }
 
-func (r *ProfilePostgres) SetProfileCreationDate(userId string, creationTimestamp time.Time) error {
+func (r *ProfilePostgres) SetProfileCreationDate(userId uuid.UUID, creationTimestamp time.Time) error {
 
 	setProfileCreationDate := fmt.Sprintf(`
 			UPDATE %s

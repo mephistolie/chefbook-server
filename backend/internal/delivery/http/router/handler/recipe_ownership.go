@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
@@ -79,9 +80,9 @@ func (r *OwnedRecipeHandler) UpdateRecipe(c *gin.Context) {
 		return
 	}
 
-	recipeId := c.Param(ParamRecipeId)
-	if len(recipeId) == 0 {
-		response.Failure(c, failure.Unknown)
+	recipeId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 
@@ -122,9 +123,9 @@ func (r *OwnedRecipeHandler) DeleteRecipe(c *gin.Context) {
 		return
 	}
 
-	recipeId := c.Param(ParamRecipeId)
-	if len(recipeId) == 0 {
-		response.Failure(c, failure.Unknown)
+	recipeId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 

@@ -1,7 +1,9 @@
 package entity
 
+import "github.com/google/uuid"
+
 type IngredientItem struct {
-	Id     string
+	Id     uuid.UUID
 	Text   string
 	Amount *int
 	Unit   *string

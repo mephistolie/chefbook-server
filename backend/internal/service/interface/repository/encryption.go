@@ -1,8 +1,10 @@
 package repository
 
+import "github.com/google/uuid"
+
 type Encryption interface {
-	GetUserKeyLink(userId string) (*string, error)
-	SetUserKeyLink(userId string, url *string) error
-	GetRecipeKeyLink(recipeId string) (*string, error)
-	SetRecipeKeyLink(recipeId string, url *string) error
+	GetUserKeyLink(userId uuid.UUID) (*string, error)
+	SetUserKeyLink(userId uuid.UUID, url *string) error
+	GetRecipeKeyLink(recipeId uuid.UUID) (*string, error)
+	SetRecipeKeyLink(recipeId uuid.UUID, url *string) error
 }

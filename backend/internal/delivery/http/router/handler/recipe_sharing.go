@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
@@ -70,9 +71,9 @@ func (r *RecipeSharingHandler) GetUserPublicKey(c *gin.Context) {
 		return
 	}
 
-	userId := c.Param(ParamUserId)
-	if len(userId) == 0 {
-		response.Failure(c, failure.Unknown)
+	userId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 
@@ -195,9 +196,9 @@ func (r *RecipeSharingHandler) SetOwnerPrivateKey(c *gin.Context) {
 		return
 	}
 
-	userId := c.Param(ParamUserId)
-	if len(userId) == 0 {
-		response.Failure(c, failure.Unknown)
+	userId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 
@@ -235,9 +236,9 @@ func (r *RecipeSharingHandler) DeleteOwnerPrivateKey(c *gin.Context) {
 		return
 	}
 
-	userId := c.Param(ParamUserId)
-	if len(userId) == 0 {
-		response.Failure(c, failure.Unknown)
+	userId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 
@@ -269,9 +270,9 @@ func (r *RecipeSharingHandler) DeleteUserAccess(c *gin.Context) {
 		return
 	}
 
-	userId := c.Param(ParamUserId)
-	if len(userId) == 0 {
-		response.Failure(c, failure.Unknown)
+	userId, err := uuid.Parse(c.Param(ParamRecipeId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 

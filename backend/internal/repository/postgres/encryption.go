@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 )
@@ -16,7 +17,7 @@ func NewEncryptionPostgres(db *sqlx.DB) *EncryptionPostgres {
 	}
 }
 
-func (r *EncryptionPostgres) GetUserKeyLink(userId string) (*string, error) {
+func (r *EncryptionPostgres) GetUserKeyLink(userId uuid.UUID) (*string, error) {
 	var link *string
 
 	getKeyLinkQuery := fmt.Sprintf(`
@@ -34,7 +35,7 @@ func (r *EncryptionPostgres) GetUserKeyLink(userId string) (*string, error) {
 	return link, nil
 }
 
-func (r *EncryptionPostgres) SetUserKeyLink(userId string, url *string) error {
+func (r *EncryptionPostgres) SetUserKeyLink(userId uuid.UUID, url *string) error {
 
 	setKeyQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -50,7 +51,7 @@ func (r *EncryptionPostgres) SetUserKeyLink(userId string, url *string) error {
 	return nil
 }
 
-func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId string) (*string, error) {
+func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId uuid.UUID) (*string, error) {
 	var link *string
 
 	getKeyLinkQuery := fmt.Sprintf(`
@@ -69,7 +70,7 @@ func (r *EncryptionPostgres) GetRecipeKeyLink(recipeId string) (*string, error) 
 	return link, nil
 }
 
-func (r *EncryptionPostgres) SetRecipeKeyLink(recipeId string, url *string) error {
+func (r *EncryptionPostgres) SetRecipeKeyLink(recipeId uuid.UUID, url *string) error {
 
 	setKeyQuery := fmt.Sprintf(`
 			UPDATE %s

@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -14,7 +15,7 @@ type ShoppingList struct {
 }
 
 type Purchase struct {
-	Id          string
+	Id          uuid.UUID
 	Name        string
 	Multiplier  int
 	IsPurchased bool

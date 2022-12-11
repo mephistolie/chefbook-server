@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
@@ -16,19 +17,19 @@ func NewCategoriesService(repo repository.Category) *CategoriesService {
 	}
 }
 
-func (s *CategoriesService) GetUserCategories(userId string) []entity.Category {
+func (s *CategoriesService) GetUserCategories(userId uuid.UUID) []entity.Category {
 	return s.repo.GetUserCategories(userId)
 }
 
-func (s *CategoriesService) GetRecipeCategories(recipeId, userId string) []entity.Category {
+func (s *CategoriesService) GetRecipeCategories(recipeId, userId uuid.UUID) []entity.Category {
 	return s.repo.GetRecipeCategories(recipeId, userId)
 }
 
-func (s *CategoriesService) CreateCategory(category entity.CategoryInput, userId string) (string, error) {
+func (s *CategoriesService) CreateCategory(category entity.CategoryInput, userId uuid.UUID) (uuid.UUID, error) {
 	return s.repo.CreateCategory(category, userId)
 }
 
-func (s *CategoriesService) GetCategory(categoryId, userId string) (entity.Category, error) {
+func (s *CategoriesService) GetCategory(categoryId, userId uuid.UUID) (entity.Category, error) {
 	category, err := s.repo.GetCategory(categoryId)
 	if err != nil {
 		return entity.Category{}, err
@@ -41,7 +42,7 @@ func (s *CategoriesService) GetCategory(categoryId, userId string) (entity.Categ
 	return category, nil
 }
 
-func (s *CategoriesService) UpdateCategory(categoryId string, category entity.CategoryInput, userId string) error {
+func (s *CategoriesService) UpdateCategory(categoryId uuid.UUID, category entity.CategoryInput, userId uuid.UUID) error {
 	ownerId, err := s.repo.GetCategoryOwnerId(categoryId)
 	if err != nil {
 		return err
@@ -53,7 +54,7 @@ func (s *CategoriesService) UpdateCategory(categoryId string, category entity.Ca
 	return s.repo.UpdateCategory(categoryId, category)
 }
 
-func (s *CategoriesService) DeleteCategory(categoryId, userId string) error {
+func (s *CategoriesService) DeleteCategory(categoryId, userId uuid.UUID) error {
 	category, err := s.repo.GetCategory(categoryId)
 	if err != nil {
 		return err

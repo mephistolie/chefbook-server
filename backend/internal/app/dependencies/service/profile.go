@@ -6,9 +6,9 @@ import (
 )
 
 type Profile interface {
-	GetProfile(userId string) (entity.Profile, error)
-	ChangePassword(userId string, oldPassword string, newPassword string) error
-	SetUsername(userId string, username *string) error
-	UploadAvatar(ctx context.Context, userId string, file entity.MultipartFile) (string, error)
-	DeleteAvatar(ctx context.Context, userId string) error
+	GetProfile(userId uuid.UUID) (entity.Profile, error)
+	ChangePassword(userId uuid.UUID, oldPassword string, newPassword string) error
+	SetUsername(userId uuid.UUID, username *string) error
+	UploadAvatar(ctx context.Context, userId uuid.UUID, file entity.MultipartFile) (string, error)
+	DeleteAvatar(ctx context.Context, userId uuid.UUID) error
 }

@@ -4,12 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"math/rand"
 	"time"
 )
 
 type TokenManager interface {
-	NewJWT(userId string, ttl time.Duration) (string, error)
+	NewJWT(userId uuid.UUID, ttl time.Duration) (string, error)
 	Parse(accessToken string) (string, error)
 	NewRefreshToken() (string, error)
 }
@@ -26,10 +27,10 @@ func NewManager(signingKey string) (*Manager, error) {
 	return &Manager{signingKey: signingKey}, nil
 }
 
-func (m *Manager) NewJWT(userId string, ttl time.Duration) (string, error) {
+func (m *Manager) NewJWT(userId uuid.UUID, ttl time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(ttl).Unix(),
-		Subject:   userId,
+		Subject:   userId.String(),
 	})
 
 	return token.SignedString([]byte(m.signingKey))

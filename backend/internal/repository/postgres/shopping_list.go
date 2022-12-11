@@ -3,6 +3,7 @@ package postgres
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
@@ -18,7 +19,7 @@ func NewShoppingListPostgres(db *sqlx.DB) *ShoppingList {
 	return &ShoppingList{db: db}
 }
 
-func (r *ShoppingList) GetShoppingList(userId string) (entity.ShoppingList, error) {
+func (r *ShoppingList) GetShoppingList(userId uuid.UUID) (entity.ShoppingList, error) {
 	var shoppingList dto.ShoppingList
 	var shoppingListBSON []byte
 
@@ -45,7 +46,7 @@ func (r *ShoppingList) GetShoppingList(userId string) (entity.ShoppingList, erro
 	return shoppingList.Entity(), nil
 }
 
-func (r *ShoppingList) SetShoppingList(shoppingList entity.ShoppingList, userId string) error {
+func (r *ShoppingList) SetShoppingList(shoppingList entity.ShoppingList, userId uuid.UUID) error {
 	var shoppingListBSON, err = json.Marshal(dto.NewShoppingList(shoppingList))
 	if err != nil {
 		logRepoError(err)

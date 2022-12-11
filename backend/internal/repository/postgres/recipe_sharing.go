@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
@@ -17,7 +18,7 @@ func NewRecipeSharingPostgres(db *sqlx.DB) *RecipeSharingPostgres {
 	}
 }
 
-func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId string) ([]entity.ProfileInfo, error) {
+func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId uuid.UUID) ([]entity.ProfileInfo, error) {
 
 	query := fmt.Sprintf(`
 			SELECT
@@ -50,7 +51,7 @@ func (r *RecipeSharingPostgres) GetRecipeUserList(recipeId string) ([]entity.Pro
 	return users, nil
 }
 
-func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId string) (string, error) {
+func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId uuid.UUID) (string, error) {
 	var key *string
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
@@ -70,7 +71,7 @@ func (r *RecipeSharingPostgres) GetUserPublicKey(recipeId, userId string) (strin
 	return *key, nil
 }
 
-func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId string, userId string, userKey *string) error {
+func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId uuid.UUID, userId uuid.UUID, userKey *string) error {
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
 			UPDATE %s
@@ -91,7 +92,7 @@ func (r *RecipeSharingPostgres) SetUserPublicKeyLink(recipeId string, userId str
 	return nil
 }
 
-func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId string) (string, error) {
+func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId uuid.UUID) (string, error) {
 	var key *string
 
 	setUserPublicKeyQuery := fmt.Sprintf(`
@@ -111,7 +112,7 @@ func (r *RecipeSharingPostgres) GetUserRecipeKey(recipeId, userId string) (strin
 	return *key, nil
 }
 
-func (r *RecipeSharingPostgres) SetOwnerPrivateKeyLinkForUser(recipeId string, userId string, recipeKey *string) error {
+func (r *RecipeSharingPostgres) SetOwnerPrivateKeyLinkForUser(recipeId uuid.UUID, userId uuid.UUID, recipeKey *string) error {
 
 	query := fmt.Sprintf(`
 			UPDATE %s

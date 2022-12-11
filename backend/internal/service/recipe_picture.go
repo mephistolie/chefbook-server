@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
@@ -19,7 +20,7 @@ func NewRecipePicturesService(recipesRepo repository.Recipe, filesRepo repositor
 	}
 }
 
-func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId string, userId string) ([]string, error) {
+func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId uuid.UUID, userId uuid.UUID) ([]string, error) {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return []string{}, err
@@ -36,7 +37,7 @@ func (s *RecipePicturesService) GetRecipePictures(ctx context.Context, recipeId 
 	return pictures, nil
 }
 
-func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeId, userId string, file entity.MultipartFile) (string, error) {
+func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeId, userId uuid.UUID, file entity.MultipartFile) (string, error) {
 	recipe, err := s.recipesRepo.GetRecipe(recipeId)
 	if err != nil {
 		return "", err
@@ -57,7 +58,7 @@ func (s *RecipePicturesService) UploadRecipePicture(ctx context.Context, recipeI
 	return url, nil
 }
 
-func (s *RecipePicturesService) DeleteRecipePicture(ctx context.Context, recipeId, userId string, pictureName string) error {
+func (s *RecipePicturesService) DeleteRecipePicture(ctx context.Context, recipeId, userId uuid.UUID, pictureName string) error {
 	ownerId, err := s.recipesRepo.GetRecipeOwnerId(recipeId)
 	if err != nil {
 		return err

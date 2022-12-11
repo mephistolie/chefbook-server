@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/app/dependencies/service"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/middleware/response"
@@ -104,9 +105,9 @@ func (r *CategoriesHandler) GetCategory(c *gin.Context) {
 		return
 	}
 
-	categoryId := c.Param(ParamCategoryId)
-	if len(categoryId) == 0 {
-		response.Failure(c, failure.Unknown)
+	categoryId, err := uuid.Parse(c.Param(ParamCategoryId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 
@@ -138,9 +139,9 @@ func (r *CategoriesHandler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	categoryId := c.Param(ParamCategoryId)
-	if len(categoryId) == 0 {
-		response.Failure(c, failure.Unknown)
+	categoryId, err := uuid.Parse(c.Param(ParamCategoryId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 
@@ -176,9 +177,9 @@ func (r *CategoriesHandler) DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	categoryId := c.Param(ParamCategoryId)
-	if len(categoryId) == 0 {
-		response.Failure(c, failure.Unknown)
+	categoryId, err := uuid.Parse(c.Param(ParamCategoryId))
+	if err != nil {
+		response.Failure(c, err)
 		return
 	}
 

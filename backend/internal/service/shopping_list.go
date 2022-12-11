@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/service/interface/repository"
 	"time"
@@ -16,11 +17,11 @@ func NewShoppingListService(repo repository.ShoppingList) *ShoppingListService {
 	}
 }
 
-func (s *ShoppingListService) GetShoppingList(userId string) (entity.ShoppingList, error) {
+func (s *ShoppingListService) GetShoppingList(userId uuid.UUID) (entity.ShoppingList, error) {
 	return s.repo.GetShoppingList(userId)
 }
 
-func (s *ShoppingListService) SetShoppingList(purchases []entity.Purchase, userId string) error {
+func (s *ShoppingListService) SetShoppingList(purchases []entity.Purchase, userId uuid.UUID) error {
 	shoppingList := entity.ShoppingList{
 		Purchases: purchases,
 		Timestamp: time.Now().UTC(),
@@ -29,7 +30,7 @@ func (s *ShoppingListService) SetShoppingList(purchases []entity.Purchase, userI
 	return s.repo.SetShoppingList(shoppingList, userId)
 }
 
-func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, userId string) error {
+func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, userId uuid.UUID) error {
 	shoppingList, err := s.repo.GetShoppingList(userId)
 	if err != nil {
 		return err
@@ -58,4 +59,3 @@ func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, 
 
 	return s.repo.SetShoppingList(shoppingList, userId)
 }
-

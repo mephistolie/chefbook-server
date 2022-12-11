@@ -1,5 +1,7 @@
 package entity
 
+import "github.com/google/uuid"
+
 const (
 	SortingCreationTimestamp = "creation_timestamp"
 	SortingUpdateTimestamp   = "update_timestamp"
@@ -10,7 +12,7 @@ const (
 )
 
 type RecipesQuery struct {
-	AuthorId    *string
+	AuthorId    *uuid.UUID
 	Saved       bool
 	Search      *string
 	Page        int

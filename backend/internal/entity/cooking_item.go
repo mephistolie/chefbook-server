@@ -1,11 +1,13 @@
 package entity
 
+import "github.com/google/uuid"
+
 const (
 	TypeStep = "step"
 )
 
 type CookingItem struct {
-	Id       string
+	Id       uuid.UUID
 	Text     string
 	Link     *string
 	Time     *int16

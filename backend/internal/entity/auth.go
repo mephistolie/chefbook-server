@@ -16,7 +16,7 @@ type Tokens struct {
 }
 
 type Session struct {
-	UserId       string
+	UserId       uuid.UUID
 	RefreshToken string
 	Ip           string
 	ExpiresAt    time.Time

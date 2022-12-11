@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -13,9 +14,9 @@ const (
 )
 
 type Recipe struct {
-	Id          string
+	Id          uuid.UUID
 	Name        string
-	OwnerId     string
+	OwnerId     uuid.UUID
 	Likes       int16
 	Visibility  string
 	IsEncrypted bool
@@ -37,9 +38,9 @@ type Recipe struct {
 }
 
 type UserRecipe struct {
-	Id          string
+	Id          uuid.UUID
 	Name        string
-	OwnerId     string
+	OwnerId     uuid.UUID
 	OwnerName   string
 	IsOwned     bool
 	IsSaved     bool
@@ -68,9 +69,9 @@ type UserRecipe struct {
 }
 
 type RecipeInfo struct {
-	Id          string
+	Id          uuid.UUID
 	Name        string
-	OwnerId     string
+	OwnerId     uuid.UUID
 	OwnerName   string
 	IsOwned     bool
 	IsSaved     bool
