@@ -1,6 +1,7 @@
 package request_body
 
 import (
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/delivery/http/presentation/common_body"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
@@ -8,12 +9,13 @@ import (
 )
 
 type RecipeInput struct {
-	Name        string  `json:"name"`
-	Visibility  string  `json:"visibility"`
-	IsEncrypted bool    `json:"encrypted"`
-	Language    string  `json:"language"`
-	Description *string `json:"description"`
-	Preview     *string `json:"preview"`
+	Id          *uuid.UUID `json:"recipe_id"`
+	Name        string     `json:"name"`
+	Visibility  string     `json:"visibility"`
+	IsEncrypted bool       `json:"encrypted"`
+	Language    string     `json:"language"`
+	Description *string    `json:"description"`
+	Preview     *string    `json:"preview"`
 
 	Servings *int16 `json:"servings"`
 	Time     *int16 `json:"time"`
@@ -131,6 +133,7 @@ func (r *RecipeInput) Entity() entity.RecipeInput {
 	}
 
 	return entity.RecipeInput{
+		Id:          r.Id,
 		Name:        r.Name,
 		Visibility:  r.Visibility,
 		IsEncrypted: r.IsEncrypted,

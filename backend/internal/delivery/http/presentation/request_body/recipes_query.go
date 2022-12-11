@@ -25,10 +25,6 @@ type RecipesQuery struct {
 }
 
 func (p *RecipesQuery) Validate(userId uuid.UUID) error {
-	if p.AuthorId != nil && len(*p.AuthorId) == 0 {
-		return failure.InvalidBody
-	}
-
 	if p.Owned && p.AuthorId != nil && *p.AuthorId != userId {
 		return failure.InvalidBody
 	}

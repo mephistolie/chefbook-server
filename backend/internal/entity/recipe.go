@@ -95,6 +95,7 @@ type RecipeInfo struct {
 }
 
 type RecipeInput struct {
+	Id          *uuid.UUID
 	Name        string
 	Visibility  string
 	IsEncrypted bool

@@ -6,6 +6,7 @@ import (
 )
 
 type Credentials struct {
+	Id       *uuid.UUID
 	Email    string
 	Password string
 }

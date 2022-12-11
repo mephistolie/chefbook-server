@@ -20,7 +20,10 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 }
 
 func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink uuid.UUID) (uuid.UUID, error) {
-	var id uuid.UUID
+	id := credentials.Id
+	if id == nil {
+		*id = uuid.New()
+	}
 
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -29,14 +32,12 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 	}
 
 	createUserQuery := fmt.Sprintf(`
-			INSERT INTO %s (email, username, password)
-			VALUES ($1, $2, $3)
-			RETURNING user_id
+			INSERT INTO %s (user_id, email, username, password)
+			VALUES ($1, $2, $3, $4)
 		`, usersTable)
 
 	username := credentials.Email[0:strings.Index(credentials.Email, "@")]
-	row := tx.QueryRow(createUserQuery, credentials.Email, username, credentials.Password)
-	if err := row.Scan(&id); err != nil {
+	if _, err := tx.Exec(createUserQuery, credentials.Email, username, credentials.Password); err != nil {
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
 			return uuid.UUID{}, failure.Unknown
@@ -91,7 +92,7 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 		return uuid.UUID{}, failure.Unknown
 	}
 
-	return id, nil
+	return *id, nil
 }
 
 func (r *AuthPostgres) GetUserById(userId uuid.UUID) (entity.Profile, error) {

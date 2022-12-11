@@ -10,6 +10,7 @@ type Category struct {
 }
 
 type CategoryInput struct {
-	Name  string  `json:"name"`
-	Cover *string `json:"cover" binding:"max=20"`
+	Id    *uuid.UUID `json:"category_id"`
+	Name  string     `json:"name"`
+	Cover *string    `json:"cover" binding:"max=20"`
 }

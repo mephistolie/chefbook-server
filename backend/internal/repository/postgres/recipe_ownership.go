@@ -22,7 +22,10 @@ func NewRecipeOwnershipPostgres(db *sqlx.DB) *RecipeOwnershipPostgres {
 }
 
 func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId uuid.UUID) (uuid.UUID, error) {
-	var id uuid.UUID
+	id := recipe.Id
+	if id == nil {
+		*id = uuid.New()
+	}
 	tx, err := r.db.Begin()
 	if err != nil {
 		logRepoError(err)
@@ -42,18 +45,15 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 
 	createRecipeQuery := fmt.Sprintf(`
 			INSERT INTO %s
-				(name, owner_id, language, description, servings, time, calories, protein, fats, carbohydrates, ingredients,
+				(recipe_id, name, owner_id, language, description, servings, time, calories, protein, fats, carbohydrates, ingredients,
 				cooking, preview, visibility, encrypted)
 			VALUES
-				($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-			RETURNING
-				recipe_id
+				($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 		`, recipesTable)
 
-	row := tx.QueryRow(createRecipeQuery, recipe.Name, userId, recipe.Language, recipe.Description, recipe.Servings,
+	if _, err := tx.Exec(createRecipeQuery, *id, recipe.Name, userId, recipe.Language, recipe.Description, recipe.Servings,
 		recipe.Time, recipe.Calories, recipe.Macronutrients.Protein, recipe.Macronutrients.Fats, recipe.Macronutrients.Carbohydrates,
-		bsonIngredients, bsonCooking, recipe.Preview, recipe.Visibility, recipe.IsEncrypted)
-	if err := row.Scan(&id); err != nil {
+		bsonIngredients, bsonCooking, recipe.Preview, recipe.Visibility, recipe.IsEncrypted); err != nil {
 		logRepoError(err)
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
@@ -82,7 +82,7 @@ func (r *RecipeOwnershipPostgres) CreateRecipe(recipe entity.RecipeInput, userId
 		return uuid.UUID{}, failure.UnableCreateRecipe
 	}
 
-	return id, nil
+	return *id, nil
 }
 
 func (r *RecipeOwnershipPostgres) UpdateRecipe(recipeId uuid.UUID, recipe entity.RecipeInput) error {
