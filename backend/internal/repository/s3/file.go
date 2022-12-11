@@ -38,7 +38,7 @@ func (r *AWSFileManager) UploadAvatar(ctx context.Context, userId uuid.UUID, inp
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
-	filePath := fmt.Sprintf("%s/%d/%s/%s", usersDir, userId, avatarsDir, input.Name)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", usersDir, userId.String(), avatarsDir, input.Name)
 	_, err := r.client.PutObject(ctx, chefBookBucket, filePath, input.Content, input.Size, opts)
 	if err != nil {
 		return "", failure.UnableUploadFile
@@ -53,7 +53,7 @@ func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId uuid.UUID, in
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
-	filePath := fmt.Sprintf("%s/%d/%s/%s", usersDir, userId, keysDir, input.Name)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", usersDir, userId.String(), keysDir, input.Name)
 	_, err := r.client.PutObject(ctx, chefBookBucket, filePath, input.Content, input.Size, opts)
 	if err != nil {
 		return "", failure.UnableUploadFile
@@ -63,7 +63,7 @@ func (r *AWSFileManager) UploadUserKey(ctx context.Context, userId uuid.UUID, in
 }
 
 func (r *AWSFileManager) GetRecipePictures(ctx context.Context, recipeId uuid.UUID) []string {
-	picturesPath := fmt.Sprintf("%s/%d/%s", recipesDir, recipeId, imagesDir)
+	picturesPath := fmt.Sprintf("%s/%s/%s", recipesDir, recipeId.String(), imagesDir)
 	var objects []string
 	for object := range r.client.ListObjects(ctx, chefBookBucket, minio.ListObjectsOptions{Prefix: picturesPath, Recursive: true}) {
 		objects = append(objects, fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, object.Key))
@@ -77,7 +77,7 @@ func (r *AWSFileManager) UploadRecipePicture(ctx context.Context, recipeId uuid.
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
-	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, imagesDir, input.Name)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", recipesDir, recipeId.String(), imagesDir, input.Name)
 	_, err := r.client.PutObject(ctx, chefBookBucket, filePath, input.Content, input.Size, opts)
 	if err != nil {
 		return "", failure.UnableUploadFile
@@ -96,7 +96,7 @@ func (r *AWSFileManager) UploadRecipeKey(ctx context.Context, recipeId uuid.UUID
 		UserMetadata: map[string]string{xAmzAcl: publicRead},
 	}
 
-	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, keysDir, input.Name)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", recipesDir, recipeId.String(), keysDir, input.Name)
 	_, err := r.client.PutObject(ctx, chefBookBucket, filePath, input.Content, input.Size, opts)
 	if err != nil {
 		return "", failure.UnableUploadFile
@@ -115,11 +115,11 @@ func (r *AWSFileManager) DeleteFile(ctx context.Context, url string) error {
 }
 
 func (r *AWSFileManager) getRecipePictureLink(recipeId uuid.UUID, pictureName string) string {
-	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, imagesDir, pictureName)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", recipesDir, recipeId.String(), imagesDir, pictureName)
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath)
 }
 
 func (r *AWSFileManager) getRecipeKeysLink(recipeId uuid.UUID, pictureName string) string {
-	filePath := fmt.Sprintf("%s/%d/%s/%s", recipesDir, recipeId, keysDir, pictureName)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", recipesDir, recipeId.String(), keysDir, pictureName)
 	return fmt.Sprintf("%s/%s/%s", r.client.EndpointURL(), chefBookBucket, filePath)
 }
