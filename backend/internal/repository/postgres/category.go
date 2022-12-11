@@ -90,7 +90,7 @@ func (r *CategoryPostgres) CreateCategory(category entity.CategoryInput, userId 
 	}
 
 	addCategoryQuery := fmt.Sprintf(`
-			INSERT INTO %s (id, name, cover, user_id)
+			INSERT INTO %s (category_id, name, cover, user_id)
 			VALUES ($1, $2, $3, $4)
 		`, categoriesTable)
 
