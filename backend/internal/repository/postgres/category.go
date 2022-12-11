@@ -82,9 +82,11 @@ func (r *CategoryPostgres) GetRecipeCategories(recipeId, userId uuid.UUID) []ent
 }
 
 func (r *CategoryPostgres) CreateCategory(category entity.CategoryInput, userId uuid.UUID) (uuid.UUID, error) {
-	id := category.Id
-	if id == nil {
-		*id = uuid.New()
+	var id uuid.UUID
+	if category.Id != nil {
+		id = *category.Id
+	} else {
+		id = uuid.New()
 	}
 
 	addCategoryQuery := fmt.Sprintf(`
@@ -92,12 +94,12 @@ func (r *CategoryPostgres) CreateCategory(category entity.CategoryInput, userId 
 			VALUES ($1, $2, $3, $4)
 		`, categoriesTable)
 
-	if _, err := r.db.Exec(addCategoryQuery, *id, category.Name, category.Cover, userId); err != nil {
+	if _, err := r.db.Exec(addCategoryQuery, id, category.Name, category.Cover, userId); err != nil {
 		logRepoError(err)
 		return uuid.UUID{}, failure.UnableAddCategory
 	}
 
-	return *id, nil
+	return id, nil
 }
 
 func (r *CategoryPostgres) GetCategory(categoryId uuid.UUID) (entity.Category, error) {
