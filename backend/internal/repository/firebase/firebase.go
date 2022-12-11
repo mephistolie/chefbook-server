@@ -257,7 +257,7 @@ func parseIngredients(firebaseRecipe map[string]interface{}) ([]entity.Ingredien
 		}
 
 		ingredient := entity.IngredientItem{
-			Id:   uuid.NewString(),
+			Id:   uuid.New(),
 			Text: item,
 			Type: stringType,
 		}
@@ -292,7 +292,7 @@ func parseCooking(firebaseRecipe map[string]interface{}) ([]entity.CookingItem, 
 			stringType = entity.TypeSection
 		}
 		step := entity.CookingItem{
-			Id:   uuid.NewString(),
+			Id:   uuid.New(),
 			Text: item,
 			Type: stringType,
 		}
@@ -311,7 +311,7 @@ func (r *MigrationRepo) getShoppingList(userDoc map[string]interface{}) entity.S
 	if ok {
 		for _, firebasePurchase := range firebaseShoppingList {
 			purchase := entity.Purchase{
-				Id:          uuid.NewString(),
+				Id:          uuid.New(),
 				Name:        firebasePurchase.(string),
 				Multiplier:  1,
 				IsPurchased: false,

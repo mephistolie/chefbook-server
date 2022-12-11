@@ -36,7 +36,7 @@ func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, 
 		return err
 	}
 
-	var purchasesByIds map[string]*entity.Purchase
+	var purchasesByIds map[uuid.UUID]*entity.Purchase
 	var purchasesByName map[string]*entity.Purchase
 
 	for i := range shoppingList.Purchases {
