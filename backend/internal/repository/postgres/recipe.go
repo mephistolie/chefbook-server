@@ -529,14 +529,14 @@ func (r *RecipePostgres) getWhereStatement(params entity.RecipesQuery, userId st
 	whereStatement := " WHERE"
 
 	if params.Saved {
-		whereStatement += fmt.Sprintf(" %[1]v.user_id=%[2]d AND (%[3]v.owner_id=%[4]v OR %[3]v.visibility<>'%[5]v')",
+		whereStatement += fmt.Sprintf(" %[1]v.user_id=%[2]v AND (%[3]v.owner_id=%[4]v OR %[3]v.visibility<>'%[5]v')",
 			usersRecipesTable, userId, recipesTable, userId, entity.VisibilityPrivate)
 	} else {
 		whereStatement += fmt.Sprintf(" %[1]v.visibility='%[2]v' AND %[1]v.encrypted=false", recipesTable, entity.VisibilityPublic)
 	}
 
 	if params.AuthorId != nil {
-		whereStatement += fmt.Sprintf(" AND %s.owner_id=%d", recipesTable, *params.AuthorId)
+		whereStatement += fmt.Sprintf(" AND %s.owner_id=%s", recipesTable, *params.AuthorId)
 	}
 
 	whereStatement += r.getLanguagesFilter(params.Languages)
