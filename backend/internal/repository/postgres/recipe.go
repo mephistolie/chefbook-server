@@ -26,12 +26,12 @@ func (r *RecipePostgres) GetRecipes(params entity.RecipesQuery, userId uuid.UUID
 	var rows *sql.Rows
 	var err error
 
-	parametrizedQuery := r.getRecipesByParamsQuery(params, userId)
+	parametrizedQuery := r.getRecipesByParamsQuery(params)
 
 	if params.Search != nil {
-		rows, err = r.db.Query(parametrizedQuery, *params.Search)
+		rows, err = r.db.Query(parametrizedQuery, userId, *params.Search)
 	} else {
-		rows, err = r.db.Query(parametrizedQuery)
+		rows, err = r.db.Query(parametrizedQuery, userId)
 	}
 	if err != nil {
 		logRepoError(err)
@@ -489,7 +489,7 @@ func (r *RecipePostgres) SetRecipeLiked(recipeId uuid.UUID, isLiked bool, userId
 	return nil
 }
 
-func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, userId uuid.UUID) string {
+func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery) string {
 
 	getRecipesQuery := fmt.Sprintf(`
 			SELECT
@@ -501,7 +501,7 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 					(
 						SELECT 1
 						FROM %[3]v
-						WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v
+						WHERE %[3]v.recipe_id=%[1]v.recipe_id AND user_id=$1
 					)
 				) AS liked, %[4]v.username,
 				(
@@ -509,7 +509,7 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 					(
 						SELECT 1
 						FROM %[2]v
-						WHERE %[2]v.recipe_id=%[1]v.recipe_id AND user_id=%[5]v
+						WHERE %[2]v.recipe_id=%[1]v.recipe_id AND user_id=$1
 					)
 				) AS saved
 			FROM
@@ -518,20 +518,20 @@ func (r *RecipePostgres) getRecipesByParamsQuery(params entity.RecipesQuery, use
 				%[2]v ON %[2]v.recipe_id=%[1]v.recipe_id
 			LEFT JOIN
 				%[4]v ON %[4]v.user_id=%[1]v.owner_id
-		`, recipesTable, usersRecipesTable, likesTable, usersTable, userId)
+		`, recipesTable, usersRecipesTable, likesTable, usersTable)
 
-	whereStatement := r.getWhereStatement(params, userId)
+	whereStatement := r.getWhereStatement(params)
 	pagingStatement := r.getPagingStatement(params)
 
 	return getRecipesQuery + whereStatement + pagingStatement
 }
 
-func (r *RecipePostgres) getWhereStatement(params entity.RecipesQuery, userId uuid.UUID) string {
+func (r *RecipePostgres) getWhereStatement(params entity.RecipesQuery) string {
 	whereStatement := " WHERE"
 
 	if params.Saved {
-		whereStatement += fmt.Sprintf(" %[1]v.user_id=%[2]v AND (%[3]v.owner_id=%[4]v OR %[3]v.visibility<>'%[5]v')",
-			usersRecipesTable, userId, recipesTable, userId, entity.VisibilityPrivate)
+		whereStatement += fmt.Sprintf(" %[1]v.user_id=$1 AND (%[2]v.owner_id=$1 OR %[2]v.visibility<>'%[3]v')",
+			usersRecipesTable, recipesTable, entity.VisibilityPrivate)
 	} else {
 		whereStatement += fmt.Sprintf(" %[1]v.visibility='%[2]v' AND %[1]v.encrypted=false", recipesTable, entity.VisibilityPublic)
 	}
@@ -543,7 +543,7 @@ func (r *RecipePostgres) getWhereStatement(params entity.RecipesQuery, userId uu
 	whereStatement += r.getLanguagesFilter(params.Languages)
 
 	if params.Search != nil {
-		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%' || $1 || '%'"
+		whereStatement += fmt.Sprintf(" AND %s.name LIKE ", recipesTable) + "'%' || $2 || '%'"
 	}
 
 	whereStatement += r.getRecipesRangeFilter("time", params.MinTime, params.MaxTime)
