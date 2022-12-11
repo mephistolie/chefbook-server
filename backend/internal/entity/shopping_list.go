@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+const (
+	TypeStandard = "standard"
+)
+
 type ShoppingList struct {
 	Purchases []Purchase
 	Timestamp time.Time
