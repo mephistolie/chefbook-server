@@ -35,29 +35,27 @@ func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, 
 		return err
 	}
 
+	var purchasesByIds map[string]*entity.Purchase
+	var purchasesByName map[string]*entity.Purchase
+
+	for i := range shoppingList.Purchases {
+		purchasesByIds[shoppingList.Purchases[i].Id] = &shoppingList.Purchases[i]
+		purchasesByName[shoppingList.Purchases[i].Name] = &shoppingList.Purchases[i]
+	}
+
 	for i := range newPurchases {
-		if newPurchases[i].Type == entity.TypeIngredient {
-			if addIngredientPurchaseAmount(newPurchases[i], &shoppingList.Purchases) {
-				continue
-			}
+		id := newPurchases[i].Id
+		name := newPurchases[i].Name
+		if newPurchases[i].Amount > 0 && purchasesByIds[id] != nil {
+			(*purchasesByIds[id]).Amount += newPurchases[i].Amount
+		} else if purchasesByName[name] != nil {
+			(*purchasesByIds[id]).Multiplier += 1
+		} else {
+			shoppingList.Purchases = append(shoppingList.Purchases, newPurchases[i])
 		}
-		shoppingList.Purchases = append(shoppingList.Purchases, newPurchases[i])
 	}
 	shoppingList.Timestamp = time.Now().UTC()
 
 	return s.repo.SetShoppingList(shoppingList, userId)
 }
 
-func addIngredientPurchaseAmount(newPurchase entity.Purchase, purchases *[]entity.Purchase) bool {
-	for i := range *purchases {
-		if newPurchase.Id == (*purchases)[i].Id {
-			if newPurchase.Amount > 0 {
-				(*purchases)[i].Amount += newPurchase.Amount
-			} else {
-				(*purchases)[i].Multiplier += 1
-			}
-			return true
-		}
-	}
-	return false
-}
