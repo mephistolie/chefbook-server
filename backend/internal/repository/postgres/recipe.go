@@ -332,7 +332,7 @@ func (r *RecipePostgres) SetRecipeCategories(recipeId string, categoriesIds []st
 	if len(categoriesIds) > 0 {
 		categoriesArrayString := "("
 		for _, categoryId := range categoriesIds {
-			categoriesArrayString += fmt.Sprintf("%d, ", categoryId)
+			categoriesArrayString += fmt.Sprintf("'%s', ", categoryId)
 		}
 		categoriesArrayString = categoriesArrayString[:len(categoriesArrayString)-2] + ")"
 
