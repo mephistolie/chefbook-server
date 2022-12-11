@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/mephistolie/chefbook-server/internal/entity"
 )
 
