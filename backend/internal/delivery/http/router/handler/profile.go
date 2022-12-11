@@ -55,8 +55,7 @@ func (r *ProfileHandler) GetProfileInfo(c *gin.Context) {
 
 	requestedUserId, err := uuid.Parse(c.Param(queryUserId))
 	if err != nil {
-		response.Failure(c, err)
-		return
+		requestedUserId = userId
 	}
 
 	profile, err := r.service.GetProfile(requestedUserId)
