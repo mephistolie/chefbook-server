@@ -37,7 +37,7 @@ func (r *AuthPostgres) CreateUser(credentials entity.Credentials, activationLink
 		`, usersTable)
 
 	username := credentials.Email[0:strings.Index(credentials.Email, "@")]
-	if _, err := tx.Exec(createUserQuery, id, credentials.Email, username, credentials.Password); err != nil {
+	if _, err := tx.Exec(createUserQuery, *id, credentials.Email, username, credentials.Password); err != nil {
 		if err := tx.Rollback(); err != nil {
 			logRepoError(err)
 			return uuid.UUID{}, failure.Unknown
