@@ -36,8 +36,8 @@ func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, 
 		return err
 	}
 
-	var purchasesByIds map[uuid.UUID]*entity.Purchase
-	var purchasesByName map[string]*entity.Purchase
+	purchasesByIds := make(map[uuid.UUID]*entity.Purchase)
+	purchasesByName := make(map[string]*entity.Purchase)
 
 	for i := range shoppingList.Purchases {
 		purchasesByIds[shoppingList.Purchases[i].Id] = &shoppingList.Purchases[i]
@@ -47,10 +47,12 @@ func (s *ShoppingListService) AddToShoppingList(newPurchases []entity.Purchase, 
 	for i := range newPurchases {
 		id := newPurchases[i].Id
 		name := newPurchases[i].Name
-		if newPurchases[i].Amount > 0 && purchasesByIds[id] != nil {
+		amount := newPurchases[i].Amount
+		multiplier := newPurchases[i].Multiplier
+		if amount > 0 && purchasesByIds[id] != nil {
 			(*purchasesByIds[id]).Amount += newPurchases[i].Amount
-		} else if purchasesByName[name] != nil {
-			(*purchasesByIds[id]).Multiplier += 1
+		} else if purchasesByName[name] != nil && multiplier > 0 {
+			(*purchasesByIds[id]).Multiplier += newPurchases[i].Multiplier
 		} else {
 			shoppingList.Purchases = append(shoppingList.Purchases, newPurchases[i])
 		}
