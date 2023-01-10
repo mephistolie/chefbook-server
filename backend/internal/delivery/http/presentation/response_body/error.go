@@ -2,11 +2,12 @@ package response_body
 
 import (
 	"github.com/mephistolie/chefbook-server/internal/entity/failure"
+	"net/http"
 )
 
 const (
 	errTypeAccessDenied        = "access_denied"
-	errTypeInvalidAccessToken  = "unauthorized"
+	errTypeUnauthorized        = "unauthorized"
 	errTypeInvalidRefreshToken = "invalid_refresh_token"
 
 	errTypeInvalidBody = "invalid_body"
@@ -21,7 +22,7 @@ const (
 
 	errFirebaseProfileImport = "import_old_profile_failed"
 
-	errInvalidRecipe = "invalid_recipe"
+	errInvalidRecipe   = "invalid_recipe"
 	errNotInRecipeBook = "not_in_recipe_book"
 
 	errTypeUnknown = "unknown_error"
@@ -32,19 +33,24 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-func NewError(err error) Error {
+func NewError(err error) (int, Error) {
+	statusCode := http.StatusBadRequest
 	errType := errTypeUnknown
 	switch err {
-	case failure.AccessDenied, failure.NotOwner:
-		errType = errTypeAccessDenied
 	case failure.EmptyAuthHeader, failure.InvalidAuthHeader, failure.EmptyToken, failure.InvalidToken,
 		failure.SessionExpired:
-		errType = errTypeInvalidAccessToken
+		statusCode = http.StatusUnauthorized
+		errType = errTypeUnauthorized
+	case failure.SessionNotFound:
+		statusCode = http.StatusUnauthorized
+		errType = errTypeInvalidRefreshToken
+	case failure.AccessDenied, failure.NotOwner:
+		statusCode = http.StatusForbidden
+		errType = errTypeAccessDenied
 	case failure.UserNotFound, failure.RecipeNotFound, failure.CategoryNotFound, failure.ActivationLinkNotFound,
 		failure.NoKey, failure.ShoppingListNotFound, failure.UnableGetRandomRecipe:
+		statusCode = http.StatusNotFound
 		errType = errTypeNotFound
-	case failure.SessionNotFound:
-		errType = errTypeInvalidRefreshToken
 	case failure.InvalidBody, failure.UnsupportedFileType, failure.EmptyRecipeName, failure.EmptyIngredients, failure.EmptyCooking,
 		failure.InvalidUserId, failure.TooLongRecipeName, failure.TooLongRecipeDescription, failure.TooLongIngredientItemText,
 		failure.InvalidIngredientItemType, failure.InvalidCookingItemType, failure.InvalidEncryptionType:
@@ -69,7 +75,7 @@ func NewError(err error) Error {
 		errType = errNotInRecipeBook
 	}
 
-	return Error{
+	return statusCode, Error{
 		Error:   errType,
 		Message: err.Error(),
 	}

@@ -183,7 +183,7 @@ func (s *AuthService) createSessionModel(userId uuid.UUID, ip string) (entity.To
 		res entity.Tokens
 		err error
 	)
-	res.AccessToken, err = s.tokenManager.NewJWT(userId, s.accessTokenTTL)
+	res.AccessToken, res.ExpiresAt, err = s.tokenManager.NewJWT(userId, s.accessTokenTTL)
 	if err != nil {
 		return entity.Tokens{}, entity.Session{}, failure.Unknown
 	}

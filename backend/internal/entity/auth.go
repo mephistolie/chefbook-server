@@ -14,6 +14,7 @@ type Credentials struct {
 type Tokens struct {
 	AccessToken  string
 	RefreshToken string
+	ExpiresAt    time.Time
 }
 
 type Session struct {
